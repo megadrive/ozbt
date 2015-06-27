@@ -7,14 +7,8 @@
   },
   "dependencies": {
     "locallydb": "0.0.9",
-    "lokijs": "^1.3.4",
-    "messenger": "0.0.9",
-    "pouchdb": "^3.6.0",
     "request": "^2.58.0",
-    "simple-args": "^1.0.3",
-    "stdout-stream": "^1.4.0",
     "twitch-irc": "^1.2.7",
-    "twitch-irc-db": "^1.0.0"
   },
   "scripts": {
     "start": "app.js"
