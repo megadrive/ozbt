@@ -114,14 +114,16 @@ function parseMessage(message, client){
 
 	// join x channel
 	if( message.channel !== null && message.command === 'join' ){
-		client.join(message.channel);
-		client.say('#ozbt', 'Joining ' + message.channel + '.');
+		client.join(message.channel).then(function(){
+			client.say('#ozbt', 'Joining ' + message.channel + '.');
+		});
 	}
 
 	// leave x channel
 	if( message.channel !== null && message.command === 'part' ){
-		client.part(message.channel);
-		client.say('#ozbt', 'Leaving ' + message.channel + '.');
+		client.part(message.channel).then(function(){
+			client.say('#ozbt', 'Leaving ' + message.channel + '.');
+		});
 	}
 
 	if( message.channel !== null && message.command === 'say' && message.message !== null ){
