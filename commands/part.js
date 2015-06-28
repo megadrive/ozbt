@@ -10,14 +10,15 @@ if( args[0] === '#ozbt' ){
 	var username = data.username;
 
 	var onConnect = db.collection('onConnect');
-	var exists = onConnect.where('@channel: ' + username);
-	if( exists.items.length === 0 ){
-		onConnect.insert({'channel': username});
+	var exists = onConnect.where("'@channel == " + username + "'");
+	if( exists !== undefined && exists.items.length === 1 ){
+		var cid = onConnect.items[0].cid;
+		onConnect.remove(cid);
 		onConnect.save();
 
 		// send message to client to join channel
 		process.send({
-			'command': 'join',
+			'command': 'part',
 			'channel': username
 		});
 	}
