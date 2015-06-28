@@ -4,6 +4,7 @@ var fork = require('child_process').fork;
 var util = require('util');
 
 var irc = require('twitch-irc');
+var locallydb = require('locallydb');
 
 var _oauth = '';
 var _username = '';
@@ -23,18 +24,33 @@ if( fs.existsSync('config/') === true ){
 	var oauthFile = 'config/oauth';
 	_username = fs.existsSync(usernameFile) ? fs.readFileSync(usernameFile, {'encoding': 'utf8'}) : '';
 	_oauth = fs.existsSync(oauthFile) ? fs.readFileSync(oauthFile, {'encoding': 'utf8'}) : '';
+
+	if( _username === '' || _oauth === '' ){
+		console.error('Create config/username and config/oauth please.');
+		process.exit(1);
+	}
 }
+
+var db = new locallydb('db/_app');
+var dbOnConnect = db.collection('onConnect');
+var dbChannels = dbOnConnect.items;
+var _joinTheseChannels = [];
+for (var i = dbChannels.length - 1; i >= 0; i--) {
+	_joinTheseChannels.push(dbChannels[i].channel);
+};
 
 var clientOptions = {
 	options: {
 	    debug: true,
 	    debugIgnore: ['ping', 'action']
 	},
+	logging: {
+		enabled: true
+	},
 	identity: {
 	    username: _username,
 	    password: _oauth
-	},
-	channels: ['ozbt']
+	}
 };
 
 // Calling a new instance..
@@ -42,6 +58,15 @@ var client = new irc.client(clientOptions);
 
 // Connect the client to the server..
 client.connect();
+
+client.addListener('connected', function (address, port) {
+	// get db and join startup channels
+	client.join('#ozbt');
+
+	for (var i = 0; i < _joinTheseChannels.length; i++) {
+		client.join('#' + _joinTheseChannels[i]);
+	}
+});
 
 client.addListener('chat', function(chan, user, msg){
 	// check for commands
@@ -88,8 +113,19 @@ function parseMessage(message, client){
 	// determine what sort of message it is
 
 	// join x channel
-	if( message.channel !== null && message.command !== null){
+	if( message.channel !== null && message.command === 'join' ){
 		client.join(message.channel);
+		client.say('#ozbt', 'Joining ' + message.channel + '.');
+	}
+
+	// leave x channel
+	if( message.channel !== null && message.command === 'part' ){
+		client.part(message.channel);
+		client.say('#ozbt', 'Leaving ' + message.channel + '.');
+	}
+
+	if( message.channel !== null && message.command === 'say' && message.message !== null ){
+		client.say(message.channel, message.message);
 	}
 }
 
