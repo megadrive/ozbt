@@ -5,6 +5,7 @@ var util = require('util');
 
 var irc = require('twitch-irc');
 var locallydb = require('locallydb');
+var db = new locallydb('db/_app');
 
 var _oauth = '';
 var _username = '';
@@ -32,21 +33,10 @@ if( fs.existsSync('config/') === true ){
 	}
 }
 
-var db = new locallydb('db/_app');
-var dbOnConnect = db.collection('onConnect');
-var dbChannels = dbOnConnect.items;
-var _joinTheseChannels = [];
-for (var i = dbChannels.length - 1; i >= 0; i--) {
-	_joinTheseChannels.push(dbChannels[i].channel);
-};
-
 var clientOptions = {
 	options: {
 	    debug: true,
 	    debugIgnore: ['ping', 'action']
-	},
-	logging: {
-		enabled: true
 	},
 	identity: {
 	    username: _username,
@@ -60,7 +50,19 @@ var client = new irc.client(clientOptions);
 // Connect the client to the server..
 client.connect();
 
+/**
+ * This slab of text gets the channels that have connected to ozbt through the !join command.
+ */
+var dbOnConnect = db.collection('onConnect');
+var dbChannels = dbOnConnect.items;
+var _joinTheseChannels = [];
+for (var i = dbChannels.length - 1; i >= 0; i--) {
+	_joinTheseChannels.push(dbChannels[i].channel);
+};
 client.addListener('connected', function (address, port) {
+	//DEBUG: Remove this later
+	client.join('#tirean');
+
 	client.join('#' + _username);
 	for (var i = 0; i < _joinTheseChannels.length; i++) {
 		client.join('#' + _joinTheseChannels[i]);
@@ -105,22 +107,33 @@ client.addListener('chat', function(chan, user, msg){
 function parseMessage(message, client){
 	// determine what sort of message it is
 
-	// join x channel
-	if( message.channel !== null && message.command === 'join' ){
-		client.join(message.channel).then(function(){
-			client.say('#' + _username, 'Joining ' + message.channel + '.');
-		});
-	}
+	if( message.channel !== null ){
+		// join x channel
+		if( message.command === 'join' ){
+			client.join(message.channel).then(function(){
+				client.say('#' + _username, 'Joining ' + message.channel + '.');
+			});
+		}
 
-	// leave x channel
-	if( message.channel !== null && message.command === 'part' ){
-		client.part(message.channel).then(function(){
-			client.say('#' + _username, 'Leaving ' + message.channel + '.');
-		});
-	}
+		// leave x channel
+		if( message.command === 'part' ){
+			client.part(message.channel).then(function(){
+				client.say('#' + _username, 'Leaving ' + message.channel + '.');
+			});
+		}
 
-	if( message.channel !== null && message.command === 'say' && message.message !== null ){
-		client.say(message.channel, message.message);
+		if( message.command === 'say' && message.message !== null ){
+			client.say(message.channel, message.message);
+		}
+
+		// Timeout w/ message if you don't want a message, have it be a 0-length string.
+		if( message.command === 'to' && message.username && message.time && message.toMsg !== null ){
+			client.timeout(message.channel, message.username, message.time).then(function(){
+				if( message.toMsg.length > 0 ){
+					client.say(message.channel, message.toMsg);
+				}
+			});
+		}
 	}
 }
 
