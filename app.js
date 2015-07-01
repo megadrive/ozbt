@@ -61,7 +61,6 @@ for (var i = dbChannels.length - 1; i >= 0; i--) {
 	_joinTheseChannels.push(dbChannels[i].channel);
 };
 client.addListener('connected', function (address, port) {
-	client.join('#tirean');
 	client.join('#' + _username);
 	for (var i = 0; i < _joinTheseChannels.length; i++) {
 		client.join('#' + _joinTheseChannels[i]);
