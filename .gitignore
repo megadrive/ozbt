@@ -20,6 +20,5 @@ node_modules
 *.sublime-workspace
 
 ## custom
-config/oauth
-config/username
+config/*
 db/*
