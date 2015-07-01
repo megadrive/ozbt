@@ -1,7 +1,7 @@
 # ozbt #
 
 `ozbt` is a [Twitch](http://twitch.tv/) bot that is **open source** and runs on
-[`node.js`](https://nodejs.org/).
+[node.js](https://nodejs.org/).
 
 ## 1. Installation ##
 
