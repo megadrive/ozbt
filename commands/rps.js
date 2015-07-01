@@ -13,17 +13,17 @@ var userData = JSON.parse(args[1]);
 var user = userData.username;
 
 // TODO: Test this
-var guess = args[2].split(' ')[1];
+var guessText = args[2].split(' ')[1];
 
 var eOptions = {
-	'_exit_': -1,
 	'rock': 0,
 	'scissors': 1,
-	'paper': 2
+	'paper': 2,
+	'_exit_': -1
 };
 
 // Convert shorthand guesses to enumeration
-switch(guess){
+switch(guessText){
 	case 'r':
 	case 'rock':
 		guess = eOptions.rock;
@@ -48,12 +48,26 @@ if( guess < 0 ){
 // lazy
 var min = 0,
 	max = 2;
-var myGuess = random.integer(0, 2);
+var myGuess = random.integer(min, max);
 
 var eOutcomes = {
 	'lose': 0,
 	'win': 1,
 	'draw': 2
+}
+
+function guessToText(guess){
+	var rv = '';
+	if( guess === eOptions.rock ){
+		rv = 'rock';
+	}
+	else if( guess === eOptions.paper ){
+		rv = 'paper';
+	}
+	else if( guess === eOptions.scissors ){
+		rv = 'scissors';
+	}
+	return rv;
 }
 
 var outcome = eOutcomes.win; // bias Kappa
@@ -97,12 +111,12 @@ else {
 
 var msg = '';
 if( outcome === eOutcomes.lose ){
-	msg = user + ' wins! tirTir';
+	msg = user + ' wins! tirTear ( tirFlip \'d to ' + guessToText(myGuess) + '.)';
 
 	//TODO: Add points
 }
 else if( outcome === eOutcomes.win ){
-	msg = user + ' loses! What a busta! tirTir';
+	msg = user + ' loses! What a busta! tirTir (Rekt by ' + guessToText(myGuess) + '.)';
 
 	//TODO: Remove points
 	//30 second timeout
