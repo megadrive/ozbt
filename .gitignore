@@ -22,4 +22,4 @@ node_modules
 ## custom
 config/oauth
 config/username
-db/[!empty]
+db/*

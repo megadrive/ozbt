@@ -5,13 +5,13 @@
 var args = process.argv.splice(2);
 var util = require('util');
 
-var data = JSON.parse(args[1]);
+var user = JSON.parse(args[1]);
 
 // only show if the broadcaster
-if( data.special[0] === 'broadcaster' ){
+if( user.special[0] === 'broadcaster' ){
 	process.send({
 		'command': 'say',
-		'channel': data.username,
-		'message': 'I\'m here, ' + data.username + '.'
+		'channel': args[0],
+		'message': 'I\'m here, ' + user.username + '.'
 	});
 }
