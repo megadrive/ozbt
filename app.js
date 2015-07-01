@@ -12,6 +12,7 @@ var _delim = '!';
 
 // clean current temp files if any exist
 fs.readdir('temp/', function(err, files){
+	files = files || [];
 	console.log('Found ' + files.length + ' temporary files. Attempting to remove.');
 	for (var i = files.length - 1; i >= 0; i--) {
 		fs.unlink('temp/' + files[i]);
@@ -60,14 +61,15 @@ var client = new irc.client(clientOptions);
 client.connect();
 
 client.addListener('connected', function (address, port) {
-	// get db and join startup channels
-	client.join('#ozbt');
-
+	client.join('#' + _username);
 	for (var i = 0; i < _joinTheseChannels.length; i++) {
 		client.join('#' + _joinTheseChannels[i]);
 	}
 });
 
+/**
+ * @brief Listens to `chat` events from twitch-irc and responds accordingly.
+ */
 client.addListener('chat', function(chan, user, msg){
 	// check for commands
 	if( msg.indexOf(_delim) === 0 ){
@@ -75,17 +77,15 @@ client.addListener('chat', function(chan, user, msg){
 		var cmd = msg.split(' ');
 		var filename = cmd[0].replace(_delim, ''); // remove delim
 
-		// arguments
+		// arguments. we need to stringify user because you can't send objects through argument.
 		var defArgs = [chan, JSON.stringify(user), msg];
-		//
-		//var tempFile = createTemporaryFile(defArgs, chan);
-
-		var path = './commands/' + filename + '.js';
 
 		// check for file existance
+		var path = './commands/' + filename + '.js';
 		fs.exists(path, function(exists){
+			// Exists, so run the command.
 			if( exists ){
-				console.log('CMD> ' + cmd + ' in ' + chan + ' by ' + user.username);
+				util.log('CMD> ' + cmd + ' in ' + chan + ' by ' + user.username);
 				var task = fork(path, defArgs);
 
 				task.on('message', function(message){
@@ -93,13 +93,6 @@ client.addListener('chat', function(chan, user, msg){
 				});
 			}
 		});
-	}
-});
-
-client.addListener('join', function (channel, username) {
-	if( username === 'ozbt' ){
-		// if we join
-		//TODO: Log join in database
 	}
 });
 
@@ -115,14 +108,14 @@ function parseMessage(message, client){
 	// join x channel
 	if( message.channel !== null && message.command === 'join' ){
 		client.join(message.channel).then(function(){
-			client.say('#ozbt', 'Joining ' + message.channel + '.');
+			client.say('#' + _username, 'Joining ' + message.channel + '.');
 		});
 	}
 
 	// leave x channel
 	if( message.channel !== null && message.command === 'part' ){
 		client.part(message.channel).then(function(){
-			client.say('#ozbt', 'Leaving ' + message.channel + '.');
+			client.say('#' + _username, 'Leaving ' + message.channel + '.');
 		});
 	}
 
@@ -136,6 +129,8 @@ function parseMessage(message, client){
  *
  * @param  string contents jsonified contents to remember
  * @return the file string
+ *
+ * NOTE: Currently unused.
  */
 function createTemporaryFile(contents, prepend){
 	var filename = prepend + Date.now();
