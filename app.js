@@ -6,6 +6,7 @@ var util = require('util');
 var irc = require('twitch-irc');
 var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
+var request = require('request');
 
 var _oauth = '';
 var _username = '';
@@ -36,7 +37,7 @@ if( fs.existsSync('config/') === true ){
 var clientOptions = {
 	options: {
 	    debug: true,
-	    debugIgnore: ['ping', 'action']
+	    debugIgnore: ['ping', 'action', 'chat']
 	},
 	identity: {
 	    username: _username,
@@ -69,10 +70,44 @@ client.addListener('connected', function (address, port) {
 	}
 });
 
+client.addListener('join', function (channel, username) {
+	// Gets moderators for the channel being joined since the user object
+	// for chat seems to be broken sometimes.
+	request('https://tmi.twitch.tv/group/user/' + channel.replace('#', '') + '/chatters', function(err, res, body){
+		if( !err && res.statusCode === 200 ){
+			var moderatorsCollection = db.collection('channel_moderators');
+			var json = JSON.parse(body);
+
+			var mods = json.chatters.moderators;
+
+			// wipe mods clean
+			//TODO: Make it do a diff or something
+			var dbMods = moderatorsCollection.where({'channel': channel});
+			if( dbMods.items.length > 0 ){
+				for (var i = 0; i < dbMods.items.length; i++) {
+					moderatorsCollection.remove(dbMods.items[i].cid);
+				};
+			}
+
+			for (var i = 0; i < mods.length; i++) {
+				moderatorsCollection.insert({
+					'channel': channel,
+					'username': mods[i]
+				});
+			};
+			moderatorsCollection.save();
+		}
+	});
+});
+
+client.addListener('hosted', function(channel, username, viewers){
+	client.say(channel, 'Now being hosted by ' + username + ' for ' + viewers + ' viewers! Thanks!');
+});
+
 /**
  * @brief Listens to `chat` events from twitch-irc and responds accordingly.
  */
-client.addListener('chat', function(chan, user, msg){
+client.addListener('chat', function(channel, user, msg){
 	// check for commands
 	if( msg.indexOf(_delim) === 0 ){
 		//run command
@@ -80,19 +115,28 @@ client.addListener('chat', function(chan, user, msg){
 		var filename = cmd[0].replace(_delim, ''); // remove delim
 
 		// arguments. we need to stringify user because you can't send objects through argument.
-		var defArgs = [chan, JSON.stringify(user), msg];
+		var defArgs = [channel, JSON.stringify(user), msg];
 
 		// check for file existance
 		var path = './commands/' + filename + '.js';
 		fs.exists(path, function(exists){
 			// Exists, so run the command.
 			if( exists ){
-				util.log('CMD> ' + cmd + ' in ' + chan + ' by ' + user.username);
+				util.log('CMD> ' + cmd + ' in ' + channel + ' by ' + user.username);
 				var task = fork(path, defArgs);
 
 				task.on('message', function(message){
 					parseMessage(message, client);
 				});
+			}
+			// if the path doesn't exist, maybe it's a per-channel custom command
+			else {
+				//TODO: move this out
+				var commanddb = db.collection('custom_commands');
+				var channel_commands = commanddb.where({'channel': channel, 'trigger': filename});
+				if( channel_commands.items.length === 1 ){
+					client.say(channel, channel_commands.items[0].message);
+				}
 			}
 		});
 	}
