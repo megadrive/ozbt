@@ -134,7 +134,6 @@ client.addListener('chat', function(channel, user, msg){
 			fs.exists(path, function(exists){
 				// Exists, so run the command.
 				if( exists ){
-					util.log('CMD> ' + cmd + ' in ' + channel + ' by ' + user.username);
 					var task = fork(path, defArgs);
 
 					task.on('message', function(message){
