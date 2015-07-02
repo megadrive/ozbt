@@ -114,28 +114,44 @@ client.addListener('chat', function(channel, user, msg){
 		// arguments. we need to stringify user because you can't send objects through argument.
 		var defArgs = [channel, JSON.stringify(user), msg];
 
-		// check for file existance
-		var path = './commands/' + filename + '.js';
-		fs.exists(path, function(exists){
-			// Exists, so run the command.
-			if( exists ){
-				util.log('CMD> ' + cmd + ' in ' + channel + ' by ' + user.username);
-				var task = fork(path, defArgs);
+		// check if it's available for use.
+		var channel_settings = db.collection('channel_settings');
+		var commandItems = channel_settings.where({
+			'channel': channel,
+			'trigger': filename
+		}).items;
+		if( commandItems.length === 0 ){
+			canUse = true; //implicit
+		}
+		else {
+			canUse = commandItems[0].on;
+		}
 
-				task.on('message', function(message){
-					parseMessage(message, client);
-				});
-			}
-			// if the path doesn't exist, maybe it's a per-channel custom command
-			else {
-				//TODO: move this out
-				var commanddb = db.collection('custom_commands');
-				var channel_commands = commanddb.where({'channel': channel, 'trigger': filename});
-				if( channel_commands.items.length === 1 ){
-					client.say(channel, channel_commands.items[0].message);
+		// Undefined and null are truey because if they implicity allow use.
+		if( canUse === true || canUse === undefined || canUse === null ){
+			// check for file existance
+			var path = './commands/' + filename + '.js';
+			fs.exists(path, function(exists){
+				// Exists, so run the command.
+				if( exists ){
+					util.log('CMD> ' + cmd + ' in ' + channel + ' by ' + user.username);
+					var task = fork(path, defArgs);
+
+					task.on('message', function(message){
+						parseMessage(message, client);
+					});
 				}
-			}
-		});
+				// if the path doesn't exist, maybe it's a per-channel custom command
+				else {
+					//TODO: move this out
+					var commanddb = db.collection('custom_commands');
+					var channel_commands = commanddb.where({'channel': channel, 'trigger': filename});
+					if( channel_commands.items.length === 1 ){
+						client.say(channel, channel_commands.items[0].message);
+					}
+				}
+			});
+		}
 	}
 });
 
