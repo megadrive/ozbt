@@ -12,6 +12,8 @@ var _oauth = '';
 var _username = '';
 var _delim = '!';
 
+var rurl = /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/;
+
 // clean current temp files if any exist
 fs.readdir('temp/', function(err, files){
 	files = files || [];
@@ -105,6 +107,8 @@ client.addListener('hosted', function(channel, username, viewers){
  * @brief Listens to `chat` events from twitch-irc and responds accordingly.
  */
 client.addListener('chat', function(channel, user, msg){
+	punishIfBannedUrl(channel, user, msg);
+
 	// check for commands
 	if( msg.indexOf(_delim) === 0 ){
 		//run command
@@ -191,6 +195,62 @@ function parseMessage(message, client){
 			});
 		}
 	}
+}
+
+/**
+ * @brief If a user posts a banned domain, punish them based on the 'banned_domains' database.
+ *
+ * TODO: Needs to be improved. Strip subdomains.
+ */
+function punishIfBannedUrl(channel, user, chatMessage){
+	var banned_domains = db.collection('banned_domains');
+
+	var matched_urls = chatMessage.match(rurl);
+
+	if( matched_urls !== null && matched_urls.length > 0 ){
+		// remove http or https
+
+		var urlSplit = extractDomain(matched_urls[0]).split('.');
+		var url = urlSplit.splice(-2).join('.');
+
+		var banned = banned_domains.where({
+			'channel': channel,
+			'domain': url
+		});
+
+		if( banned.items.length > 0 ){
+			// we have a hit
+			var item = banned.items[0];
+
+			if( item.consequence === 'ban' ){
+				client.ban(channel, user.username).then(function(){
+					client.say(user.username + ' has been banned: ' + item.domain + ' is a punishable domain.');
+				});
+			}
+			else if( item.consequence === 'timeout' ){
+				client.timeout(channel, user.username, item.timeoutTime).then(function(){
+					client.say(user.username + ' has been timed out: ' + item.domain + ' is a punishable domain.');
+				});
+			}
+		}
+	}
+}
+
+// From http://stackoverflow.com/questions/8498592/extract-root-domain-name-from-string on 3 July 2015
+function extractDomain(url) {
+    var domain;
+    //find & remove protocol (http, ftp, etc.) and get domain
+    if (url.indexOf("://") > -1) {
+        domain = url.split('/')[2];
+    }
+    else {
+        domain = url.split('/')[0];
+    }
+
+    //find & remove port number
+    domain = domain.split(':')[0];
+
+    return domain;
 }
 
 /**

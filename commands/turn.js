@@ -1,5 +1,5 @@
 /**
- * !set [command] turns commands on and off.
+ * !turn [command] turns commands on and off.
  *
  * NOTE: Add custom command support later?
  */
