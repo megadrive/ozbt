@@ -9,10 +9,10 @@ var random = require('random-js')();
 
 var args = process.argv.splice(2);
 var userData = JSON.parse(args[1]);
+var util = require('../util.js');
 
 var user = userData.username;
 
-// TODO: Test this
 var guessText = args[2].split(' ')[1];
 
 var eOptions = {
