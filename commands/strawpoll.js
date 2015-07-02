@@ -23,24 +23,74 @@ var poll_answers = poll_args.splice(1);
 if( util.isMod(args[0], user.username) ){
 	var strawpoll_id = 0;
 
-	request.post(
-		{
-			url: strawpoll_api,
-			form: {
-				options: poll_answers,
-				title: poll_title
-			}
-		},
-		function(err, response, body){
-			if( err === null ){
-				strawpoll_id = JSON.parse(body).id;
+	// if there is one argument and it's an integer, its an id for results.
+	//TODO: this check needs to be improved
+	if( !isNaN(poll_title) ){
+		request(strawpoll_api + '/' + poll_title, function(err, response, body){
+				if( err === null ){
+					var results = JSON.parse(body);
 
-				process.send({
-					'command': 'say',
-					'channel': args[0],
-					'message': 'Strawpoll here: http://strawpoll.me/' + strawpoll_id
-				});
+					var txt = 'Results for "' + results.title + '" -- ';
+
+					// i am sure there is a better way to do this
+					var tempObj = '{';
+					for(var i = 0; i < results.options.length; ++i){
+						tempObj += '"' + results.options[i] + '": ' + results.votes[i] + ',';
+					}
+					tempObj = tempObj.substr(0,tempObj.length - 1);
+					tempObj += '}';
+					// end dumb code
+					var votes = JSON.parse(tempObj);
+					votes = sortObject(votes);
+
+					for (var i = 0; i < votes.length; i++) {
+						txt += votes[i].key + ': ' + votes[i].value + ' ';
+					};
+
+					process.send({
+						'command': 'say',
+						'channel': args[0],
+						'message': txt
+					});
+				}
 			}
-		}
-	);
+		);
+	}
+	else{
+		request.post(
+			{
+				url: strawpoll_api,
+				form: {
+					options: poll_answers,
+					title: poll_title
+				}
+			},
+			function(err, response, body){
+				if( err === null ){
+					strawpoll_id = JSON.parse(body).id;
+
+					process.send({
+						'command': 'say',
+						'channel': args[0],
+						'message': 'Strawpoll here: http://strawpoll.me/' + strawpoll_id
+					});
+				}
+			}
+		);
+	}
+}
+
+function sortObject(obj) {
+    var arr = [];
+    for (var prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+            arr.push({
+                'key': prop,
+                'value': obj[prop]
+            });
+        }
+    }
+    arr.sort(function(a, b) { return b.value - a.value; });
+    //arr.sort(function(a, b) { a.value.toLowerCase().localeCompare(b.value.toLowerCase()); }); //use this to sort as strings
+    return arr; // returns array
 }
