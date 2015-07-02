@@ -6,11 +6,9 @@
     "npm": "*"
   },
   "dependencies": {
-    "concat-stream": "^1.5.0",
     "locallydb": "0.0.9",
     "random-js": "^1.0.4",
     "request": "^2.58.0",
-    "strawpoll": "^1.0.2",
     "twitch-irc": "^1.2.7"
   },
   "scripts": {
