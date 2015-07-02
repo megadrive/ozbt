@@ -37,7 +37,7 @@ if( fs.existsSync('config/') === true ){
 var clientOptions = {
 	options: {
 	    debug: true,
-	    debugIgnore: ['ping', 'action', 'chat']
+	    debugIgnore: ['ping', 'action']
 	},
 	identity: {
 	    username: _username,

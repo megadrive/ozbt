@@ -6,14 +6,13 @@ var args = process.argv.splice(2);
 var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
 var commandsDb = db.collection('custom_commands');
-var moderatorDb = db.collection('channel_moderators');
+var util = require('../util.js');
 
 var channel = args[0];
 var user = JSON.parse(args[1]);
 
 // Only mods and above can do this
-if( user.special[0] === 'broadcaster' || user.special[0] === 'moderator'
-   || /* special case */ isMod(channel, user.username) ){
+if( util.isMod(channel, user.username) ){
 
 	// Find the command, first off.
 	var commands = commandsDb.where({

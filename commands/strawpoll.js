@@ -9,7 +9,7 @@ var request = require('request');
 var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
 var commandsDb = db.collection('custom_commands');
-var moderatorDb = db.collection('channel_moderators');
+var util = require('../util.js');
 
 var user = JSON.parse(args[1]);
 
@@ -20,7 +20,7 @@ var poll_title = poll_args[0];
 var poll_answers = poll_args.splice(1);
 
 // only show if the broadcaster
-if( isMod(args[0], user.username) ){
+if( util.isMod(args[0], user.username) ){
 	var strawpoll_id = 0;
 
 	request.post(
@@ -43,13 +43,4 @@ if( isMod(args[0], user.username) ){
 			}
 		}
 	);
-}
-
-function isMod(channel, username){
-	var channelMods = moderatorDb.where({
-		'channel': channel,
-		'username': username
-	});
-
-	return (channelMods.items[0].username === username);
 }
