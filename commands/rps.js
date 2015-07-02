@@ -12,6 +12,11 @@ var userData = JSON.parse(args[1]);
 
 var user = userData.username;
 
+var points = require('../points.js');
+
+var POINTS_ON_WIN = 10;
+var POINTS_ON_LOSE = 10;
+
 // TODO: Test this
 var guessText = args[2].split(' ')[1];
 
@@ -114,11 +119,14 @@ if( outcome === eOutcomes.lose ){
 	msg = user + ' wins! tirTear ( tirFlip \'d to ' + guessToText(myGuess) + '.)';
 
 	//TODO: Add points
+	points.add(args[0], userData.username, POINTS_ON_WIN);
 }
 else if( outcome === eOutcomes.win ){
 	msg = user + ' loses! What a busta! tirTir (Rekt by ' + guessToText(myGuess) + '.)';
 
 	//TODO: Remove points
+	points.take(args[0], userData.username, POINTS_ON_LOSE);
+
 	//30 second timeout
 	process.send({
 		'command': 'to',
