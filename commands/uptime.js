@@ -1,8 +1,11 @@
 /**
- * Steal night's hard work
+ * Output stream's uptime to chat.
+ * @author: Megadrive
+ *
+ * !uptime
  */
 
-var uptime_url = 'https://nightdev.com/hosted/uptime.php?channel=';
+var uptime_url = 'http://tireansucks.com/twitch/uptime.php?channel=';
 
 var request = require('request');
 var util = require('../util.js');

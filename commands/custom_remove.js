@@ -1,5 +1,7 @@
 /**
  * Removes commands that were created using custom_add
+ *
+ * !custom_remove [command]
  */
 
 var args = process.argv.splice(2);

@@ -1,5 +1,8 @@
 /**
- * Lists custom commands.
+ * Lists custom commands in chat.
+ * @author Megadrive
+ *
+ * !custom_list
  */
 
 var args = process.argv.splice(2);

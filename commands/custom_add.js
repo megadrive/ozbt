@@ -1,7 +1,8 @@
 /**
- * Adds a custom text command that is per-channel.
+ * Adds a custom text command that is exclusive to the channel.
+ * @author: Megadrive
  *
- * !custom_add [trigger] [messageOnFire]
+ * !custom_add [trigger] [message]
  */
 
 var args = process.argv.splice(2);

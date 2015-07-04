@@ -1,5 +1,8 @@
 /**
- * Shows a user's points
+ * Shows a user's points in chat.
+ * @Megadrive
+ *
+ * !points
  */
 
 var args = process.argv.splice(2);

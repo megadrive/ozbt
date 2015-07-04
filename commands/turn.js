@@ -1,7 +1,8 @@
 /**
- * !turn [command] turns commands on and off.
+ * !turn [command] turns commands on and off. Includes custom commands.
+ * @author Megadrive
  *
- * NOTE: Add custom command support later?
+ * !turn [command] [on|off]
  */
 
 var args = process.argv.splice(2);

@@ -1,3 +1,9 @@
+/**
+ * Say this in ozbt's chat room to get it to join your channel.
+ * @author Megadrive
+ *
+ * !join
+ */
 
 var args = process.argv.splice(2);
 var locallydb = require('locallydb');

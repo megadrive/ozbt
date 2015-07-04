@@ -1,7 +1,11 @@
 /**
- * Sets options on banning or timing out domains from being mentioned.
+ * Sets options on banning or timing out users who link punishable domains.
+ * @author Megadrive
  *
- * !domain [add|remove] [domain] [consequence]
+ * !domain [add|remove] [domain] [consequence] [timeoutTimeInSeconds]
+ * !domain add google.com ban
+ * !domain add twitch.tv timeout 10
+ * !domain remove twitch.tv
  */
 
 var args = process.argv.splice(2);

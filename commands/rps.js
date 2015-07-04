@@ -2,6 +2,9 @@
  * Rock, Paper, Shotgun
  *
  * Users write !rps [rock,scissors,paper] and timed out if they lose and a +1 points if they win.
+ *
+ * !rps [rock|scissors|paper]
+ * !rps [r|s|p]
  */
 
 // allows for better random values

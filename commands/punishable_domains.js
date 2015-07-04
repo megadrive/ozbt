@@ -1,5 +1,8 @@
 /**
- * Output punishable domains
+ * Output punishable domains into chat.
+ * @author Megadrive
+ *
+ * !punishable_domains
  */
 
 var args = process.argv.splice(2);

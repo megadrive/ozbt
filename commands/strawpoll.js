@@ -1,5 +1,6 @@
 /**
  * Creates a simple strawpoll.
+ * @author Megadrive
  *
  * !strawpoll [title],[item1],[item2],[item3],[item4]
  */
@@ -8,7 +9,6 @@ var args = process.argv.splice(2);
 var request = require('request');
 var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
-var commandsDb = db.collection('custom_commands');
 var util = require('../util.js');
 
 var user = JSON.parse(args[1]);
@@ -56,6 +56,7 @@ if( util.isMod(args[0], user.username) ){
 			}
 		);
 	}
+	// If we have a list of arguments, create the poll.
 	else{
 		request.post(
 			{
@@ -80,6 +81,7 @@ if( util.isMod(args[0], user.username) ){
 	}
 }
 
+//TODO: Add credit for this function. It was from a StackOverflow comment iirc.
 function sortObject(obj) {
     var arr = [];
     for (var prop in obj) {

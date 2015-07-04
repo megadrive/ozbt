@@ -18,17 +18,17 @@ other users. You have been warned.
 2. Open a commandline and navigate to the folder you've extracted/cloned `ozbt` to
 and run the command:
 
-``
     npm install
-``
 
 This will install all the dependencies you need for `ozbt`.
 
 3. From the commandline again, run the command:
 
-``
     node app
-``
 
 This will cause `node.js` to run `app.js`. If you've misconfigured `ozbt`, you'll find
 out here. If you see a series of events like `connecting`, `logon` then `disconnected`, make sure your configuration files are correct.
+
+## 2. Usage ##
+
+If you're running this yourself, go into the channel of the username you've placed in `config/username`, type `!join` into chat and the bot will let you know that it's joining your user channel. To check if it actually is in your channel, go into your chat and type `!ozbt`.
