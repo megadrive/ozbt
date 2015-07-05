@@ -23,7 +23,7 @@ Anything a standard user can use, a mod can use and whatever a mod can use a bro
 
 `!turn [trigger] [on|off]`
 > Turns any command except itself on or off.
->> !turn rps off
+>> `!turn rps off`
 
 `!custom_add [trigger] [message]`
 > Create a custom command for the channel that fires when `!trigger` is used. Please note: user-levels are not implemented yet, so anyone can use them currently.
