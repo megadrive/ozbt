@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "locallydb": "0.0.9",
-    "node-schedule": "^0.2.9",
     "random-js": "^1.0.4",
     "request": "^2.58.0",
     "twitch-irc": "^1.2.7"
