@@ -67,11 +67,15 @@ Anything a standard user can use, a mod can use and whatever a mod can use a bro
 
 `!greeting [sub|resub|host] [message]`
 > Set a greeting, works with new subs, resubs and hosting! This command supports variables, shown in the examples below.
+
 > Examples:
+
 > New sub, supports ${nick}
 >> `!greeting sub Hey ${nick}! Thanks for subbing dude.
+
 > Resub
 >> `!greeting resub What da fok, ${nick}! That's ${months} month${s} you've subscribed!
+
 > Hosting
 >> `!greeting host Now being hosted by ${username} for ${viewers} viewers!
 

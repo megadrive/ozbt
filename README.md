@@ -1,5 +1,7 @@
 # ozbt #
 
+**[COMMAND DOCUMENTATION](COMMANDS.md)**
+
 `ozbt` is a [Twitch](http://twitch.tv/) bot that is **open source** and runs on
 [node.js](https://nodejs.org/).
 
