@@ -29,7 +29,7 @@ module.exports = {
 				'channel': channel,
 				'username': userObject.username
 			});
-			if( users.items.length > 0 && users.items[0].type === 'access_level' ){
+			if( users.items.length > 0 && users.items[0].type === access_level ){
 				rv = true; // has required access.
 			}
 		}

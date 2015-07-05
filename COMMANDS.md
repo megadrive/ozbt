@@ -14,12 +14,16 @@ Anything a standard user can use, a mod can use and whatever a mod can use a bro
 > Displays the points the user has after playing the various games.
 
 `!rps [rock|paper|scissors]`
-> Play Rock, Paper, Scissors! If you lose, you're timed out for 30 seconds if ozbt is modded, so play wisely!
+> Play Rock, Paper, Scissors against ozbt! If you lose, you're timed out for 30 seconds if ozbt is modded, so play wisely!
 
 `!uptime`
 > Displays the uptime of the stream.
 
 ## Mods ##
+
+`!turn [trigger] [on|off]`
+> Turns any command except itself on or off.
+>> !turn rps off
 
 `!custom_add [trigger] [message]`
 > Create a custom command for the channel that fires when `!trigger` is used. Please note: user-levels are not implemented yet, so anyone can use them currently.
@@ -60,6 +64,16 @@ Anything a standard user can use, a mod can use and whatever a mod can use a bro
 
 `!ozbt`
 > See if ozbt is in your channel. Should probably move it into mods.
+
+`!greeting [sub|resub|host] [message]`
+> Set a greeting, works with new subs, resubs and hosting! This command supports variables, shown in the examples below.
+> Examples:
+> New sub, supports ${nick}
+>> `!greeting sub Hey ${nick}! Thanks for subbing dude.
+> Resub
+>> `!greeting resub What da fok, ${nick}! That's ${months} month${s} you've subscribed!
+> Hosting
+>> `!greeting host Now being hosted by ${username} for ${viewers} viewers!
 
 # Writing your own command #
 

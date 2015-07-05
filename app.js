@@ -164,7 +164,8 @@ client.addListener('subanniversary', function(channel, username, months){
 	if( greeting.items.length > 0 ){
 		var greeting = greeting.items[0].greeting;
 		greeting = greeting.replace('${username}', username, 'gi');
-		greeting = greeting.replace('${months}', username, 'gi');
+		greeting = greeting.replace('${months}', months, 'gi');
+		greeting = greeting.replace('${s}', (months == 0 || months > 1) ? 's' : '');
 		client.say(channel, greeting);
 	}
 });
