@@ -20,7 +20,7 @@ var poll_title = poll_args[0];
 var poll_answers = poll_args.splice(1);
 
 // only show if the broadcaster
-if( util.isMod(args[0], user.username) ){
+if( util.checkAccess(args[0], user, 'moderator') ){
 	var strawpoll_id = 0;
 
 	// if there is one argument and it's an integer, its an id for results.

@@ -13,3 +13,26 @@ There are some things I should mention currently. I'm fooling around with the id
 
 [locallydb]: http://wamalaka.com/locallydb/
 [nosql]: http://wikipedia.org/wiki/NoSQL
+
+## Table Schemas ##
+
+Every collection item has a `cid` (unique id), `$created` and `$updated`.
+
+Collection: `banned_domains`:
+>     {
+>         "channel":"#megadriving",
+>         "domain":"bit.ly",
+>         "consequence":"ban",
+>         "timeoutTime":0,
+>         "added_by":"megadriving"
+>     }
+
+Collection: `custom_commands`:
+>     {
+>         "channel":"#megadriving"
+>         "trigger":"busta"
+>         "message":"you a busta"
+>         "added_by":"megadriving"
+>     }
+
+Collection: `onConnect`:

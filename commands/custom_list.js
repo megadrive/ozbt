@@ -15,7 +15,7 @@ var channel = args[0];
 var user = JSON.parse(args[1]);
 
 // Only mods and above can do this
-if( util.isMod(channel, user.username) ){
+if( util.checkAccess(channel, user, 'moderator') ){
 
 	// Find the command, first off.
 	var commands = commandsDb.where({
@@ -37,13 +37,4 @@ if( util.isMod(channel, user.username) ){
 		'channel': channel,
 		'message': msg
 	});
-}
-
-function isMod(channel, username){
-	var channelMods = moderatorDb.where({
-		'channel': channel,
-		'username': username
-	});
-
-	return (channelMods.items[0].username === username);
 }

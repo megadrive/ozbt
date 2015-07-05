@@ -19,7 +19,7 @@ var custom_trigger = custom_args[1];
 var custom_message = custom_args.splice(2).join(' ');
 
 // Only mods and above can do this
-if( util.isMod(channel, user.username) ){
+if( util.checkAccess(channel, user, 'moderator') ){
 	//TODO: Add check if the command exists. If it does, update the message.
 
 	if( custom_message.length > 0 ){

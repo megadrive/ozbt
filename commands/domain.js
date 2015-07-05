@@ -26,7 +26,7 @@ var bannedDomainsCollection = db.collection('banned_domains');
 	}
 */
 
-if( util.isMod(args[0], user.username) ){
+if( util.checkAccess(args[0], user, 'moderator') ){
 	var spl = args[2].toLowerCase().split(' ');
 
 	// for sanity

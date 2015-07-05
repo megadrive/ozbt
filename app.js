@@ -38,12 +38,12 @@ if( fs.existsSync('config/') === true ){
 
 var clientOptions = {
 	options: {
-	    debug: true,
-	    debugIgnore: ['ping', 'action']
+	    'debug': true,
+	    'debugIgnore': ['ping', 'action']
 	},
 	identity: {
-	    username: _username,
-	    password: _oauth
+	    'username': _username,
+	    'password': _oauth
 	}
 };
 
@@ -56,7 +56,7 @@ client.connect();
 /**
  * This slab of text gets the channels that have connected to ozbt through the !join command.
  */
-var dbOnConnect = db.collection('onConnect');
+var dbOnConnect = db.collection('join_on_connect');
 var dbChannels = dbOnConnect.items;
 var _joinTheseChannels = [];
 for (var i = dbChannels.length - 1; i >= 0; i--) {
@@ -70,33 +70,53 @@ client.addListener('connected', function (address, port) {
 });
 
 client.addListener('join', function (channel, username) {
-	// Gets moderators for the channel being joined since the user object
-	// for chat seems to be broken sometimes.
-	request('https://tmi.twitch.tv/group/user/' + channel.replace('#', '') + '/chatters', function(err, res, body){
-		if( !err && res.statusCode === 200 ){
-			var moderatorsCollection = db.collection('channel_moderators');
-			var json = JSON.parse(body);
+	// Gets moderators for the channel every 5 minutes.
+	var updateChatters = function(){
+		request('https://tmi.twitch.tv/group/user/' + channel.replace('#', '') + '/chatters', function(err, res, body){
+			if( !err && res.statusCode === 200 ){
+				var usersCollection = db.collection('channel_users');
+				var chatters = JSON.parse(body);
 
-			var mods = json.chatters.moderators;
+				var viewers = chatters.chatters.viewers;
+				var mods = chatters.chatters.moderators;
+				var staff = chatters.chatters.staff;
+				var admins = chatters.chatters.admins;
+				var global_mods = chatters.chatters.global_mods;
+				var chatter_count = chatters.chatter_count;
 
-			// wipe mods clean
-			//TODO: Make it do a diff or something
-			var dbMods = moderatorsCollection.where({'channel': channel});
-			if( dbMods.items.length > 0 ){
-				for (var i = 0; i < dbMods.items.length; i++) {
-					moderatorsCollection.remove(dbMods.items[i].cid);
+				// wipe current channel clean
+				var curr = usersCollection.where({'channel':channel});
+				for(var item of curr.items){
+					usersCollection.remove(item.cid);
+				}
+
+				// add each user type to the database. this will get big.
+				var add = function(usernames, type){
+					for(var username of usernames){
+						usersCollection.insert({
+							'channel': channel,
+							'username': username,
+							'type': type
+						});
+					}
 				};
-			}
 
-			for (var i = 0; i < mods.length; i++) {
-				moderatorsCollection.insert({
+				add(viewers, 'viewer');
+				add(mods, 'moderator');
+				add(staff, 'staff');
+				add(admins, 'admin');
+				add(global_mods, 'global_mods');
+				usersCollection.insert({
 					'channel': channel,
-					'username': mods[i]
+					'chatter_count': chatter_count
 				});
-			};
-			moderatorsCollection.save();
-		}
-	});
+				usersCollection.save();
+			}
+		});
+	}
+	updateChatters();
+	// 60000 = 1min
+	setInterval(updateChatters, 60000);
 });
 
 client.addListener('hosted', function(channel, username, viewers){
@@ -119,8 +139,8 @@ client.addListener('chat', function(channel, user, msg){
 		var defArgs = [channel, JSON.stringify(user), msg];
 
 		// check if it's available for use.
-		var channel_settings = db.collection('channel_settings');
-		var commandItems = channel_settings.where({
+		var channel_trigger_settings = db.collection('channel_trigger_settings');
+		var commandItems = channel_trigger_settings.where({
 			'channel': channel,
 			'trigger': filename
 		}).items;

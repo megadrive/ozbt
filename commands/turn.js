@@ -10,15 +10,15 @@ var user = JSON.parse(args[1]);
 
 var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
-var channel_settings = db.collection('channel_settings');
+var channel_trigger_settings = db.collection('channel_trigger_settings');
 var util = require('../util.js');
 
-if( util.isMod(args[0], user.username) ){
+if( util.checkAccess(args[0], user, 'moderator') ){
 	// determine the arguments
 	var cmd_args = args[2].split(' ');
 	var command = cmd_args[1]; // removes delim
 
-	if( command === 'set' ){
+	if( command === 'turn' ){
 		process.exit(1); // exit out because if we turn this off the whole world dies.
 	}
 
@@ -50,20 +50,20 @@ if( util.isMod(args[0], user.username) ){
  */
 function updateCommand(trigger, status){
 	// check for existance
-	var find = channel_settings.where({
+	var find = channel_trigger_settings.where({
 		'channel': args[0],
 		'trigger': trigger
 	});
 
 	var exists = find.items.length === 1;
 	if( exists ){
-		channel_settings.update(find.items[0].cid, {
+		channel_trigger_settings.update(find.items[0].cid, {
 			'on': status,
 			'updated_by': user.username
 		});
 	}
 	else {
-		channel_settings.insert({
+		channel_trigger_settings.insert({
 			'channel': args[0],
 			'trigger': trigger,
 			'on': status,
@@ -71,7 +71,7 @@ function updateCommand(trigger, status){
 		});
 	}
 
-	find = channel_settings.where({
+	find = channel_trigger_settings.where({
 		'channel': args[0],
 		'trigger': trigger
 	});

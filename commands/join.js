@@ -15,8 +15,8 @@ var data = JSON.parse(args[1]);
 if( args[0] === '#ozbt' ){
 	var username = data.username;
 
-	var onConnect = db.collection('onConnect');
-	var exists = onConnect.where('@channel: ' + username);
+	var onConnect = db.collection('join_on_connect');
+	var exists = onConnect.where({'channel': username});
 	if( exists.items.length === 0 ){
 		onConnect.insert({'channel': username});
 		onConnect.save();
