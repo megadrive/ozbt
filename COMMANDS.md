@@ -71,13 +71,13 @@ Anything a standard user can use, a mod can use and whatever a mod can use a bro
 > Examples:
 
 > New sub, supports ${nick}
->> `!greeting sub Hey ${nick}! Thanks for subbing dude.
+>> `!greeting sub Hey ${nick}! Thanks for subbing dude.`
 
 > Resub
->> `!greeting resub What da fok, ${nick}! That's ${months} month${s} you've subscribed!
+>> `!greeting resub What da fok, ${nick}! That's ${months} month${s} you've subscribed!`
 
 > Hosting
->> `!greeting host Now being hosted by ${username} for ${viewers} viewers!
+>> `!greeting host Now being hosted by ${username} for ${viewers} viewers!`
 
 # Writing your own command #
 
