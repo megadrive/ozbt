@@ -119,8 +119,54 @@ client.addListener('join', function (channel, username) {
 	setInterval(updateChatters, 60000);
 });
 
+/**
+ * If a channel is hosted, output a message if one exists.
+ */
 client.addListener('hosted', function(channel, username, viewers){
-	client.say(channel, 'Now being hosted by ' + username + ' for ' + viewers + ' viewers! Thanks!');
+	var greetingCollection = db.collection('channel_greetings');
+	var greeting = greetingCollection.where({
+		'channel': channel,
+		'event': 'host'
+	});
+	if( greeting.items.length > 0 ){
+		var greeting = greeting.items[0].greeting;
+		greeting = greeting.replace('${username}', username, 'gi');
+		greeting = greeting.replace('${viewers}', viewers, 'gi');
+		client.say(channel, greeting);
+	}
+});
+
+/**
+ * If a channel gets a subscriber, output a message if one exists.
+ */
+client.addListener('subscription', function(channel, username){
+	var greetingCollection = db.collection('channel_greetings');
+	var greeting = greetingCollection.where({
+		'channel': channel,
+		'event': 'sub'
+	});
+	if( greeting.items.length > 0 ){
+		var greeting = greeting.items[0].greeting;
+		greeting = greeting.replace('${username}', username, 'gi');
+		client.say(channel, greeting);
+	}
+});
+
+/**
+ * If a channel gets a resubscribe, output a message if one exists.
+ */
+client.addListener('subanniversary', function(channel, username, months){
+	var greetingCollection = db.collection('channel_greetings');
+	var greeting = greetingCollection.where({
+		'channel': channel,
+		'event': 'resub'
+	});
+	if( greeting.items.length > 0 ){
+		var greeting = greeting.items[0].greeting;
+		greeting = greeting.replace('${username}', username, 'gi');
+		greeting = greeting.replace('${months}', username, 'gi');
+		client.say(channel, greeting);
+	}
 });
 
 /**
