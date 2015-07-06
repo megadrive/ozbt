@@ -15,21 +15,46 @@ module.exports = {
 	 * - viewer
 	 */
 	'checkAccess': function(channel, userObject, access_level){
+		console.log(userObject);
 		var rv = false;
+		var userCollection = db.collection('channel_users');
+
+		// make access level lowercase
+		access_level = access_level.toLowerCase();
+
+		// if sub, add to database. TODO: scoped api calls
+		if( userObject.special.indexOf('subscriber') >= 0 ){
+			var sub = userCollection.where({
+				'channel': channel,
+				'username': userObject.username
+			});
+			// we have a user and 'subscriber' does not exist in the specials attribute.
+			if(sub.items.length > 0){
+				var specials = sub.items[0].special;
+				if( specials.indexOf('subscriber') === false ){
+					userCollection.update(sub.items[0].cid, {'special': specials});
+					userCollection.save();
+				}
+			}
+			// user doesn't already have sub. must have got it in between chat lines
+			else{
+				userCollection.insert({
+					'channel': channel,
+					'username': userObject.username,
+					'specials': ['subscriber']
+				})
+			}
+		}
 
 		if( channel === '#' + userObject.username ){
 			rv = true; // is broadcaster, who has access to all commands
 		}
-		else if ( access_level === 'viewer' ){
-			rv = true; // viewers are the lowest access level, allow by default.
-		}
 		else {
-			var userCollection = db.collection('channel_users');
 			var users = userCollection.where({
 				'channel': channel,
 				'username': userObject.username
 			});
-			if( users.items.length > 0 && users.items[0].type === access_level ){
+			if( users.items.length > 0 && users.items[0].special.indexOf(access_level) >= 0 ){
 				rv = true; // has required access.
 			}
 		}

@@ -77,7 +77,6 @@ client.addListener('join', function (channel, username) {
 				var usersCollection = db.collection('channel_users');
 				var chatters = JSON.parse(body);
 
-				var viewers = chatters.chatters.viewers;
 				var mods = chatters.chatters.moderators;
 				var staff = chatters.chatters.staff;
 				var admins = chatters.chatters.admins;
@@ -96,12 +95,11 @@ client.addListener('join', function (channel, username) {
 						usersCollection.insert({
 							'channel': channel,
 							'username': username,
-							'type': type
+							'special': [type]
 						});
 					}
 				};
 
-				add(viewers, 'viewer');
 				add(mods, 'moderator');
 				add(staff, 'staff');
 				add(admins, 'admin');

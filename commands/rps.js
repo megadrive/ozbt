@@ -8,7 +8,8 @@
  */
 
 // allows for better random values
-var random = require('random-js')();
+var Random = require('random-js');
+var random = new Random(Random.engines.mt19937().autoSeed());
 
 var args = process.argv.splice(2);
 var userData = JSON.parse(args[1]);

@@ -15,7 +15,7 @@ var pointsCollection = db.collection('points');
 function sortPoints(a,b){
 	return b.points < a.points ? -1 : 1;
 }
-if( util.checkAccess(args[0], user.username, 'moderator') ){
+if( util.checkAccess(args[0], user, 'moderator') ){
 	var points = pointsCollection.where({'channel': args[0]});
 	points.items.sort(sortPoints);
 
