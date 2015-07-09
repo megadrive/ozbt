@@ -15,7 +15,6 @@ module.exports = {
 	 * - viewer
 	 */
 	'checkAccess': function(channel, userObject, access_level){
-		console.log(userObject);
 		var rv = false;
 		var userCollection = db.collection('channel_users');
 
@@ -23,6 +22,7 @@ module.exports = {
 		access_level = access_level.toLowerCase();
 
 		// if sub, add to database. TODO: scoped api calls
+		//TODO: This block seems to be broken.
 		if( userObject.special.indexOf('subscriber') >= 0 ){
 			var sub = userCollection.where({
 				'channel': channel,
@@ -33,7 +33,6 @@ module.exports = {
 				var specials = sub.items[0].special;
 				if( specials.indexOf('subscriber') === false ){
 					userCollection.update(sub.items[0].cid, {'special': specials});
-					userCollection.save();
 				}
 			}
 			// user doesn't already have sub. must have got it in between chat lines
@@ -44,6 +43,8 @@ module.exports = {
 					'specials': ['subscriber']
 				})
 			}
+
+			userCollection.save();
 		}
 
 		if( channel === '#' + userObject.username ){
@@ -60,5 +61,15 @@ module.exports = {
 		}
 
 		return rv;
+	},
+	/**
+	 * Convenience function, saves creating the whole block every time in commands.
+	 */
+	'say': function(channel, message){
+		process.send({
+			'channel': channel,
+			'command': 'say',
+			'message': message
+		});
 	}
 }

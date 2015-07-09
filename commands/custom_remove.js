@@ -27,6 +27,22 @@ if( util.checkAccess(channel, user, 'moderator') ){
 
 	for(var i = 0; i < command.items.length; ++i){
 		commandsDb.remove(command.items[i].cid);
+
+		// remove associated permissions, if they exist
+		var accessDb = db.collection('channel_access');
+		var access = accessDb.where({
+			'channel': args[0],
+			'trigger': custom_trigger
+		});
+		if( access.items.length > 0 ){
+			accessDb.remove(access.items[0].cid);
+			accessDb.save();
+		}
 	}
 	commandsDb.save();
+	process.send({
+		'command': 'say',
+		'channel': args[0],
+		'message': 'Command "' + custom_trigger + '" was removed, ' + user.username
+	})
 }

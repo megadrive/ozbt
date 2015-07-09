@@ -20,29 +20,33 @@ var custom_message = custom_args.splice(2).join(' ');
 
 // Only mods and above can do this
 if( util.checkAccess(channel, user, 'moderator') ){
-	//TODO: Add check if the command exists. If it does, update the message.
-
-	if( custom_message.length > 0 ){
-		commandsDb.insert({
-			'channel': channel,
-			'trigger': custom_trigger,
+	var existing = commandsDb.where({
+		'channel': args[0],
+		'trigger': args[1]
+	});
+	if( existing.items.length > 0 ){
+		commandsDb.update(existing.items[0].cid,{
 			'message': custom_message,
-			'added_by': user.username,
 			'updated_by': user.username
 		});
-		commandsDb.save();
-
-		process.send({
-			'command': 'say',
-			'channel': channel,
-			'message': 'Command "' + custom_trigger + '" added to channel "' + args[0] + '" ' + user.username + '.'
-		});
 	}
-	else {
-		process.send({
-			'command': 'say',
-			'channel': channel,
-			'message': 'Command "' + custom_trigger + '" needs a message to go along with it. Kappa'
-		});
+	else
+	{
+		if( custom_message.length > 0 ){
+			commandsDb.insert({
+				'channel': channel,
+				'trigger': custom_trigger,
+				'message': custom_message,
+				'added_by': user.username,
+				'updated_by': user.username
+			});
+			commandsDb.save();
+
+			process.send({
+				'command': 'say',
+				'channel': channel,
+				'message': 'Command "' + custom_trigger + '" added to channel "' + args[0] + '" ' + user.username + '.'
+			});
+		}
 	}
 }

@@ -1,7 +1,8 @@
+"use strict";
 
 var fs = require('fs');
 var fork = require('child_process').fork;
-var util = require('util');
+var util = require('./util.js');
 
 var irc = require('twitch-irc');
 var locallydb = require('locallydb');
@@ -70,48 +71,6 @@ client.addListener('connected', function (address, port) {
 });
 
 client.addListener('join', function (channel, username) {
-	// Gets moderators for the channel every 5 minutes.
-	var updateChatters = function(){
-		request('https://tmi.twitch.tv/group/user/' + channel.replace('#', '') + '/chatters', function(err, res, body){
-			if( !err && res.statusCode === 200 ){
-				var usersCollection = db.collection('channel_users');
-				var chatters = JSON.parse(body);
-
-				var mods = chatters.chatters.moderators;
-				var staff = chatters.chatters.staff;
-				var admins = chatters.chatters.admins;
-				var global_mods = chatters.chatters.global_mods;
-				var chatter_count = chatters.chatter_count;
-
-				// wipe current channel clean
-				var curr = usersCollection.where({'channel':channel});
-				for(var item of curr.items){
-					usersCollection.remove(item.cid);
-				}
-
-				// add each user type to the database. this will get big.
-				var add = function(usernames, type){
-					for(var username of usernames){
-						usersCollection.insert({
-							'channel': channel,
-							'username': username,
-							'special': [type]
-						});
-					}
-				};
-
-				add(mods, 'moderator');
-				add(staff, 'staff');
-				add(admins, 'admin');
-				add(global_mods, 'global_mods');
-				usersCollection.insert({
-					'channel': channel,
-					'chatter_count': chatter_count
-				});
-				usersCollection.save();
-			}
-		});
-	}
 	updateChatters();
 	// 60000 = 1min
 	setInterval(updateChatters, 60000);
@@ -174,54 +133,84 @@ client.addListener('subanniversary', function(channel, username, months){
 client.addListener('chat', function(channel, user, msg){
 	punishIfBannedUrl(channel, user, msg);
 
+	runCommand(channel, user, msg);
+});
+
+/**
+ * Run a command.
+ */
+function runCommand(channel, user, msg){
 	// check for commands
 	if( msg.indexOf(_delim) === 0 ){
 		//run command
 		var cmd = msg.split(' ');
-		var filename = cmd[0].replace(_delim, ''); // remove delim
+		var trigger = cmd[0].replace(_delim, ''); // remove delim
 
-		// arguments. we need to stringify user because you can't send objects through argument.
-		var defArgs = [channel, JSON.stringify(user), msg];
-
-		// check if it's available for use.
-		var channel_trigger_settings = db.collection('channel_trigger_settings');
-		var commandItems = channel_trigger_settings.where({
+		// test permissions
+		var accessCollection = db.collection('channel_access');
+		var access = accessCollection.where({
 			'channel': channel,
-			'trigger': filename
-		}).items;
-		if( commandItems.length === 0 ){
-			canUse = true; //implicit
+			'trigger': trigger
+		});
+
+		var allowed = false;
+		if(access.items.length > 0 &&util.checkAccess(channel, user, access.items[0].special)){
+			allowed = true;
 		}
-		else {
-			canUse = commandItems[0].on;
+		// "everyone"
+		else if( access.items.length === 0 ){
+			allowed = true;
+		}
+		else{
+			allowed = false;
 		}
 
-		// Undefined and null are truey because if they implicity allow use.
-		if( canUse === true || canUse === undefined || canUse === null ){
-			// check for file existance
-			var path = './commands/' + filename + '.js';
-			fs.exists(path, function(exists){
-				// Exists, so run the command.
-				if( exists ){
-					var task = fork(path, defArgs);
+		if(allowed){
+			var canUse = false;
 
-					task.on('message', function(message){
-						parseMessage(message, client);
-					});
-				}
-				// if the path doesn't exist, maybe it's a per-channel custom command
-				else {
-					//TODO: move this out
-					var commanddb = db.collection('custom_commands');
-					var channel_commands = commanddb.where({'channel': channel, 'trigger': filename});
-					if( channel_commands.items.length === 1 ){
-						client.say(channel, channel_commands.items[0].message);
+			// arguments. we need to stringify user because you can't send objects through argument.
+			var defArgs = [channel, JSON.stringify(user), msg];
+
+			// check if it's available for use.
+			var channel_trigger_settings = db.collection('channel_trigger_settings');
+			var commandItems = channel_trigger_settings.where({
+				'channel': channel,
+				'trigger': trigger
+			}).items;
+			if( commandItems.length === 0 ){
+				canUse = true; //implicit
+			}
+			else {
+				canUse = commandItems[0].on;
+			}
+
+			// Undefined and null are truey because if they implicity allow use.
+			if( canUse === true || canUse === undefined || canUse === null ){
+				// check for file existance
+				var path = './commands/' + trigger + '.js';
+				fs.exists(path, function(exists){
+					// Exists, so run the command.
+					if( exists ){
+						var task = fork(path, defArgs);
+
+						task.on('message', function(message){
+							parseMessage(message, client);
+						});
 					}
-				}
-			});
+					// if the path doesn't exist, maybe it's a per-channel custom command
+					else {
+						//TODO: move this out
+						var commanddb = db.collection('custom_commands');
+						var channel_commands = commanddb.where({'channel': channel, 'trigger': trigger});
+						if( channel_commands.items.length === 1 ){
+							client.say(channel, channel_commands.items[0].message);
+						}
+					}
+				});
+			}
 		}
 	}
-});
+}
 
 /**
  * @brief Parse and act on the message sent by a command/forked child.
@@ -316,6 +305,49 @@ function extractDomain(url) {
     domain = domain.split(':')[0];
 
     return domain;
+}
+
+// Gets moderators for the channel every 5 minutes.
+function updateChatters(){
+	request('https://tmi.twitch.tv/group/user/' + channel.replace('#', '') + '/chatters', function(err, res, body){
+		if( !err && res.statusCode === 200 ){
+			var usersCollection = db.collection('channel_users');
+			var chatters = JSON.parse(body);
+
+			var mods = chatters.chatters.moderators;
+			var staff = chatters.chatters.staff;
+			var admins = chatters.chatters.admins;
+			var global_mods = chatters.chatters.global_mods;
+			var chatter_count = chatters.chatter_count;
+
+			// wipe current channel clean
+			var curr = usersCollection.where({'channel':channel});
+			for(var item of curr.items){
+				usersCollection.remove(item.cid);
+			}
+
+			// add each user type to the database. this will get big.
+			var add = function(usernames, type){
+				for(var username of usernames){
+					usersCollection.insert({
+						'channel': channel,
+						'username': username,
+						'special': [type]
+					});
+				}
+			};
+
+			add(mods, 'moderator');
+			add(staff, 'staff');
+			add(admins, 'admin');
+			add(global_mods, 'global_mods');
+			usersCollection.insert({
+				'channel': channel,
+				'chatter_count': chatter_count
+			});
+			usersCollection.save();
+		}
+	});
 }
 
 /**
