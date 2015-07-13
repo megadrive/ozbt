@@ -71,9 +71,9 @@ client.addListener('connected', function (address, port) {
 });
 
 client.addListener('join', function (channel, username) {
-	updateChatters();
+	updateChatters(channel);
 	// 60000 = 1min
-	setInterval(updateChatters, 60000);
+	setInterval(updateChatters, 60000, channel);
 });
 
 /**
@@ -308,7 +308,7 @@ function extractDomain(url) {
 }
 
 // Gets moderators for the channel every 5 minutes.
-function updateChatters(){
+function updateChatters(channel){
 	request('https://tmi.twitch.tv/group/user/' + channel.replace('#', '') + '/chatters', function(err, res, body){
 		if( !err && res.statusCode === 200 ){
 			var usersCollection = db.collection('channel_users');
