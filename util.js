@@ -3,6 +3,13 @@ var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
 
 module.exports = {
+	'version': function(){
+		var fs = require('fs');
+		var f = fs.readFileSync('./package.json', {'encoding':'utf8'});
+		var j = JSON.parse(f);
+		return 'v' + j.version;
+	},
+
 	/**
 	 * Check a user's access.
 	 * `channel` is a string. must include the # because there's no check for it
@@ -14,42 +21,40 @@ module.exports = {
 	 * - global_mod
 	 * - viewer
 	 */
-	'checkAccess': function(channel, userObject, access_level){
+	'checkAccess': function(channel, userObject, trigger, access_level){
 		var rv = false;
 		var userCollection = db.collection('channel_users');
+		var accessCollection = db.collection('channel_access');
+		var specialCollection = db.collection('special_users');
 
-		// make access level lowercase
-		access_level = access_level.toLowerCase();
-
-		// if sub, add to database. TODO: scoped api calls
-		//TODO: This block seems to be broken.
-		if( userObject.special.indexOf('subscriber') >= 0 ){
-			var sub = userCollection.where({
-				'channel': channel,
-				'username': userObject.username
-			});
-			// we have a user and 'subscriber' does not exist in the specials attribute.
-			if(sub.items.length > 0){
-				var specials = sub.items[0].special;
-				if( specials.indexOf('subscriber') === false ){
-					userCollection.update(sub.items[0].cid, {'special': specials});
-				}
-			}
-			// user doesn't already have sub. must have got it in between chat lines
-			else{
-				userCollection.insert({
-					'channel': channel,
-					'username': userObject.username,
-					'specials': ['subscriber']
-				})
-			}
-
-			userCollection.save();
+		// see if we have an override for the command
+		var override = accessCollection.where({
+			'channel': channel,
+			'trigger': trigger
+		});
+		if( override.items.length > 0 ){
+			access_level = override.items[0].access.toLowerCase(); // toLowerCase to be safe
+		}
+		else {
+			access_level = access_level.toLowerCase();
 		}
 
-		if( channel === '#' + userObject.username ){
+		var special = specialCollection.where({'username': userObject.username});
+		if( special.items.length && special.items[0].access === 'admin' ){
+			rv = true;
+		}
+
+		if( access_level === 'everybody' ){
+			rv = true;
+		}
+		// if sub, add to database. TODO: scoped api calls
+		else if( userObject.special.indexOf('subscriber') >= 0 ){
+			rv = true;
+		}
+		else if( channel === '#' + userObject.username ){
 			rv = true; // is broadcaster, who has access to all commands
 		}
+		// this else is to check for moderators.
 		else {
 			var users = userCollection.where({
 				'channel': channel,

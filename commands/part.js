@@ -7,13 +7,13 @@
 
 var args = process.argv.splice(2);
 var user = JSON.parse(args[1]);
+var util = require('../util.js');
 
 var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
 
 // Join user's channel if said in #ozbt or in the users channel and they are the broadcaster
-if( args[0] === '#ozbt' ||
-   ( args[0] === '#' + user.username && user.special.indexOf('broadcaster') >= 0 ) ){
+if( args[0] === '#ozbt' || util.checkAccess(args[0], user, args[2], 'broadcaster') ){
 	var onConnect = db.collection('join_on_connect');
 	var exists = onConnect.where({'channel': user.username});
 	if( exists !== undefined && exists.items.length === 1 ){

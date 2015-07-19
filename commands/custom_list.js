@@ -15,7 +15,7 @@ var channel = args[0];
 var user = JSON.parse(args[1]);
 
 // Only mods and above can do this
-if( util.checkAccess(channel, user, 'moderator') ){
+if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 	// Find the command, first off.
 	var commands = commandsDb.where({

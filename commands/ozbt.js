@@ -6,15 +6,15 @@
  */
 
 var args = process.argv.splice(2);
-var util = require('util');
+var util = require('../util.js');
 
 var user = JSON.parse(args[1]);
 
 // only show if the broadcaster
-if( user.special[0] === 'broadcaster' ){
+if( util.checkAccess(args[0], user, args[2], 'broadcaster') ){
 	process.send({
 		'command': 'say',
 		'channel': args[0],
-		'message': 'I\'m here, ' + user.username + '.'
+		'message': 'ozbt is a free, open-source Twitch bot: http://github.com/megadrive/ozbt (' + util.version() + ')'
 	});
 }

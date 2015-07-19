@@ -40,7 +40,7 @@ if( fs.existsSync('config/') === true ){
 var clientOptions = {
 	options: {
 	    'debug': true,
-	    'debugIgnore': ['ping', 'action']
+	    'debugIgnore': ['ping', 'action', 'chat', 'join', 'part']
 	},
 	identity: {
 	    'username': _username,
@@ -72,8 +72,6 @@ client.addListener('connected', function (address, port) {
 
 client.addListener('join', function (channel, username) {
 	updateChatters(channel);
-	// 60000 = 1min
-	setInterval(updateChatters, 60000, channel);
 });
 
 /**
@@ -91,6 +89,7 @@ client.addListener('hosted', function(channel, username, viewers){
 		greeting = greeting.replace('${viewers}', viewers, 'gi');
 		client.say(channel, greeting);
 	}
+	console.log('HOSTED -> ' + channel + ': ' + username + ' for ' + viewers + ' viewers.');
 });
 
 /**
@@ -107,6 +106,7 @@ client.addListener('subscription', function(channel, username){
 		greeting = greeting.replace('${username}', username, 'gi');
 		client.say(channel, greeting);
 	}
+	console.log('SUBSCRIBER -> ' + channel + ': ' + username);
 });
 
 /**
@@ -125,6 +125,7 @@ client.addListener('subanniversary', function(channel, username, months){
 		greeting = greeting.replace('${s}', (months == 0 || months > 1) ? 's' : '');
 		client.say(channel, greeting);
 	}
+	console.log('SUBANNIVERSARY -> ' + channel + ': ' + username + ' for ' + months + ' months.');
 });
 
 /**
@@ -132,12 +133,12 @@ client.addListener('subanniversary', function(channel, username, months){
  */
 client.addListener('chat', function(channel, user, msg){
 	punishIfBannedUrl(channel, user, msg);
-
 	runCommand(channel, user, msg);
 });
 
 /**
  * Run a command.
+ * TODO: Simplify this.
  */
 function runCommand(channel, user, msg){
 	// check for commands
@@ -146,68 +147,50 @@ function runCommand(channel, user, msg){
 		var cmd = msg.split(' ');
 		var trigger = cmd[0].replace(_delim, ''); // remove delim
 
-		// test permissions
-		var accessCollection = db.collection('channel_access');
-		var access = accessCollection.where({
+		var canUse = false;
+
+		// arguments. we need to stringify user because you can't send objects through argument.
+		var defArgs = [channel, JSON.stringify(user), trigger, msg];
+
+		// check if it's available for use.
+		var channel_trigger_settings = db.collection('channel_trigger_settings');
+		var commandItems = channel_trigger_settings.where({
 			'channel': channel,
 			'trigger': trigger
-		});
-
-		var allowed = false;
-		if(access.items.length > 0 &&util.checkAccess(channel, user, access.items[0].special)){
-			allowed = true;
+		}).items;
+		if( commandItems.length === 0 ){
+			canUse = true; //implicit
 		}
-		// "everyone"
-		else if( access.items.length === 0 ){
-			allowed = true;
-		}
-		else{
-			allowed = false;
+		else {
+			canUse = commandItems[0].on;
 		}
 
-		if(allowed){
-			var canUse = false;
+		// Undefined and null are truey because if they implicity allow use.
+		if( canUse === true || canUse === undefined || canUse === null ){
+			// check for file existance
+			var path = './commands/' + trigger + '.js';
+			fs.exists(path, function(exists){
+				// Exists, so run the command.
+				if( exists ){
+					var task = fork(path, defArgs);
 
-			// arguments. we need to stringify user because you can't send objects through argument.
-			var defArgs = [channel, JSON.stringify(user), msg];
+					task.on('message', function(message){
+						parseMessage(message, client);
+					});
 
-			// check if it's available for use.
-			var channel_trigger_settings = db.collection('channel_trigger_settings');
-			var commandItems = channel_trigger_settings.where({
-				'channel': channel,
-				'trigger': trigger
-			}).items;
-			if( commandItems.length === 0 ){
-				canUse = true; //implicit
-			}
-			else {
-				canUse = commandItems[0].on;
-			}
-
-			// Undefined and null are truey because if they implicity allow use.
-			if( canUse === true || canUse === undefined || canUse === null ){
-				// check for file existance
-				var path = './commands/' + trigger + '.js';
-				fs.exists(path, function(exists){
-					// Exists, so run the command.
-					if( exists ){
-						var task = fork(path, defArgs);
-
-						task.on('message', function(message){
-							parseMessage(message, client);
-						});
+					console.log('CORE COMMAND -> ' + channel + ': ' + trigger);
+				}
+				// if the path doesn't exist, maybe it's a per-channel custom command
+				else {
+					//TODO: move this out
+					var commanddb = db.collection('custom_commands');
+					var channel_commands = commanddb.where({'channel': channel, 'trigger': trigger});
+					if( channel_commands.items.length === 1 ){
+						client.say(channel, channel_commands.items[0].message);
+						console.log('CUSTOM COMMAND -> ' + channel + ': ' + trigger);
 					}
-					// if the path doesn't exist, maybe it's a per-channel custom command
-					else {
-						//TODO: move this out
-						var commanddb = db.collection('custom_commands');
-						var channel_commands = commanddb.where({'channel': channel, 'trigger': trigger});
-						if( channel_commands.items.length === 1 ){
-							client.say(channel, channel_commands.items[0].message);
-						}
-					}
-				});
-			}
+				}
+			});
 		}
 	}
 }
@@ -279,11 +262,13 @@ function punishIfBannedUrl(channel, user, chatMessage){
 			if( item.consequence === 'ban' ){
 				client.ban(channel, user.username).then(function(){
 					client.say(user.username + ' has been banned: ' + item.domain + ' is a punishable domain.');
+					console.log('BANNEDURL (ban) -> ' + channel + ': ' + user.username);
 				});
 			}
 			else if( item.consequence === 'timeout' ){
 				client.timeout(channel, user.username, item.timeoutTime).then(function(){
 					client.say(user.username + ' has been timed out: ' + item.domain + ' is a punishable domain.');
+					console.log('BANNEDURL (timeout) -> ' + channel + ': ' + user.username + ' (' + item.timeoutTime + ')');
 				});
 			}
 		}
@@ -348,6 +333,9 @@ function updateChatters(channel){
 			usersCollection.save();
 		}
 	});
+
+	// 60000 = 1min
+	setTimeout(updateChatters, 60000, channel);
 }
 
 /**

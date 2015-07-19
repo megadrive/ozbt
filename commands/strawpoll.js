@@ -15,12 +15,12 @@ var user = JSON.parse(args[1]);
 
 var strawpoll_api = 'https://strawpoll.me/api/v2/polls';
 
-var poll_args = (((args[2].split(' ')).splice(1)).join(' ')).split(','); //im so sorry.
+var poll_args = (((args[3].split(' ')).splice(1)).join(' ')).split(','); //im so sorry.
 var poll_title = poll_args[0];
 var poll_answers = poll_args.splice(1);
 
 // only show if the broadcaster
-if( util.checkAccess(args[0], user, 'moderator') ){
+if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 	var strawpoll_id = 0;
 
 	// if there is one argument and it's an integer, its an id for results.

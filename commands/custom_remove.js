@@ -10,14 +10,13 @@ var db = new locallydb('db/_app');
 var commandsDb = db.collection('custom_commands');
 var util = require('../util.js');
 
-var channel = args[0];
 var user = JSON.parse(args[1]);
 
-var custom_args = args[2].split(' ');
+var custom_args = args[3].split(' ');
 var custom_trigger = custom_args[1];
 
 // Only mods and above can do this
-if( util.checkAccess(channel, user, 'moderator') ){
+if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 	// Find the command, first off.
 	var command = commandsDb.where({

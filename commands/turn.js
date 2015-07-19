@@ -13,9 +13,9 @@ var db = new locallydb('db/_app');
 var channel_trigger_settings = db.collection('channel_trigger_settings');
 var util = require('../util.js');
 
-if( util.checkAccess(args[0], user, 'moderator') ){
+if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 	// determine the arguments
-	var cmd_args = args[2].split(' ');
+	var cmd_args = args[3].split(' ');
 	var command = cmd_args[1]; // removes delim
 
 	if( command === 'turn' ){

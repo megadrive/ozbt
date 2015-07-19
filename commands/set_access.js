@@ -2,7 +2,7 @@
  * Sets the access for a command, including custom.
  * @author Megadrive
  *
- * !set_access [command] [access_level],[access_level]
+ * !set_access [command] [access_level]
  */
 
 var args = process.argv.splice(2);
@@ -16,10 +16,11 @@ var db = new locallydb('db/_app');
 1 trigger
 2 access
 */
-if( util.checkAccess(args[0], user, 'moderator') ){
+if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 	var accessCollection = db.collection('channel_access');
+	var cmdArgs = args[3].split(' ');
 
-	var newAccess = args[2].toLowerCase();
+	var newAccess = cmdArgs[2].toLowerCase();
 	var ok = false;
 	switch(newAccess){
 		case 'subscriber':
@@ -41,10 +42,6 @@ if( util.checkAccess(args[0], user, 'moderator') ){
 		// exists, update
 		if( access.items.length > 0 ){
 			currAccess = access.items[0].access;
-			if( currAccess.indexOf(newAccess) === false ){
-				// doesnt already exist, so we can add
-				currAccess.push(newAccess);
-			}
 			accessCollection.update(access.items[0].cid, {
 				'access': currAccess
 			});
@@ -54,12 +51,12 @@ if( util.checkAccess(args[0], user, 'moderator') ){
 			currAccess = newAccess;
 			accessCollection.insert({
 				'channel': args[0],
-				'trigger': args[1],
-				'access': [newAccess]
+				'trigger': cmdArgs[1],
+				'access': newAccess
 			});
 		}
 
-		var chat_output = 'Access for ' + args[1] + ' is now "' + currAccess.join(', ') + '".';
+		var chat_output = 'Access for ' + cmdArgs[1] + ' is now "' + currAccess + '".';
 		process.send({
 			'command': 'say',
 			'channel': args[0],
