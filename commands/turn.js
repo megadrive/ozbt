@@ -1,5 +1,6 @@
 /**
- * !turn [command] turns commands on and off. Includes custom commands.
+ * Turns commands on and off. Includes custom commands.
+ * !turn [command]
  * @author Megadrive
  *
  * !turn [command] [on|off]
