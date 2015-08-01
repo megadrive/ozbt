@@ -21,30 +21,9 @@ module.exports = {
 		// make access level lowercase
 		access_level = access_level.toLowerCase();
 
-		// if sub, add to database. TODO: scoped api calls
-		//TODO: This block seems to be broken.
-		if( userObject.special.indexOf('subscriber') >= 0 ){
-			var sub = userCollection.where({
-				'channel': channel,
-				'username': userObject.username
-			});
-			// we have a user and 'subscriber' does not exist in the specials attribute.
-			if(sub.items.length > 0){
-				var specials = sub.items[0].special;
-				if( specials.indexOf('subscriber') === false ){
-					userCollection.update(sub.items[0].cid, {'special': specials});
-				}
-			}
-			// user doesn't already have sub. must have got it in between chat lines
-			else{
-				userCollection.insert({
-					'channel': channel,
-					'username': userObject.username,
-					'specials': ['subscriber']
-				})
-			}
-
-			userCollection.save();
+		// if sub, add to database.
+		if( userObject.subscriber === true && access_level === 'subscriber'){
+			rv = true;
 		}
 
 		if( channel === '#' + userObject.username ){

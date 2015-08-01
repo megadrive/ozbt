@@ -4,7 +4,7 @@ var fs = require('fs');
 var fork = require('child_process').fork;
 var util = require('./util.js');
 
-var irc = require('twitch-irc');
+var tmijs = require('tmi.js');
 var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
 var request = require('request');
@@ -42,6 +42,10 @@ var clientOptions = {
 	    'debug': true,
 	    'debugIgnore': ['ping', 'action']
 	},
+	connection: {
+		'random': 'chat',
+		'reconnect': true
+	},
 	identity: {
 	    'username': _username,
 	    'password': _oauth
@@ -49,7 +53,7 @@ var clientOptions = {
 };
 
 // Calling a new instance..
-var client = new irc.client(clientOptions);
+var client = new tmijs.client(clientOptions);
 
 // Connect the client to the server..
 client.connect();
@@ -70,6 +74,10 @@ client.addListener('connected', function (address, port) {
 	}
 });
 
+/**
+ * On joining a channel, update the chatters involved, then update every minute.
+ * NOTE: Possibly unused currently, but could be useful to keep.
+ */
 client.addListener('join', function (channel, username) {
 	updateChatters(channel);
 	// 60000 = 1min
@@ -128,7 +136,7 @@ client.addListener('subanniversary', function(channel, username, months){
 });
 
 /**
- * @brief Listens to `chat` events from twitch-irc and responds accordingly.
+ * @brief Listens to `chat` events from tmi.js and responds accordingly.
  */
 client.addListener('chat', function(channel, user, msg){
 	punishIfBannedUrl(channel, user, msg);
