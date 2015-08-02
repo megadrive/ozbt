@@ -21,19 +21,23 @@ module.exports = {
 		// make access level lowercase
 		access_level = access_level.toLowerCase();
 
-		// if sub, add to database.
-		if( userObject.subscriber === true && access_level === 'subscriber'){
-			rv = true;
-		}
+		var users = userCollection.where({
+			'channel': channel,
+			'username': userObject.username
+		});
 
 		if( channel === '#' + userObject.username ){
 			rv = true; // is broadcaster, who has access to all commands
 		}
+		else if( userObject.subscriber === true && access_level === 'subscriber'){
+			rv = true;
+		}
+		else if( access_level === 'moderator' ){
+			if( userObject['user-type'] === 'moderator' ){
+				rv = true;
+			}
+		}
 		else {
-			var users = userCollection.where({
-				'channel': channel,
-				'username': userObject.username
-			});
 			if( users.items.length > 0 && users.items[0].special.indexOf(access_level) >= 0 ){
 				rv = true; // has required access.
 			}
