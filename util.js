@@ -38,10 +38,6 @@ module.exports = {
 		if( access_level === 'everybody' ){
 			rv = true;
 		}
-		// if sub, add to database. TODO: scoped api calls
-		else if( userObject.special.indexOf('subscriber') >= 0 ){
-			rv = true;
-		}
 		else if( channel === '#' + userObject.username ){
 			rv = true; // is broadcaster, who has access to all commands
 		}
