@@ -162,7 +162,7 @@ function runCommand(channel, user, msg){
 		});
 
 		var allowed = false;
-		if(access.items.length > 0 &&util.checkAccess(channel, user, access.items[0].special)){
+		if(access.items.length > 0 && util.checkAccess(channel, user, access.items[0].special)){
 			allowed = true;
 		}
 		// "everyone"
