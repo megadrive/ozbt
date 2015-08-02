@@ -249,11 +249,22 @@ function parseMessage(message, client){
  */
 function punishIfBannedUrl(channel, user, chatMessage){
 	var banned_domains = db.collection('banned_domains');
-
 	var matched_urls = chatMessage.match(rurl);
+	var channel_settings = db.collection('channel_settings');
+	var settings = channel_settings.where({
+		'channel': channel
+	}).items[0];
 
 	if( matched_urls !== null && matched_urls.length > 0 ){
 		// remove http or https
+
+		if( settings !== undefined ){
+			if( settings.banlinks === 'on' ){
+				// 60sec timeout TODO: Make it configurable. I should probably make a website for this bot ey.
+				client.timeout(channel, user.username, 60);
+				client.say(channel, user.username + ', please don\'t post links.');
+			}
+		}
 
 		var urlSplit = extractDomain(matched_urls[0]).split('.');
 		var url = urlSplit.splice(-2).join('.');
@@ -269,13 +280,13 @@ function punishIfBannedUrl(channel, user, chatMessage){
 
 			if( item.consequence === 'ban' ){
 				client.ban(channel, user.username).then(function(){
-					client.say(user.username + ' has been banned: ' + item.domain + ' is a punishable domain.');
+					client.say(channel, user.username + ' has been banned: ' + item.domain + ' is a punishable domain.');
 					console.log('BANNEDURL (ban) -> ' + channel + ': ' + user.username);
 				});
 			}
 			else if( item.consequence === 'timeout' ){
 				client.timeout(channel, user.username, item.timeoutTime).then(function(){
-					client.say(user.username + ' has been timed out: ' + item.domain + ' is a punishable domain.');
+					client.say(channel, user.username + ' has been timed out: ' + item.domain + ' is a punishable domain.');
 					console.log('BANNEDURL (timeout) -> ' + channel + ': ' + user.username + ' (' + item.timeoutTime + ')');
 				});
 			}
