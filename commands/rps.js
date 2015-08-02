@@ -110,11 +110,7 @@ else if( guess === eOptions.scissors && myGuess === eOptions.paper ){
 }
 else {
 	// uh, idk? output to chat so people can tell me its broken
-	process.send({
-		'command': 'say',
-		'channel': args[0],
-		'message': '!rps issue, pls pm megadriving'
-	})
+	util.say(args[0], '!rps issue, pls pm megadriving');
 }
 
 var msg = '';
@@ -145,9 +141,5 @@ else {
 }
 
 if( msg.length > 0 ){
-	process.send({
-		'command': 'say',
-		'channel': args[0],
-		'message': msg
-	});
+	util.say(args[0], msg);
 }

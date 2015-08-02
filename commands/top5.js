@@ -31,9 +31,5 @@ if( util.checkAccess(args[0], user, 'moderator') ){
 
 	var output = arr.join(', ');
 
-	process.send({
-		'command': 'say',
-		'channel': args[0],
-		'message': output
-	});
+	util.say(args[0], output);
 }

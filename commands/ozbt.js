@@ -10,11 +10,7 @@ var util = require('../util.js');
 
 var user = JSON.parse(args[1]);
 
-// only show if the broadcaster
-if( util.checkAccess(args[0], user, 'broadcaster') ){
-	process.send({
-		'command': 'say',
-		'channel': args[0],
-		'message': 'I\'m here, ' + user.username + '.'
-	});
+// TODO: Possibly change this to be available to everyone by default.
+if( util.checkAccess(args[0], user, 'moderator') ){
+	util.say(args[0], 'ozbt is a free, open-source Twitch bot by @megadriving. Check out the documentation at https://github.com/megadrive/ozbt');
 }

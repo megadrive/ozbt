@@ -60,11 +60,7 @@ if( util.checkAccess(args[0], user, 'moderator') ){
 		}
 
 		var chat_output = 'Access for ' + args[1] + ' is now "' + currAccess.join(', ') + '".';
-		process.send({
-			'command': 'say',
-			'channel': args[0],
-			'message': chat_output
-		});
+		util.say(args[0], chat_output);
 		accessCollection.save();
 	}
 

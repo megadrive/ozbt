@@ -11,7 +11,6 @@ var db = new locallydb('db/_app');
 var commandsDb = db.collection('custom_commands');
 var util = require('../util.js');
 
-var channel = args[0];
 var user = JSON.parse(args[1]);
 
 var custom_args = args[2].split(' ');
@@ -19,7 +18,7 @@ var custom_trigger = custom_args[1];
 var custom_message = custom_args.splice(2).join(' ');
 
 // Only mods and above can do this
-if( util.checkAccess(channel, user, 'moderator') ){
+if( util.checkAccess(args[0], user, 'moderator') ){
 	var existing = commandsDb.where({
 		'channel': args[0],
 		'trigger': args[1]
@@ -34,7 +33,7 @@ if( util.checkAccess(channel, user, 'moderator') ){
 	{
 		if( custom_message.length > 0 ){
 			commandsDb.insert({
-				'channel': channel,
+				'channel': args[0],
 				'trigger': custom_trigger,
 				'message': custom_message,
 				'added_by': user.username,
@@ -42,11 +41,7 @@ if( util.checkAccess(channel, user, 'moderator') ){
 			});
 			commandsDb.save();
 
-			process.send({
-				'command': 'say',
-				'channel': channel,
-				'message': 'Command "' + custom_trigger + '" added to channel "' + args[0] + '" ' + user.username + '.'
-			});
+			util.say(args[0], 'Command "' + custom_trigger + '" added to channel "' + args[0] + '" ' + user.username + '.');
 		}
 	}
 }

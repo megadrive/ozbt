@@ -24,19 +24,11 @@ if( util.checkAccess(args[0], user, 'moderator') ){
 
 	if( cmd_args[2].toLowerCase() === 'on' ){
 		updateCommand(command, true);
-		process.send({
-			'command': 'say',
-			'channel': args[0],
-			'message': 'Command ' + command + ' has been turned on.'
-		});
+		util.say(args[0], command + ' has been turned on.');
 	}
 	else if( cmd_args[2].toLowerCase() === 'off' ){
 		updateCommand(command, false);
-		process.send({
-			'command': 'say',
-			'channel': args[0],
-			'message': 'Command ' + command + ' has been turned off.'
-		});
+		util.say(args[0], command + ' has been turned off.');
 	}
 	else if( cmd_args[2] === 'toggle' ){
 		// eh not sure this is needed

@@ -11,15 +11,14 @@ var db = new locallydb('db/_app');
 var commandsDb = db.collection('custom_commands');
 var util = require('../util.js');
 
-var channel = args[0];
 var user = JSON.parse(args[1]);
 
-// Only mods and above can do this
-if( util.checkAccess(channel, user, 'moderator') ){
+// By default, only mods and above can do this
+if( util.checkAccess(args[0], user, 'moderator') ){
 
 	// Find the command, first off.
 	var commands = commandsDb.where({
-		'channel': channel
+		'channel': args[0]
 	});
 
 	var listCommands = [];
@@ -27,14 +26,10 @@ if( util.checkAccess(channel, user, 'moderator') ){
 		listCommands.push(commands.items[i].trigger);
 	};
 
-	var msg = 'Available custom commands for ' + channel + ' are: ' + listCommands.join(', ') + '.';
+	var msg = 'Available custom commands for ' + args[0] + ' are: ' + listCommands.join(', ') + '.';
 	if( listCommands.length === 0 ){
-		msg = 'There are no custom commands avilable for ' + channel + '.';
+		msg = 'There are no custom commands avilable for ' + args[0] + '.';
 	}
 
-	process.send({
-		'command': 'say',
-		'channel': channel,
-		'message': msg
-	});
+	util.say(args[0], msg);
 }
