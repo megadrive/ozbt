@@ -19,3 +19,4 @@ if(util.checkAccess(args[0], user, args[2], 'subscriber')){
 	});
 }
 
+util.say(args[0], subText);

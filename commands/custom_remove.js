@@ -20,7 +20,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 	// Find the command, first off.
 	var command = commandsDb.where({
-		'channel': channel,
+		'channel': args[0],
 		'trigger': custom_trigger
 	});
 
@@ -39,9 +39,5 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 		}
 	}
 	commandsDb.save();
-	process.send({
-		'command': 'say',
-		'channel': args[0],
-		'message': 'Command "' + custom_trigger + '" was removed, ' + user.username
-	})
+	util.say(args[0], 'Command "' + custom_trigger + '" was removed, ' + user.username);
 }

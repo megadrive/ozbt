@@ -9,11 +9,12 @@ var args = process.argv.splice(2);
 var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
 
-var data = JSON.parse(args[1]);
+var user = JSON.parse(args[1]);
 
 // Join user's channel if said in #ozbt
+// TODO: Change #ozbt to grab username from config file
 if( args[0] === '#ozbt' ){
-	var username = data.username;
+	var username = user.username;
 
 	var onConnect = db.collection('join_on_connect');
 	var exists = onConnect.where({'channel': username});

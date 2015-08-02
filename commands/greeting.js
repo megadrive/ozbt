@@ -16,18 +16,14 @@ var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
 var greetingCollection = db.collection('channel_greetings');
 
-if( util.checkAccess(args[0], user, args[2], 'broadcaster') ){
-	var temp = args[3].split(' ');
+if( util.checkAccess(args[0], user, 'moderator') ){
+	var temp = args[2].split(' ');
 	var tevent = temp[1].toLowerCase();
 	var message = temp.splice(2).join(' ');
 
-	if( tevent !== 'sub' && tevent !== 'resub' && tevent !== 'host' ){
+	if( tevent.indexOf('sub') === false && tevent.indexOf('resub') === false && tevent.indexOf('host') === false ){
 		// only two supported
-		process.send({
-			'command': 'say',
-			'channel': args[0],
-			'message': 'Error: Supplied "' + tevent + '" not supported. Must be either sub, resub or host.'
-		});
+		util.say(args[0], 'Supplied "' + tevent + '" not supported. Must be one of sub, resub or host.');
 	}
 	else {
 		// check for existance
@@ -38,17 +34,13 @@ if( util.checkAccess(args[0], user, args[2], 'broadcaster') ){
 
 		// if we dont have a message, output the greeting
 		if( message.length === 0 ){
-			var toSend = 'There is no greeting for ' + tevent + ' yet. Add it by using "!greeting ' + tevent + 'yourgreetinghere"';
+			var toSend = 'There is no greeting for ' + tevent + ' yet. Add it by using "!greeting ' + tevent + 'yourgreetinghere". Check documentation for variables.';
 
 			if( greeting.items.length > 0 ){
 				toSend = greeting.items[0].greeting;
 			}
 
-			process.send({
-				'command': 'say',
-				'channel': args[0],
-				'message': toSend
-			});
+			util.say(args[0], toSend);
 		}
 		else{
 			if( greeting.items.length > 0 ){
@@ -61,11 +53,8 @@ if( util.checkAccess(args[0], user, args[2], 'broadcaster') ){
 				'greeting': message
 			});
 
-			process.send({
-				'command': 'say',
-				'channel': args[0],
-				'message': 'Greeting "' + tevent + '" set to "' + message + '"'
-			});
+			console.log('say stuff');
+			util.say(args[0], 'Greeting "' + tevent + '" set to "' + message + '"');
 		}
 	}
 }

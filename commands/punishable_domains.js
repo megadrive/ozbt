@@ -25,9 +25,5 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 	message += domainTexts.join(', ') + '.';
 
-	process.send({
-		'command': 'say',
-		'channel': args[0],
-		'message': message
-	});
+	util.say(args[0], message);
 }

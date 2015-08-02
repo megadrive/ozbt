@@ -27,22 +27,13 @@ module.exports = {
 		var accessCollection = db.collection('channel_access');
 		var specialCollection = db.collection('special_users');
 
-		// see if we have an override for the command
-		var override = accessCollection.where({
-			'channel': channel,
-			'trigger': trigger
-		});
-		if( override.items.length > 0 ){
-			access_level = override.items[0].access.toLowerCase(); // toLowerCase to be safe
-		}
-		else {
-			access_level = access_level.toLowerCase();
-		}
+		// make access level lowercase
+		access_level = access_level.toLowerCase();
 
-		var special = specialCollection.where({'username': userObject.username});
-		if( special.items.length && special.items[0].access === 'admin' ){
-			rv = true;
-		}
+		var users = userCollection.where({
+			'channel': channel,
+			'username': userObject.username
+		});
 
 		if( access_level === 'everybody' ){
 			rv = true;
@@ -54,12 +45,15 @@ module.exports = {
 		else if( channel === '#' + userObject.username ){
 			rv = true; // is broadcaster, who has access to all commands
 		}
-		// this else is to check for moderators.
+		else if( userObject.subscriber === true && access_level === 'subscriber'){
+			rv = true;
+		}
+		else if( access_level === 'moderator' ){
+			if( userObject['user-type'] === 'moderator' ){
+				rv = true;
+			}
+		}
 		else {
-			var users = userCollection.where({
-				'channel': channel,
-				'username': userObject.username
-			});
 			if( users.items.length > 0 && users.items[0].special.indexOf(access_level) >= 0 ){
 				rv = true; // has required access.
 			}

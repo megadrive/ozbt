@@ -16,10 +16,6 @@ request(uptime_url + args[0].substr(1, args[0].length -1), function(err, res, bo
 	if( !err && res.statusCode === 200 ){
 		var uptimeObj = JSON.parse(body);
 		var txt = uptimeObj.uptime === 'offline' ? 'Stream is ' : 'Streaming for ';
-		process.send({
-			'command': 'say',
-			'channel': args[0],
-			'message': txt + uptimeObj.uptime
-		});
+		util.say(args[0], txt + uptimeObj.uptime);
 	}
 });

@@ -33,7 +33,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 	{
 		if( custom_message.length > 0 ){
 			commandsDb.insert({
-				'channel': channel,
+				'channel': args[0],
 				'trigger': custom_trigger,
 				'message': custom_message,
 				'added_by': user.username,
@@ -41,11 +41,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 			});
 			commandsDb.save();
 
-			process.send({
-				'command': 'say',
-				'channel': channel,
-				'message': 'Command "' + custom_trigger + '" added to channel "' + args[0] + '" ' + user.username + '.'
-			});
+			util.say(args[0], 'Command "' + custom_trigger + '" added to channel "' + args[0] + '" ' + user.username + '.');
 		}
 	}
 }

@@ -47,11 +47,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 						txt += votes[i].key + ': ' + votes[i].value + ' ';
 					};
 
-					process.send({
-						'command': 'say',
-						'channel': args[0],
-						'message': txt
-					});
+					util.say(args[0], txt);
 				}
 			}
 		);
@@ -70,11 +66,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 				if( err === null ){
 					strawpoll_id = JSON.parse(body).id;
 
-					process.send({
-						'command': 'say',
-						'channel': args[0],
-						'message': 'Strawpoll here: http://strawpoll.me/' + strawpoll_id
-					});
+					util.say(args[0], 'Vote here: http://strawpoll.me/' + strawpoll_id);
 				}
 			}
 		);
