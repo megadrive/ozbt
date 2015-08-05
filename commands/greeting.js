@@ -13,6 +13,8 @@ var args = process.argv.splice(2);
 var user = JSON.parse(args[1]);
 var util = require('../util.js');
 var locallydb = require('locallydb');
+var Random = require('random-js');
+var random = new Random(Random.engines.mt19937().autoSeed());
 var db = new locallydb('db/_app');
 var greetingCollection = db.collection('channel_greetings');
 
@@ -39,6 +41,12 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 			if( greeting.items.length > 0 ){
 				toSend = greeting.items[0].greeting;
 			}
+
+			// Change variables.
+			var ms = random.integer(1, 24);
+			toSend = toSend.replace('${name}', user.username, 'gi');
+			toSend = toSend.replace('${months}', ms, 'gi');
+			toSend = toSend.replace('${s}', (ms === 1 ? '' : 's'), 'gi');
 
 			util.say(args[0], toSend);
 		}
