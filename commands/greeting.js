@@ -16,8 +16,8 @@ var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
 var greetingCollection = db.collection('channel_greetings');
 
-if( util.checkAccess(args[0], user, 'moderator') ){
-	var temp = args[2].split(' ');
+if( util.checkAccess(args[0], user, args[2], 'moderator') ){
+	var temp = args[3].split(' ');
 	var tevent = temp[1].toLowerCase();
 	var message = temp.splice(2).join(' ');
 

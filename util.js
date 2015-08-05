@@ -45,7 +45,7 @@ module.exports = {
 			rv = true;
 		}
 		else if( access_level === 'moderator' ){
-			if( userObject['user-type'] === 'moderator' ){
+			if( userObject['user-type'] === 'mod' ){
 				rv = true;
 			}
 		}
