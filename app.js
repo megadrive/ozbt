@@ -59,7 +59,7 @@ var client = new tmijs.client(clientOptions);
 
 // Connect the client to the server..
 client.connect();
-whisperFork = fork('./whisper'); // start whisper module
+whisperFork = fork('./whisper.js'); // start whisper module
 
 /**
  * This slab of text gets the channels that have connected to ozbt through the !join command.
