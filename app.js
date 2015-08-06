@@ -13,6 +13,8 @@ var _oauth = '';
 var _username = '';
 var _delim = '!';
 
+var whisperFork = null;
+
 var rurl = /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/;
 
 // clean current temp files if any exist
@@ -57,6 +59,7 @@ var client = new tmijs.client(clientOptions);
 
 // Connect the client to the server..
 client.connect();
+whisperFork = fork('./whisper'); // start whisper module
 
 /**
  * This slab of text gets the channels that have connected to ozbt through the !join command.
@@ -80,6 +83,14 @@ client.addListener('connected', function (address, port) {
  */
 client.addListener('join', function (channel, username) {
 	updateChatters(channel);
+
+	// tell whisper to join
+	whisperFork.send({'join': channel});
+});
+
+client.addListener('part', function(channel, username){
+	// tell whisper to part
+	whisperFork.send({'part': channel});
 });
 
 /**
@@ -238,6 +249,11 @@ function parseMessage(message, client){
 					client.say(message.channel, message.toMsg);
 				}
 			});
+		}
+
+		// Send a whisper to a user
+		if( message.command === 'whisper' && message.username && message.message ){
+			whisperFork.send(message);
 		}
 	}
 }

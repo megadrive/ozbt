@@ -12,5 +12,8 @@ var user = JSON.parse(args[1]);
 
 var userPoints = points.get(args[0], user.username);
 
-// TODO: Change this to a whisper.
-util.say(args[0], 'Points for ' + user.username + ': ' + userPoints);
+process.send({
+	'command': 'whisper',
+	'username': user.username,
+	'message': 'You have ' + userPoints + ' points!'
+});

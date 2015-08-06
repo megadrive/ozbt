@@ -14,4 +14,8 @@ if(util.checkAccess(args[0], user, args[2], 'subscriber')){
 	subText = 'You ARE sub for ' + args[0] + ' according to me. Feel free to use the sub commands.';
 }
 
-util.say(args[0], subText);
+process.send({
+	'command': 'whisper',
+	'username': user.username,
+	'message': subText
+});
