@@ -5,6 +5,7 @@ var tmijs = require('tmi.js');
 
 var _oauth = '';
 var _username = '';
+var _delim = '!';
 
 // get config data
 if( fs.existsSync('config/') === true ){
@@ -45,6 +46,19 @@ var okToWhisper = false;
 
 client.on('join', function(){
 	okToWhisper = true;
+});
+
+client.on('whisper', function(username, message){
+	console.log('Received whisper ' + username + ': ' + message);
+	if( message.indexOf(_delim) === 0 ){
+		var m = message.split(' ');
+		m[0] = m[0].splice(1);
+		process.send({
+			'command': m[0],
+			'username': username,
+			'message': message
+		});
+	}
 });
 
 process.on('message', function(message){
