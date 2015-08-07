@@ -44,7 +44,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 			// Change variables.
 			var ms = random.integer(1, 24);
-			toSend = toSend.replace('${name}', user.username, 'gi');
+			toSend = toSend.replace('${username}', user.username, 'gi');
 			toSend = toSend.replace('${months}', ms, 'gi');
 			toSend = toSend.replace('${s}', (ms === 1 ? '' : 's'), 'gi');
 
