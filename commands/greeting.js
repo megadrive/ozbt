@@ -5,8 +5,8 @@
  * !greeting [sub|subscriber] [message]
  * !greeting [resub|resubscriber] [message]
  *
- * !greeting sub Thanks for subscribing, ${nick}!
- * !greeting resub Thanks for resubscribing, ${nick}! ${months} month${s}!
+ * !greeting sub Thanks for subscribing, ${username}!
+ * !greeting resub Thanks for resubscribing, ${username}! ${months} month${s}!
  */
 
 var args = process.argv.splice(2);

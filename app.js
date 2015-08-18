@@ -13,9 +13,12 @@ var _oauth = '';
 var _username = '';
 var _delim = '!';
 
-var whisperFork = null;
+var forks = {
+	'whisper': null,
+	'timers': null
+};
 
-var rurl = /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/;
+var rurl = /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/gi;
 
 // clean current temp files if any exist
 fs.readdir('temp/', function(err, files){
@@ -59,8 +62,8 @@ var client = new tmijs.client(clientOptions);
 
 // Connect the client to the server..
 client.connect();
-whisperFork = fork('./whisper.js'); // start whisper module
-whisperFork.on('message', function(message){
+forks['whisper'] = fork('./whisper.js'); // start whisper module
+forks['whisper'].on('message', function(message){
 	// channel, user, message
 	runCommand('#jtv', {'username':username}, message);
 });
@@ -89,12 +92,12 @@ client.addListener('join', function (channel, username) {
 	updateChatters(channel);
 
 	// tell whisper to join
-	whisperFork.send({'join': channel});
+	forks['whisper'].send({'join': channel});
 });
 
 client.addListener('part', function(channel, username){
 	// tell whisper to part
-	whisperFork.send({'part': channel});
+	forks['whisper'].send({'part': channel});
 });
 
 /**
@@ -257,7 +260,7 @@ function parseMessage(message, client){
 
 		// Send a whisper to a user
 		if( message.command === 'whisper' && message.username && message.message ){
-			whisperFork.send(message);
+			forks['whisper'].send(message);
 		}
 	}
 }
@@ -280,9 +283,11 @@ function punishIfBannedUrl(channel, user, chatMessage){
 
 		if( settings !== undefined ){
 			if( settings.banlinks === 'on' ){
-				// 60sec timeout TODO: Make it configurable. I should probably make a website for this bot ey.
-				client.timeout(channel, user.username, 60);
-				client.say(channel, user.username + ', please don\'t post links.');
+				if( user['user-type'] !== 'mod' || user.username !== _username ){
+					// 60sec timeout TODO: Make it configurable. I should probably make a website for this bot ey.
+					client.timeout(channel, user.username, 60);
+					client.say(channel, user.username + ', please don\'t post links.');
+				}
 			}
 		}
 
