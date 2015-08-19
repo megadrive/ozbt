@@ -81,11 +81,8 @@ client.addListener('connected', function (address, port) {
 
 /**
  * On joining a channel, update the chatters involved, then update every minute.
- * @NOTE Possibly unused currently, but could be useful to keep.
  */
 client.addListener('join', function (channel, username) {
-	updateChatters(channel);
-
 	// tell whisper to join
 	forks['whisper'].send({'join': channel});
 });
