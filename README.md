@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/megadrive/ozbt.png?label=ready&title=Ready)](https://waffle.io/megadrive/ozbt)
 # ozbt #
 
 **[COMMAND DOCUMENTATION](COMMANDS.md)**
