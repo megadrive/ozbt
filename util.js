@@ -23,17 +23,9 @@ module.exports = {
 	 */
 	'checkAccess': function(channel, userObject, trigger, access_level){
 		var rv = false;
-		var userCollection = db.collection('channel_users');
-		var accessCollection = db.collection('channel_access');
-		var specialCollection = db.collection('special_users');
 
 		// make access level lowercase
 		access_level = access_level.toLowerCase();
-
-		var users = userCollection.where({
-			'channel': channel,
-			'username': userObject.username
-		});
 
 		if( access_level === 'everybody' ){
 			rv = true;
@@ -47,11 +39,6 @@ module.exports = {
 		else if( access_level === 'moderator' ){
 			if( userObject['user-type'] === 'mod' ){
 				rv = true;
-			}
-		}
-		else {
-			if( users.items.length > 0 && users.items[0].special.indexOf(access_level) >= 0 ){
-				rv = true; // has required access.
 			}
 		}
 

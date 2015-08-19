@@ -70,5 +70,5 @@ function updateCommand(trigger, status){
 	});
 
 	var rv = find.items[0].on === status;
-	return rv; // NOTE: Always true currently, investigate if needed.
+	return rv; // @NOTE Always true currently, investigate if needed.
 }

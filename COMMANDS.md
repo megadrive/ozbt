@@ -26,7 +26,7 @@ Anything a standard user can use, a mod can use and whatever a mod can use a bro
 >> `!turn rps off`
 
 `!custom_add [trigger] [message]`
-> Create a custom command for the channel that fires when `!trigger` is used. Please note: user-levels are not implemented yet, so anyone can use them currently.
+> Create a custom command for the channel that fires when `!trigger` is used. Please @NOTE user-levels are not implemented yet, so anyone can use them currently.
 
 `!custom_remove [trigger]`
 > Remove a trigger. `trigger` does not include the delimeter (`!` by default)
@@ -81,4 +81,4 @@ Anything a standard user can use, a mod can use and whatever a mod can use a bro
 
 # Writing your own command #
 
-TODO: This section
+@TODO This section

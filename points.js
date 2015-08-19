@@ -1,7 +1,7 @@
 /**
  * Allows commands to add and take away from a per-channel points system.
  *
- * TODO: Add a per-channel naming of points.
+ * @TODO Add a per-channel naming of points.
  */
 
 var locallydb = require('locallydb');

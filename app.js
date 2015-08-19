@@ -69,24 +69,19 @@ forks['whisper'].on('message', function(message){
 });
 
 /**
- * This slab of text gets the channels that have connected to ozbt through the !join command.
+ * Join channel that connected to ozbt through the !join command.
  */
-var dbOnConnect = db.collection('join_on_connect');
-var dbChannels = dbOnConnect.items;
-var _joinTheseChannels = [];
-for (var i = dbChannels.length - 1; i >= 0; i--) {
-	_joinTheseChannels.push(dbChannels[i].channel);
-};
 client.addListener('connected', function (address, port) {
+	var join_on_connect = db.collection('join_on_connect');
 	client.join('#' + _username);
-	for (var i = 0; i < _joinTheseChannels.length; i++) {
-		client.join('#' + _joinTheseChannels[i]);
+	for (var i = 0; i < join_on_connect.items.length; i++) {
+		client.join('#' + join_on_connect.items[i]);
 	}
 });
 
 /**
  * On joining a channel, update the chatters involved, then update every minute.
- * NOTE: Possibly unused currently, but could be useful to keep.
+ * @NOTE Possibly unused currently, but could be useful to keep.
  */
 client.addListener('join', function (channel, username) {
 	updateChatters(channel);
@@ -164,7 +159,7 @@ client.addListener('chat', function(channel, user, msg){
 
 /**
  * Run a command.
- * TODO: Simplify this.
+ * @TODO Simplify this.
  */
 function runCommand(channel, user, msg){
 	// check for commands
@@ -208,7 +203,7 @@ function runCommand(channel, user, msg){
 				}
 				// if the path doesn't exist, maybe it's a per-channel custom command
 				else {
-					//TODO: move this out
+					//@TODO move this out
 					var commanddb = db.collection('custom_commands');
 					var channel_commands = commanddb.where({'channel': channel, 'trigger': trigger});
 					if( channel_commands.items.length === 1 ){
@@ -268,7 +263,7 @@ function parseMessage(message, client){
 /**
  * @brief If a user posts a banned domain, punish them based on the 'banned_domains' database.
  *
- * TODO: Needs to be improved. Strip subdomains.
+ * @TODO Needs to be improved. Strip subdomains.
  */
 function punishIfBannedUrl(channel, user, chatMessage){
 	var banned_domains = db.collection('banned_domains');
@@ -284,9 +279,9 @@ function punishIfBannedUrl(channel, user, chatMessage){
 		if( settings !== undefined ){
 			if( settings.banlinks === 'on' ){
 				if( user['user-type'] !== 'mod' || user.username !== _username ){
-					// 60sec timeout TODO: Make it configurable. I should probably make a website for this bot ey.
+					// 60sec timeout @TODO Make it configurable. I should probably make a website for this bot ey.
 					client.timeout(channel, user.username, 60);
-					client.say(channel, user.username + ', please don\'t post links.');
+					client.say(channel, user['display-name'] + ', please don\'t post links.');
 				}
 			}
 		}
@@ -305,13 +300,13 @@ function punishIfBannedUrl(channel, user, chatMessage){
 
 			if( item.consequence === 'ban' ){
 				client.ban(channel, user.username).then(function(){
-					client.say(channel, user.username + ' has been banned: ' + item.domain + ' is a punishable domain.');
+					client.say(channel, user['display-name'] + ' has been banned: ' + item.domain + ' is a punishable domain.');
 					console.log('BANNEDURL (ban) -> ' + channel + ': ' + user.username);
 				});
 			}
 			else if( item.consequence === 'timeout' ){
 				client.timeout(channel, user.username, item.timeoutTime).then(function(){
-					client.say(channel, user.username + ' has been timed out: ' + item.domain + ' is a punishable domain.');
+					client.say(channel, user['display-name'] + ' has been timed out: ' + item.domain + ' is a punishable domain.');
 					console.log('BANNEDURL (timeout) -> ' + channel + ': ' + user.username + ' (' + item.timeoutTime + ')');
 				});
 			}
@@ -388,7 +383,7 @@ function updateChatters(channel){
  * @param  string contents jsonified contents to remember
  * @return the file string
  *
- * NOTE: Currently unused.
+ * @NOTE Currently unused.
  */
 function createTemporaryFile(contents, prepend){
 	var filename = prepend + Date.now();

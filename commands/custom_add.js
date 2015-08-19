@@ -41,7 +41,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 			});
 			commandsDb.save();
 
-			util.say(args[0], 'Command "' + custom_trigger + '" added to channel "' + args[0] + '" ' + user.username + '.');
+			util.say(args[0], 'Command "' + custom_trigger + '" added to channel "' + args[0] + '" ' + user['display-name'] + '.');
 		}
 	}
 }

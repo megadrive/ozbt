@@ -24,7 +24,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 	var strawpoll_id = 0;
 
 	// if there is one argument and it's an integer, its an id for results.
-	//TODO: this check needs to be improved
+	//@TODO this check needs to be improved
 	if( !isNaN(poll_title) ){
 		request(strawpoll_api + '/' + poll_title, function(err, response, body){
 				if( err === null ){
@@ -73,7 +73,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 	}
 }
 
-//TODO: Add credit for this function. It was from a StackOverflow comment iirc.
+//@TODO Add credit for this function. It was from a StackOverflow comment iirc.
 function sortObject(obj) {
     var arr = [];
     for (var prop in obj) {

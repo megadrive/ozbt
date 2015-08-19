@@ -12,10 +12,8 @@ var Random = require('random-js');
 var random = new Random(Random.engines.mt19937().autoSeed());
 
 var args = process.argv.splice(2);
-var userData = JSON.parse(args[1]);
+var user = JSON.parse(args[1]);
 var util = require('../util.js');
-
-var user = userData.username;
 
 var points = require('../points.js');
 
@@ -115,16 +113,16 @@ else {
 
 var msg = '';
 if( outcome === eOutcomes.lose ){
-	msg = user + ' wins! tirTear ( tirFlip \'d to ' + guessToText(myGuess) + '.)';
+	msg = user['display-name'] + ' wins! tirTear ( tirFlip \'d to ' + guessToText(myGuess) + '.)';
 
-	//TODO: Add points
-	points.add(args[0], userData.username, POINTS_ON_WIN);
+	//@TODO Add points
+	points.add(args[0], user.username, POINTS_ON_WIN);
 }
 else if( outcome === eOutcomes.win ){
-	msg = user + ' loses! What a tirDumb ! tirTir (Rekt by ' + guessToText(myGuess) + '.)';
+	msg = user['display-name'] + ' loses! What a tirDumb ! tirTir (Rekt by ' + guessToText(myGuess) + '.)';
 
-	//TODO: Remove points
-	points.take(args[0], userData.username, POINTS_ON_LOSE);
+	//@TODO Remove points
+	points.take(args[0], user.username, POINTS_ON_LOSE);
 
 	//30 second timeout
 	process.send({
@@ -137,7 +135,7 @@ else if( outcome === eOutcomes.win ){
 }
 else {
 	// Draw
-	msg = 'Bummer. We drew, ' + user + '! Better luck next time.';
+	msg = 'Bummer. We drew, ' + user['display-name'] + '! Better luck next time.';
 }
 
 if( msg.length > 0 ){

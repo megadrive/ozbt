@@ -1,12 +1,12 @@
 {
   "name": "ozbt",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "engines": {
     "node": "0.12.0",
     "npm": "*"
   },
   "dependencies": {
-    "locallydb": "0.0.9",
+    "nedb": "^1.1.3",
     "random-js": "^1.0.4",
     "request": "^2.58.0",
     "tmi.js": "0.0.20"

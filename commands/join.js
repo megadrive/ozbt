@@ -12,7 +12,7 @@ var db = new locallydb('db/_app');
 var user = JSON.parse(args[1]);
 
 // Join user's channel if said in #ozbt
-// TODO: Change #ozbt to grab username from config file
+// @TODO Change #ozbt to grab username from config file
 if( args[0] === '#ozbt' ){
 	var username = user.username;
 

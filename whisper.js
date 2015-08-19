@@ -61,14 +61,17 @@ client.on('whisper', function(username, message){
 	}
 });
 
+/**
+ * The logging of joins/parts is spamming currently. Uncomment at your own peril.
+ */
 process.on('message', function(message){
 	if( message.part || message.join ){
 		if( message.part ){
-			console.log('parting ' + message.part);
+			//console.log('parting ' + message.part);
 			client.part(message.part);
 		}
 		if(message.join){
-			console.log('joining ' + message.join);
+			//console.log('joining ' + message.join);
 			client.join(message.join);
 		}
 	}

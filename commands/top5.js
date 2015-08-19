@@ -25,7 +25,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 	var arr = [];
 	for(var user of top5){
 		if( user.points > 0 ){
-			arr.push(user.username + ': ' + user.points);
+			arr.push(user['display-name'] + ': ' + user.points);
 		}
 	}
 
