@@ -35,7 +35,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 	if( ok ){
 		var access = accessCollection.where({
 			'channel': args[0],
-			'trigger': args[1]
+			'trigger': cmdArgs[1]
 		});
 
 		var currAccess = [];
@@ -56,7 +56,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 			});
 		}
 
-		var chat_output = 'Access for ' + args[1] + ' is now "' + currAccess.join(', ') + '".';
+		var chat_output = 'Access for ' + cmdArgs[1] + ' is now "' + currAccess + '", ' + user['display-name'];
 		util.say(args[0], chat_output);
 		
 		accessCollection.save();
