@@ -11,6 +11,15 @@ module.exports = {
 	},
 
 	/**
+	 * usage:
+	 * var util = require('../util.js');
+	 * var db = util.getDb();
+	 */
+	'getDb': function(){
+		return db;
+	},
+
+	/**
 	 * Check a user's access.
 	 * `channel` is a string. must include the # because there's no check for it
 	 * `userObject` is the user object given by the twitch-irc chat event, amongst others. if twitch-irc gives it to you, its a user object
