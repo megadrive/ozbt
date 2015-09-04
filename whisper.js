@@ -19,7 +19,8 @@ request('http://tmi.twitch.tv/servers?cluster=group', function(err, resp, body){
 });
 
 function getRandomWhisperServer(){
-	return whisperServers[Math.floor(Math.random() * whisperServers.length)];
+	var s = Math.floor(Math.random() * whisperServers.length);
+	return whisperServers[s];
 }
 
 function functionality(){
@@ -61,7 +62,7 @@ function functionality(){
 	// Connect the client to the server..
 	client.connect();
 
-	var okToWhisper = false;
+	var okToWhisper = true;
 
 	client.on('join', function(){
 		okToWhisper = true;
@@ -94,7 +95,7 @@ function functionality(){
 	 * The logging of joins/parts is spamming currently. Uncomment at your own peril.
 	 */
 	process.on('message', function(message){
-		if( message.part || message.join ){
+		if( okToWhisper && (message.part || message.join) ){
 			if( message.part ){
 				//console.log('parting ' + message.part);
 				client.part(message.part);
