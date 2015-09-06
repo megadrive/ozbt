@@ -18,6 +18,8 @@ var forks = {
 	'timers': null
 };
 
+var prebannedPhrases = JSON.parse(fs.readFileSync('./banned_phrases.json', {'encoding':'utf8'}));
+
 var rurl = /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/gi;
 
 // clean current temp files if any exist
@@ -65,7 +67,7 @@ client.connect();
 forks['whisper'] = fork('./whisper.js'); // start whisper module
 forks['whisper'].on('message', function(message){
 	// channel, user, message
-	runCommand('#jtv', {'username':username}, message);
+	//runCommand('#jtv', {'username':username}, message);
 });
 
 /**
@@ -84,7 +86,7 @@ client.addListener('connected', function (address, port) {
  */
 client.addListener('join', function (channel, username) {
 	// tell whisper to join
-	forks['whisper'].send({'join': channel});
+	//forks['whisper'].send({'join': channel});
 });
 
 client.addListener('part', function(channel, username){
@@ -272,8 +274,26 @@ function punishIfBannedUrl(channel, user, chatMessage){
 
 	if( matched_urls !== null && matched_urls.length > 0 ){
 		// remove http or https
+		var urlSplit = extractDomain(matched_urls[0]).split('.');
+		var url = urlSplit.splice(-2).join('.');
 
 		if( settings !== undefined ){
+			/**
+			 * Ban shortened URLs.
+			 */
+			var isBanShortened = settings['banshortenedlinks'] == 'on' ? true : false;
+			if( isBanShortened === true ){
+				url = url.replace('www.', '', 'gi'); // remove www.
+				// check if it's a shortened url in our json
+				if( prebannedPhrases.shorteners.indexOf(url.toLowerCase()) >= 0 ){
+					// banned phrase, timeout for an hour
+					client.timeout(channel, user.username, 3600).then(function(){
+						client.say(channel, user['display-name'] + ' has been timed out: ' + url.toLowerCase() + ' is a link shortener.');
+						console.log('LINKSHORT (ban) -> ' + channel + ': ' + user.username);
+					});
+				}
+			}
+
 			if( settings.banlinks === 'on' ){
 				if( user['user-type'] !== 'mod' || user.username !== _username ){
 					// 60sec timeout @TODO Make it configurable. I should probably make a website for this bot ey.
@@ -282,9 +302,6 @@ function punishIfBannedUrl(channel, user, chatMessage){
 				}
 			}
 		}
-
-		var urlSplit = extractDomain(matched_urls[0]).split('.');
-		var url = urlSplit.splice(-2).join('.');
 
 		var banned = banned_domains.where({
 			'channel': channel,

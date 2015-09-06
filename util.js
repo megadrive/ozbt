@@ -10,6 +10,10 @@ module.exports = {
 		return 'v' + j.version;
 	},
 
+	'getDb': function(){
+		return db;
+	},
+
 	/**
 	 * usage:
 	 * var util = require('../util.js');
