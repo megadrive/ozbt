@@ -1,6 +1,6 @@
 # Commands #
 
-Anything a standard user can use, a mod can use and whatever a mod can use a broadcaster can use. The command delimeter shown (!) is the default.
+Anything a standard user can use, a mod can use and whatever a mod can use a broadcaster can use. The command delimeter shown (!) is the default. Keep in mind that streamers can turn off commands by using `!turn command [on|off]` on a per-channel basis. Not only that but by using `!set_access command [everyone|subscriber|moderator|broadcaster]` on a per-channel basis too. So these are DEFAULTS ONLY.
 
 ## Users ##
 
@@ -59,6 +59,23 @@ Anything a standard user can use, a mod can use and whatever a mod can use a bro
 >> `!strawpoll [id]` will return the results of a Strawpoll. The poll does not have to have been made by ozbt. If the strawpoll's id from the previous example is 4312341, then `!strawpoll 4312341` will return the results from that poll.
 
 > The syntax may or may not change. Feedback is definitely welcome for this.
+
+`!wr [gameAbbreviation] [categoryAbbreviation]`
+> Beginnings of a command that checks [http://speedrun.com/](Speedrun.com) for the World Record of a game.
+
+> Examples:
+
+> `!wr gtasa any`
+>> Outputs the Grand Theft Auto: San Andreas Any% world record to chat.
+
+`!set_access [command] [everyone|subscriber|moderator|broadcaster]`
+> Sets the access for a command. Fairly self explanitory.
+
+`!banlinks [on|off]`
+> Bans all links.
+
+`!ban_shortened_links [on|off]`
+> Bans shortened links as per the file [banned_phrases.json](banned_phrases.json).
 
 ## Broadcaster ##
 
