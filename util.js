@@ -10,6 +10,10 @@ module.exports = {
 		return 'v' + j.version;
 	},
 
+	'getDb': function(){
+		return db;
+	},
+
 	/**
 	 * Check a user's access.
 	 * `channel` is a string. must include the # because there's no check for it
