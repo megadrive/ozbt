@@ -67,7 +67,7 @@ client.connect();
 forks['whisper'] = fork('./whisper.js'); // start whisper module
 forks['whisper'].on('message', function(message){
 	// channel, user, message
-	//runCommand('#jtv', {'username':username}, message);
+	runCommand('#jtv', {'username':username}, message);
 });
 
 /**
@@ -86,7 +86,7 @@ client.addListener('connected', function (address, port) {
  */
 client.addListener('join', function (channel, username) {
 	// tell whisper to join
-	//forks['whisper'].send({'join': channel});
+	forks['whisper'].send({'join': channel});
 });
 
 client.addListener('part', function(channel, username){
@@ -343,72 +343,4 @@ function extractDomain(url) {
     domain = domain.split(':')[0];
 
     return domain;
-}
-
-// Gets moderators for the channel every 5 minutes.
-function updateChatters(channel){
-	request('https://tmi.twitch.tv/group/user/' + channel.replace('#', '') + '/chatters', function(err, res, body){
-		if( !err && res.statusCode === 200 ){
-			var usersCollection = db.collection('channel_users');
-			var chatters = JSON.parse(body);
-
-			var mods = chatters.chatters.moderators;
-			var staff = chatters.chatters.staff;
-			var admins = chatters.chatters.admins;
-			var global_mods = chatters.chatters.global_mods;
-			var chatter_count = chatters.chatter_count;
-
-			// wipe current channel clean
-			var curr = usersCollection.where({'channel':channel});
-			for(var item of curr.items){
-				usersCollection.remove(item.cid);
-			}
-
-			// add each user type to the database. this will get big.
-			var add = function(usernames, type){
-				for(var username of usernames){
-					usersCollection.insert({
-						'channel': channel,
-						'username': username,
-						'special': [type]
-					});
-				}
-			};
-
-			add(mods, 'moderator');
-			add(staff, 'staff');
-			add(admins, 'admin');
-			add(global_mods, 'global_mods');
-			usersCollection.insert({
-				'channel': channel,
-				'chatter_count': chatter_count
-			});
-			usersCollection.save();
-		}
-	});
-
-	// 60000 = 1min
-	setTimeout(updateChatters, 60000, channel);
-}
-
-/**
- * @brief Creates a temporary file with contents that is deleted after one minute.
- *
- * @param  string contents jsonified contents to remember
- * @return the file string
- *
- * @NOTE Currently unused.
- */
-function createTemporaryFile(contents, prepend){
-	var filename = prepend + Date.now();
-	var fd = fs.openSync('./temp/' + filename, 'w');
-	fs.write(fd, contents);
-	fs.close(fd);
-
-	setTimeout(function(){
-		fs.unlink('./temp/' + filename);
-		console.log('del temp file: ' + filename);
-	}, 60000);
-
-	return './temp/' + filename;
 }
