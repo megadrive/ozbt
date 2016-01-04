@@ -10,10 +10,6 @@ module.exports = {
 		return 'v' + j.version;
 	},
 
-	'getDb': function(){
-		return db;
-	},
-
 	/**
 	 * usage:
 	 * var util = require('../util.js');
@@ -43,13 +39,16 @@ module.exports = {
 		if( access_level === 'everybody' ){
 			rv = true;
 		}
-		else if( channel === '#' + userObject.username ){
+
+		if( channel === '#' + userObject.username ){
 			rv = true; // is broadcaster, who has access to all commands
 		}
-		else if( userObject.subscriber === true && access_level === 'subscriber'){
+
+		if( userObject.subscriber === true && (access_level === 'subscriber' || access_level === 'moderator') ){
 			rv = true;
 		}
-		else if( access_level === 'moderator' ){
+
+		if( access_level === 'moderator' ){
 			if( userObject['user-type'] === 'mod' ){
 				rv = true;
 			}

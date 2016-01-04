@@ -206,8 +206,18 @@ function runCommand(channel, user, msg){
 					var commanddb = db.collection('custom_commands');
 					var channel_commands = commanddb.where({'channel': channel, 'trigger': trigger});
 					if( channel_commands.items.length === 1 ){
-						client.say(channel, channel_commands.items[0].message);
-						console.log('CUSTOM COMMAND -> ' + channel + ': ' + trigger);
+						var access_db = db.collection("channel_access");
+						var access = access_db.where({'channel': channel, 'trigger': trigger});
+						var checkAccess = "broadcaster"; // assume nobody can do it
+						if( access.items.length === 1 ){
+							checkAccess = access.items[0].access;
+						}
+
+						if( util.checkAccess(channel, user, trigger, checkAccess) ){
+							client.say(channel, channel_commands.items[0].message);
+						}
+
+						console.log('CUSTOM COMMAND -> ' + channel + ': ' + trigger + ' -> ' + access);
 					}
 				}
 			});
