@@ -26,7 +26,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 		case 'subscriber':
 		case 'moderator':
 		case 'broadcaster':
-		case 'everyone':
+		case 'everybody':
 			ok = true;
 			break;
 		default:
@@ -43,7 +43,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 		if( access.items.length > 0 ){
 			currAccess = access.items[0].access;
 			accessCollection.update(access.items[0].cid, {
-				'access': currAccess
+				'access': newAccess
 			});
 		}
 		// doesnt exist, add
@@ -56,7 +56,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 			});
 		}
 
-		var chat_output = 'Access for ' + cmdArgs[1] + ' is now "' + currAccess + '", ' + user['display-name'];
+		var chat_output = 'Access for ' + cmdArgs[1] + ' is now "' + newAccess + '", ' + user['display-name'];
 		util.say(args[0], chat_output);
 		
 		accessCollection.save();

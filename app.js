@@ -64,11 +64,13 @@ var client = new tmijs.client(clientOptions);
 
 // Connect the client to the server..
 client.connect();
+/*
 forks['whisper'] = fork('./whisper.js'); // start whisper module
 forks['whisper'].on('message', function(message){
 	// channel, user, message
 	runCommand('#jtv', {'username':username}, message);
 });
+*/
 
 /**
  * Join channel that connected to ozbt through the !join command.
@@ -86,12 +88,12 @@ client.addListener('connected', function (address, port) {
  */
 client.addListener('join', function (channel, username) {
 	// tell whisper to join
-	forks['whisper'].send({'join': channel});
+	//forks['whisper'].send({'join': channel});
 });
 
 client.addListener('part', function(channel, username){
 	// tell whisper to part
-	forks['whisper'].send({'part': channel});
+	//forks['whisper'].send({'part': channel});
 });
 
 /**
@@ -200,7 +202,7 @@ function runCommand(channel, user, msg){
 
 					console.log('CORE COMMAND -> ' + channel + ': ' + trigger);
 				}
-				// if the path doesn't exist, maybe it's a per-channel custom command
+				// !!! if the path doesn't exist, maybe it's a per-channel custom command
 				else {
 					//@TODO move this out
 					var commanddb = db.collection('custom_commands');
@@ -211,13 +213,15 @@ function runCommand(channel, user, msg){
 						var checkAccess = "broadcaster"; // assume nobody can do it
 						if( access.items.length === 1 ){
 							checkAccess = access.items[0].access;
+						} else {
+							checkAccess = "everybody";
 						}
 
 						if( util.checkAccess(channel, user, trigger, checkAccess) ){
 							client.say(channel, channel_commands.items[0].message);
 						}
 
-						console.log('CUSTOM COMMAND -> ' + channel + ': ' + trigger + ' -> ' + access);
+						console.log('CUSTOM COMMAND -> ' + channel + ': ' + trigger);
 					}
 				}
 			});
@@ -264,7 +268,7 @@ function parseMessage(message, client){
 
 		// Send a whisper to a user
 		if( message.command === 'whisper' && message.username && message.message ){
-			forks['whisper'].send(message);
+			//forks['whisper'].send(message);
 		}
 	}
 }
