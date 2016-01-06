@@ -1,6 +1,6 @@
 # Commands #
 
-Anything a standard user can use, a mod can use and whatever a mod can use a broadcaster can use. The command delimeter shown (!) is the default. Keep in mind that streamers can turn off commands by using `!turn command [on|off]` on a per-channel basis. Not only that but by using `!set_access command [everyone|subscriber|moderator|broadcaster]` on a per-channel basis too. So these are DEFAULTS ONLY.
+Anything a standard user can use, a mod can use and whatever a mod can use a broadcaster can use. The command delimeter shown (!) is the default. Keep in mind that streamers can turn off commands by using `!turn command [on|off]` on a per-channel basis. Not only that but by using `!set_access command [everybody|subscriber|moderator|broadcaster]` on a per-channel basis too. So these are DEFAULTS ONLY.
 
 ## Users ##
 
@@ -68,7 +68,7 @@ Anything a standard user can use, a mod can use and whatever a mod can use a bro
 > `!wr gtasa any`
 >> Outputs the Grand Theft Auto: San Andreas Any% world record to chat.
 
-`!set_access [command] [everyone|subscriber|moderator|broadcaster]`
+`!set_access [command] [everybody|subscriber|moderator|broadcaster]`
 > Sets the access for a command. Fairly self explanitory.
 
 `!banlinks [on|off]`
