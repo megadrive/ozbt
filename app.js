@@ -76,6 +76,7 @@ forks['whisper'].on('message', function(message){
  * Join channel that connected to ozbt through the !join command.
  */
 client.addListener('connected', function (address, port) {
+	client.join('#megadriving'); return;
 	var join_on_connect = db.collection('join_on_connect');
 	client.join('#' + _username);
 	for (var i = 0; i < join_on_connect.items.length; i++) {
@@ -129,6 +130,23 @@ client.addListener('subscription', function(channel, username){
 		client.say(channel, greeting);
 	}
 	console.log('SUBSCRIBER -> ' + channel + ': ' + username);
+
+	// If the channel has a subgoal, add to it.
+	var subgoalsDb = db.collection('subgoals');
+	var subgoals = subgoalsDb.where({'channel': channel}).items;
+	if(subgoals.length){
+		for (var i = 0; i < subgoals.length; i++) {
+			subgoals[i].current = parseInt(subgoals[i].current) + 1;
+			if(subgoals[i].current >= parseInt(subgoals[i].numSubs)){
+				client.say(channel, 'Sub goal for "' + subgoals[i].name + '" REACHED!');
+			}
+			else {
+				var percent = Math.floor((parseInt(subgoals[i].current) / parseInt(subgoals[i].numSubs)) * 100);
+				client.say(channel, '"' + subgoals[i].name + '": ' + subgoals[i].current + '/' + subgoals[i].numSubs + ' (' + percent + '%)');
+			}
+			subgoalsDb.update(subgoals[i].cid, {'current': subgoals[i].current});
+		};
+	}
 });
 
 /**
@@ -148,6 +166,31 @@ client.addListener('subanniversary', function(channel, username, months){
 		client.say(channel, greeting);
 	}
 	console.log('SUBANNIVERSARY -> ' + channel + ': ' + username + ' for ' + months + ' months.');
+
+	// If the channel has a subgoal, add to it.
+	var csettingsDb = db.collection('channel_settings');
+	var resub_item = csettingsDb.where({'channel': channel}).items[0];
+	var resub = false;
+	if(resub_item){
+		resub = resub_item.subgoal_resubs == 'on' ? true : false;
+	}
+	if(resub){
+		var subgoalsDb = db.collection('subgoals');
+		var subgoals = subgoalsDb.where({'channel': channel}).items;
+		if(subgoals.length){
+			for (var i = 0; i < subgoals.length; i++) {
+				subgoals[i].current = parseInt(subgoals[i].current) + 1;
+				if(subgoals[i].current >= parseInt(subgoals[i].numSubs)){
+					client.say(channel, 'Sub goal for "' + subgoals[i].name + '" REACHED!');
+				}
+				else {
+					var percent = Math.floor((parseInt(subgoals[i].current) / parseInt(subgoals[i].numSubs)) * 100);
+					client.say(channel, '"' + subgoals[i].name + '": ' + subgoals[i].current + '/' + subgoals[i].numSubs + ' (' + percent + '%)');
+				}
+				subgoalsDb.update(subgoals[i].cid, {'current': subgoals[i].current});
+			};
+		}
+	}
 });
 
 /**
