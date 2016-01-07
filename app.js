@@ -76,7 +76,6 @@ forks['whisper'].on('message', function(message){
  * Join channel that connected to ozbt through the !join command.
  */
 client.addListener('connected', function (address, port) {
-	client.join('#megadriving'); return;
 	var join_on_connect = db.collection('join_on_connect');
 	client.join('#' + _username);
 	for (var i = 0; i < join_on_connect.items.length; i++) {
