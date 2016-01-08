@@ -31,5 +31,5 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 		msg = 'There are no custom commands avilable for ' + args[0] + '.';
 	}
 
-	util.say(args[0], msg);
+	util.say(args[0], user['display-name'] + ' -> ' + msg);
 }

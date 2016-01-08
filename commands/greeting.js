@@ -25,7 +25,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 	if( tevent.indexOf('sub') === false && tevent.indexOf('resub') === false && tevent.indexOf('host') === false ){
 		// only two supported
-		util.say(args[0], 'Supplied "' + tevent + '" not supported. Must be one of sub, resub or host.');
+		util.say(args[0], user['display-name'] + ' -> Supplied "' + tevent + '" not supported. Must be one of sub, resub or host.');
 	}
 	else {
 		// check for existance
@@ -36,7 +36,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 		// if we dont have a message, output the greeting
 		if( message.length === 0 ){
-			var toSend = 'There is no greeting for ' + tevent + ' yet. Add it by using "!greeting ' + tevent + 'yourgreetinghere". Check documentation for variables.';
+			var toSend = user['display-name'] + ' -> There is no greeting for ' + tevent + ' yet. Add it by using "!greeting ' + tevent + 'yourgreetinghere". Check documentation for variables.';
 
 			if( greeting.items.length > 0 ){
 				toSend = greeting.items[0].greeting;
@@ -62,7 +62,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 			});
 
 			console.log('say stuff');
-			util.say(args[0], 'Greeting "' + tevent + '" set to "' + message + '"');
+			util.say(args[0], user['display-name'] + ' -> Greeting "' + tevent + '" set to "' + message + '"');
 		}
 	}
 }

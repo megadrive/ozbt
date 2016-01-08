@@ -113,13 +113,13 @@ else {
 
 var msg = '';
 if( outcome === eOutcomes.lose ){
-	msg = user['display-name'] + ' wins! tirTear ( tirFlip \'d to ' + guessToText(myGuess) + '.)';
+	msg = user['display-name'] + ' wins! SeemsGood (Winning move was ' + guessToText(myGuess) + '.)';
 
 	//@TODO Add points
 	points.add(args[0], user.username, POINTS_ON_WIN);
 }
 else if( outcome === eOutcomes.win ){
-	msg = user['display-name'] + ' loses! What a tirDumb ! tirTir (Rekt by ' + guessToText(myGuess) + '.)';
+	msg = user['display-name'] + ' loses! NotLikeThis What a dummy! (Rekt by ' + guessToText(myGuess) + '.)';
 
 	//@TODO Remove points
 	points.take(args[0], user.username, POINTS_ON_LOSE);

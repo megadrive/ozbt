@@ -25,11 +25,11 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 	if( cmd_args[2].toLowerCase() === 'on' ){
 		updateCommand(command, true);
-		util.say(args[0], command + ' has been turned on.');
+		util.say(args[0], user['display-name'] + ' -> ' + command + ' has been turned on.');
 	}
 	else if( cmd_args[2].toLowerCase() === 'off' ){
 		updateCommand(command, false);
-		util.say(args[0], command + ' has been turned off.');
+		util.say(args[0], user['display-name'] + ' -> ' + command + ' has been turned off.');
 	}
 	else if( cmd_args[2] === 'toggle' ){
 		// eh not sure this is needed

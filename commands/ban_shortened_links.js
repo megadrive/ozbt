@@ -40,13 +40,13 @@ if(util.checkAccess(args[0], user, args[2], 'moderator')){
 
 		var on = (curr_val === undefined ? 'off' : curr_val.on)
 		var txt = on === 'on' ? '' : 'dis';
-		util.say(args[0], '@' + user['display-name'] + ', shortened links are ' + txt + 'allowed. ' + (txt == 'off' ? 'Users will be timed out for an hour if you post a shortened link.' : ''));
+		util.say(args[0], user['display-name'] + ' -> Shortened links are ' + txt + 'allowed. ' + (txt == 'off' ? 'Users will be timed out for an hour if you post a shortened link.' : ''));
 
 	}
 	else {
 		// output current
 		var on = (curr === undefined ? 'off' : curr.on)
 		var txt = on === 'off' ? '' : 'dis';
-		util.say(args[0], '@' + user['display-name'] + ', shortened links are ' + txt + 'allowed. ' + (txt == 'off' ? 'Users will be timed out for an hour if you post a shortened link.' : ''));
+		util.say(args[0], user['display-name'] + ' -> Shortened links are ' + txt + 'allowed. ' + (txt == 'off' ? 'Users will be timed out for an hour if you post a shortened link.' : ''));
 	}
 }

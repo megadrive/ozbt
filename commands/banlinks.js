@@ -42,6 +42,6 @@ if(util.checkAccess(args[0], user, args[2], 'moderator')){
 		// output current
 		var on = (curr === undefined ? 'off' : curr.on)
 		var txt = on === 'off' ? '' : 'not ';
-		util.say(args[0], 'Linking is currently ' + txt + 'allowed.');
+		util.say(args[0], user['display-name'] + ' -> Linking is currently ' + txt + 'allowed.');
 	}
 }

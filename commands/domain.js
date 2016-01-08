@@ -62,7 +62,7 @@ function addDomain(domain, consequence, timeoutTime){
 		bannedDomainsCollection.save();
 	}
 
-	util.say(args[0], 'I will now ' + consequence + ' anyone who posts a link from ' + domain + '.');
+	util.say(args[0], user['display-name'] + ' -> I will now ' + consequence + ' anyone who posts a link from ' + domain + '.');
 }
 
 function removeDomain(domain){
@@ -76,5 +76,5 @@ function removeDomain(domain){
 		bannedDomainsCollection.save();
 	}
 
-	util.say(args[0], domain + ' removed from list of punishable domains.');
+	util.say(args[0], user['display-name'] + ' -> ' + domain + ' removed from list of punishable domains.');
 }

@@ -39,5 +39,5 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 		}
 	}
 	commandsDb.save();
-	util.say(args[0], 'Command "' + custom_trigger + '" was removed, ' + user['display-name']);
+	util.say(args[0], user['display-name'] + ' - > Command "' + custom_trigger + '" was removed.');
 }
