@@ -56,7 +56,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
  * List subs
  *
  * List of sub goals:
- * GTASA 100% Run: 3/10 subs (u0)
+ * GTASA 100% Run: 3/10 subs (30%) (c0)
  */
 function list(){
 	var goals = subgoalsDb.where({'channel': args[0]}).items;
@@ -66,7 +66,8 @@ function list(){
 			var numSubs = goals[i].numSubs;
 			var current = goals[i].current;
 			var cid = goals[i].cid;
-			util.say(args[0], name + ': ' + current + '/' + numSubs + ' subs. (cid: ' + cid + ')');
+			var percent = Math.floor((parseInt(current) / parseInt(numSubs)) * 100);
+			util.say(args[0], '"' + name + '": ' + current + '/' + numSubs + ' subs. (' + percent + '%) (cid: ' + cid + ')');
 		};
 	}
 	else {
