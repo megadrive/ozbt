@@ -34,9 +34,6 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 		case 'resubs':
 			resubs(numSubs); // just use numSubs because its the first argument
 			break;
-		case 'list':
-			list();
-			break;
 		case 'create':
 			create(name, numSubs);
 			break;
@@ -49,6 +46,9 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 		case 'removeall':
 			removeall(uid);
 			break;
+		case 'list':
+		default:
+			list();
 	}
 }
 
