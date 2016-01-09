@@ -10,6 +10,7 @@ var request = require('request');
 var locallydb = require('locallydb');
 var db = new locallydb('db/_app');
 var util = require('../util.js');
+var strawpollDb = db.collection('strawpoll_ids');
 
 var user = JSON.parse(args[1]);
 
@@ -52,6 +53,10 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 			}
 		);
 	}
+	// Output last
+	else if(poll_title == 'last' && poll_args.length == 1){
+		getLast(args[0]);
+	}
 	// If we have a list of arguments, create the poll.
 	else{
 		request.post(
@@ -67,6 +72,9 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 					strawpoll_id = JSON.parse(body).id;
 
 					util.say(args[0], 'Vote here: http://strawpoll.me/' + strawpoll_id);
+
+					// Add id to db so we can call it back when using `!strawpoll last`
+					updateInDatabase(args[0], strawpoll_id);
 				}
 			}
 		);
@@ -87,4 +95,38 @@ function sortObject(obj) {
     arr.sort(function(a, b) { return b.value - a.value; });
     //arr.sort(function(a, b) { a.value.toLowerCase().localeCompare(b.value.toLowerCase()); }); //use this to sort as strings
     return arr; // returns array
+}
+
+/**
+ * Updates the strawpoll_id in the database so we can call it later.
+ *
+ * @method     updateInDatabase
+ * @param      {string}  channel  channel name
+ * @param      {integer}  id   strawpoll id
+ * @return     {id} the strawpoll id. why not
+ */
+function updateInDatabase(channel, id){
+	// get current if exists
+	var current = strawpollDb.where({'channel': channel}).items;
+	if(current.length){
+		// Update
+		strawpollDb.update(current[0].cid, {'id': id});
+	}
+	else {
+		// Create new
+		strawpollDb.insert({'channel': channel, 'id': id});
+	}
+
+	return id;
+}
+
+function getLast(channel){
+	var current = strawpollDb.where({'channel': channel}).items;
+
+	if(current.length){
+		util.say(args[0], 'Vote here: http://strawpoll.me/' + current[0].id);
+	}
+	else{
+		util.say(args[0], 'No last strawpoll available!');
+	}
 }
