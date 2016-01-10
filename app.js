@@ -18,6 +18,8 @@ var forks = {
 	'timers': null
 };
 
+var punishedUsers = db.collection('punished_users');
+
 var prebannedPhrases = JSON.parse(fs.readFileSync('./banned_phrases.json', {'encoding':'utf8'}));
 
 var rurl = /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/gi;
@@ -304,6 +306,11 @@ function parseMessage(message, client){
 			client.timeout(message.channel, message.username, message.time).then(function(){
 				if( message.toMsg.length > 0 ){
 					client.say(message.channel, message.toMsg);
+					punished_users.insert({
+						'channel': channel,
+						'user': user.username,
+						'consequence': 'timeout'
+					});
 				}
 			});
 		}
@@ -345,7 +352,12 @@ function punishIfBannedUrl(channel, user, chatMessage){
 					// banned phrase, timeout for an hour
 					client.timeout(channel, user.username, 3600).then(function(){
 						client.say(channel, user['display-name'] + ' has been timed out: ' + url.toLowerCase() + ' is a link shortener.');
-						console.log('LINKSHORT (ban) -> ' + channel + ': ' + user.username);
+						console.log('LINKSHORT (timeout) -> ' + channel + ': ' + user.username);
+						punished_users.insert({
+							'channel': channel,
+							'user': user.username,
+							'consequence': 'timeout'
+						});
 					});
 				}
 			}
@@ -355,6 +367,11 @@ function punishIfBannedUrl(channel, user, chatMessage){
 					// 60sec timeout @TODO Make it configurable. I should probably make a website for this bot ey.
 					client.timeout(channel, user.username, 60);
 					client.say(channel, user['display-name'] + ', please don\'t post links.');
+					punished_users.insert({
+						'channel': channel,
+						'user': user.username,
+						'consequence': 'timeout'
+					});
 				}
 			}
 		}
@@ -372,12 +389,22 @@ function punishIfBannedUrl(channel, user, chatMessage){
 				client.ban(channel, user.username).then(function(){
 					client.say(channel, user['display-name'] + ' has been banned: ' + item.domain + ' is a punishable domain.');
 					console.log('BANNEDURL (ban) -> ' + channel + ': ' + user.username);
+					punished_users.insert({
+						'channel': channel,
+						'user': user.username,
+						'consequence': 'ban'
+					});
 				});
 			}
 			else if( item.consequence === 'timeout' ){
 				client.timeout(channel, user.username, item.timeoutTime).then(function(){
 					client.say(channel, user['display-name'] + ' has been timed out: ' + item.domain + ' is a punishable domain.');
 					console.log('BANNEDURL (timeout) -> ' + channel + ': ' + user.username + ' (' + item.timeoutTime + ')');
+				});
+				punished_users.insert({
+					'channel': channel,
+					'user': user.username,
+					'consequence': 'timeout'
 				});
 			}
 		}
