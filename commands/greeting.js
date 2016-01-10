@@ -46,6 +46,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 			var ms = random.integer(1, 24);
 			toSend = toSend.replace('${username}', user['display-name'], 'gi');
 			toSend = toSend.replace('${months}', ms, 'gi');
+			toSend = toSend.replace('${viewers}', 42, 'gi');
 			toSend = toSend.replace('${s}', (ms === 1 ? '' : 's'), 'gi');
 
 			util.say(args[0], toSend);
