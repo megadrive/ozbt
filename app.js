@@ -309,7 +309,8 @@ function parseMessage(message, client){
 					punished_users.insert({
 						'channel': channel,
 						'user': user.username,
-						'consequence': 'timeout'
+						'consequence': 'timeout',,
+						'reason': 'n/a'
 					});
 				}
 			});
@@ -356,7 +357,8 @@ function punishIfBannedUrl(channel, user, chatMessage){
 						punished_users.insert({
 							'channel': channel,
 							'user': user.username,
-							'consequence': 'timeout'
+							'consequence': 'timeout',
+							'reason': 'Posted a link shortener.'
 						});
 					});
 				}
@@ -370,7 +372,8 @@ function punishIfBannedUrl(channel, user, chatMessage){
 					punished_users.insert({
 						'channel': channel,
 						'user': user.username,
-						'consequence': 'timeout'
+						'consequence': 'timeout',
+						'reason': 'Posted a link while links were banned.'
 					});
 				}
 			}
@@ -392,7 +395,8 @@ function punishIfBannedUrl(channel, user, chatMessage){
 					punished_users.insert({
 						'channel': channel,
 						'user': user.username,
-						'consequence': 'ban'
+						'consequence': 'ban',
+						'reason': 'Banned domain name.'
 					});
 				});
 			}
@@ -400,11 +404,12 @@ function punishIfBannedUrl(channel, user, chatMessage){
 				client.timeout(channel, user.username, item.timeoutTime).then(function(){
 					client.say(channel, user['display-name'] + ' has been timed out: ' + item.domain + ' is a punishable domain.');
 					console.log('BANNEDURL (timeout) -> ' + channel + ': ' + user.username + ' (' + item.timeoutTime + ')');
-				});
-				punished_users.insert({
-					'channel': channel,
-					'user': user.username,
-					'consequence': 'timeout'
+					punished_users.insert({
+						'channel': channel,
+						'user': user.username,
+						'consequence': 'timeout',
+						'reason': 'Banned domain name.'
+					});
 				});
 			}
 		}
