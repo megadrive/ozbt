@@ -353,7 +353,7 @@ function parseMessage(message, client){
 					punished_users.insert({
 						'channel': channel,
 						'user': user.username,
-						'consequence': 'timeout',,
+						'consequence': 'timeout',
 						'reason': 'n/a'
 					});
 				}
