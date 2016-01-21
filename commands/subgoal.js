@@ -4,7 +4,7 @@
  *
  * !subgoal [list|create|update|remove] [number of subs] [goal name]
  * 
- * !subgoal create 10 
+ * !subgoal create 10 Pew pew%
  */
 
 var args = process.argv.splice(2);
@@ -102,12 +102,24 @@ function create(name, numSubs){
  * Updates an existing sub goal.
  *
  * @method     update
- * @param      {integer}  uid      Unique id for the sub goal. Get it via !subgoal list
+ * @param      {integer}  cid      Unique id for the sub goal. Get it via !subgoal list
  * @param      {string}  name     New name of the sub goal
  * @param      {integer}  numSubs  New number of subs for goal
  */
-function update(uid, name, numSubs){
+function update(cid, name, numSubs){
+	var goal = subgoalsDb.where({
+		'channel': args[0],
+		'cid': cid
+	}).items[0];
 
+	if( goal != undefined ){
+		subgoalsDb.update(cid, {
+			'name': name,
+			'numSubs': numSubs
+		});
+
+		util.say(args[0], user['display-name'] + ' -> Sub goal "' + name + '" with a goal of ' + numSubs + ' was updated. cid: ' + cid);
+	}
 }
 
 /**

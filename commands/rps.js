@@ -112,14 +112,15 @@ else {
 }
 
 var msg = '';
+var username = user['display-name'] != null ? user['display-name'] : user.username;
 if( outcome === eOutcomes.lose ){
-	msg = user['display-name'] + ' wins! SeemsGood (My move was ' + guessToText(myGuess) + '.)';
+	msg = username + ' wins! SeemsGood (My move was ' + guessToText(myGuess) + '.)';
 
 	//@TODO Add points
 	points.add(args[0], user.username, POINTS_ON_WIN);
 }
 else if( outcome === eOutcomes.win ){
-	msg = user['display-name'] + ' loses! NotLikeThis What a dummy! (Rekt by ' + guessToText(myGuess) + '.)';
+	msg = username + ' loses! NotLikeThis What a dummy! (Rekt by ' + guessToText(myGuess) + '.)';
 
 	//@TODO Remove points
 	points.take(args[0], user.username, POINTS_ON_LOSE);

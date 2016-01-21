@@ -203,6 +203,31 @@ client.addListener('chat', function(channel, user, msg){
 });
 
 /**
+ * See if a user is okay to use a command. Returns boolean
+ */
+function userOkToUseCommand(channel, userObj){
+	var collection = db.collection('last_command_use');
+
+	var getLast = collection.where({
+		'channel': channel,
+		'username': userObj.username
+	}).items[0];
+
+	if( getLast != undefined ){
+		// get date diff
+		var now = Date.now().getTime();
+		var diff = now - getLast.datetime; // should be stored in ms
+
+		// if a user last used a command in the last 10 seconds, dont allow them to use this one
+		if( diff < 10000 ){
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
  * Run a command.
  * @TODO Simplify this.
  */
@@ -269,6 +294,25 @@ function runCommand(channel, user, msg){
 					}
 				}
 			});
+
+			// Update users' last used command datetime
+			var lastCommandUseDb = db.collection('last_command_use');
+			var exists = lastCommandUseDb.where({
+				'channel': channel,
+				'username': user.username
+			}).items[0];
+			if(exists){
+				lastCommandUseDb.update(exists.cid, {
+					'datetime': Date.now()
+				});
+			}
+			else{
+				lastCommandUseDb.insert({
+					'channel': channel,
+					'username': user.username,
+					'datetime': Date.now()
+				});
+			}
 		}
 	}
 }

@@ -77,6 +77,23 @@ Anything a standard user can use, a mod can use and whatever a mod can use a bro
 `!ban_shortened_links [on|off]`
 > Bans shortened links as per the file [banned_phrases.json](banned_phrases.json).
 
+`!subgoal [list|create|update|remove] [numberOfSubsNeeded] [subgoalTitle]
+> Using `!subgoal` without any parameters acts as if you used `!subgoal list`.
+
+> Examples:
+
+> !subgoal create 10 This is my test subscription.
+>> Creates a new sub goal.
+
+> !subgoal list
+>> Lists subgoals, with the "cid" you need for updating, and removing any.
+
+> !subgoal remove 1
+>> Removes a sub goal with the cid of 1. This will only work if it's associated with your channel.
+
+> !subgoal update 0 20 CRAZY NEW SUBGOAL
+>> Updates a sub goal with the cid of 0 to 20 subs with a new title. Its worth mentioning that currently a title is required, even if it's exactly the same.
+
 ## Broadcaster ##
 
 `!ozbt`
