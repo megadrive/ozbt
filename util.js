@@ -20,6 +20,23 @@ module.exports = {
 	},
 
 	/**
+	 * Gets either the display name or the username of a userObject, preferring the display-name.
+	 */
+	'getDisplayName': function(userObj){
+		var rv = 'undefined';
+
+		if( userObj ){
+			rv = userObj.username;
+
+			if( userObj['display-name'] != undefined ){
+				rv = userObj['display-name'];
+			}
+		}
+
+		return rv;
+	},
+
+	/**
 	 * Check a user's access.
 	 * `channel` is a string. must include the # because there's no check for it
 	 * `userObject` is the user object given by the twitch-irc chat event, amongst others. if twitch-irc gives it to you, its a user object

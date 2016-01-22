@@ -207,24 +207,27 @@ client.addListener('chat', function(channel, user, msg){
  */
 function userOkToUseCommand(channel, userObj){
 	var collection = db.collection('last_command_use');
+	var rv = true;
 
 	var getLast = collection.where({
 		'channel': channel,
 		'username': userObj.username
 	}).items[0];
 
-	if( getLast != undefined ){
+	// Moderators or higher can use commands willy nilly
+	if( getLast != undefined && util.checkAccess(channel, userObj, '', 'moderator') == false ){
+
 		// get date diff
-		var now = Date.now().getTime();
+		var now = Date.now();
 		var diff = now - getLast.datetime; // should be stored in ms
 
 		// if a user last used a command in the last 10 seconds, dont allow them to use this one
 		if( diff < 10000 ){
-			return false;
+			rv = false;
 		}
 	}
 
-	return true;
+	return rv;
 }
 
 /**
@@ -257,7 +260,7 @@ function runCommand(channel, user, msg){
 		}
 
 		// Undefined and null are truey because if they implicity allow use.
-		if( canUse === true || canUse === undefined || canUse === null ){
+		if( (canUse === true || canUse === undefined || canUse === null) && userOkToUseCommand(channel, user) === true ){
 			// check for file existance
 			var path = './commands/' + trigger + '.js';
 			fs.exists(path, function(exists){
