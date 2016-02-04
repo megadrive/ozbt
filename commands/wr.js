@@ -50,6 +50,6 @@ request(url, function(err, res, body){
 		}
 	}
 	else {
-		util.say(args[0], user['display-name'] + ', I can\'t find this game\'s abbreviation.');
+		util.say(args[0], util.getDisplayName(user) + ', I can\'t find this game\'s abbreviation.');
 	}
 });

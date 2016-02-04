@@ -54,8 +54,37 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 		);
 	}
 	// Output last
-	else if(poll_title == 'last' && poll_args.length == 1){
-		getLast(args[0]);
+	else if(poll_title == 'last' && poll_args.length > 0){
+		if(poll_args.length == 1){
+			getLast(args[0]);
+		}
+		else if(poll_args.length == 2 && poll_args[1] == 'results'){
+			request(strawpoll_api + '/' + poll_title, function(err, response, body){
+					if( err === null ){
+						var results = JSON.parse(body);
+
+						var txt = 'Results for "' + results.title + '" -- ';
+
+						// i am sure there is a better way to do this
+						var tempObj = '{';
+						for(var i = 0; i < results.options.length; ++i){
+							tempObj += '"' + results.options[i] + '": ' + results.votes[i] + ',';
+						}
+						tempObj = tempObj.substr(0,tempObj.length - 1);
+						tempObj += '}';
+						// end dumb code
+						var votes = JSON.parse(tempObj);
+						votes = sortObject(votes);
+
+						for (var i = 0; i < votes.length; i++) {
+							txt += votes[i].key + ': ' + votes[i].value + ' ';
+						};
+
+						util.say(args[0], txt);
+					}
+				}
+			);
+		}
 	}
 	// If we have a list of arguments, create the poll.
 	else{

@@ -56,7 +56,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
  * List subs
  *
  * List of sub goals:
- * GTASA 100% Run: 3/10 subs (30%) (c0)
+ * GTASA 100% Run: 3/10 subs (30%) (cid: 0)
  */
 function list(){
 	var goals = subgoalsDb.where({'channel': args[0]}).items;
@@ -71,7 +71,7 @@ function list(){
 		};
 	}
 	else {
-		util.say(args[0], user['display-name'] + ' -> There are no sub goals present.');
+		util.say(args[0], util.getDisplayName(user) + ' -> There are no sub goals present.');
 	}
 }
 
@@ -94,7 +94,7 @@ function create(name, numSubs){
 			'current': 0
 		});
 
-		util.say(args[0], user['display-name'] + ' -> Sub goal "' + name + '" with a goal of ' + numSubs + ' was created. cid: ' + cid);
+		util.say(args[0], util.getDisplayName(user) + ' -> Sub goal "' + name + '" with a goal of ' + numSubs + ' was created. cid: ' + cid);
 	}
 }
 
@@ -118,7 +118,7 @@ function update(cid, name, numSubs){
 			'numSubs': numSubs
 		});
 
-		util.say(args[0], user['display-name'] + ' -> Sub goal "' + name + '" with a goal of ' + numSubs + ' was updated. cid: ' + cid);
+		util.say(args[0], util.getDisplayName(user) + ' -> Sub goal "' + name + '" with a goal of ' + numSubs + ' was updated. cid: ' + cid);
 	}
 }
 
@@ -131,7 +131,7 @@ function update(cid, name, numSubs){
 function remove(uid){
 	var goal = subgoalsDb.get(parseInt(uid));
 	subgoalsDb.remove(parseInt(uid));
-	util.say(args[0], user['display-name'] + ' -> "' + goal.name + '" has been removed.');
+	util.say(args[0], util.getDisplayName(user) + ' -> "' + goal.name + '" has been removed.');
 }
 
 /**
@@ -141,14 +141,14 @@ function remove(uid){
  */
 function removeall(check){
 	if(check != args[0]){
-		util.say(args[0], user['display-name'] + ' -> Are you sure you wish to remove all sub goals? If so, use !subgoal removeall ' + args[0]);
+		util.say(args[0], util.getDisplayName(user) + ' -> Are you sure you wish to remove all sub goals? If so, use !subgoal removeall ' + args[0]);
 	}
 	else{
 		var goals = subgoalsDb.where({'channel': args[0]}).items;
 		for (var i = 0; i < goals.length; i++) {
 			subgoalsDb.remove(goals[i].cid);
 		};
-		util.say(args[0], user['display-name'] + ' -> Removed all sub goals for ' + args[0] + ', ' + goals.length + ' in total.');
+		util.say(args[0], util.getDisplayName(user) + ' -> Removed all sub goals for ' + args[0] + ', ' + goals.length + ' in total.');
 	}
 }
 
@@ -168,14 +168,14 @@ function resubs(onoff){
 		if(onoff == 'on' || onoff == 'off'){
 			if(settings != undefined){
 				channel_settings.update(settings.cid, {'subgoal_resubs': onoff});
-				util.say(args[0], user['display-name'] + ' -> Your sub goals will now ' + (onoff == 'off' ? 'not' : '') + ' take resubs into account.');
+				util.say(args[0], util.getDisplayName(user) + ' -> Your sub goals will now ' + (onoff == 'off' ? 'not' : '') + ' take resubs into account.');
 			}
 		}
 		else {
-			util.say(args[0], user['display-name'] + ' -> Syntax: !subgoal resubs [on|off]');
+			util.say(args[0], util.getDisplayName(user) + ' -> Syntax: !subgoal resubs [on|off]');
 		}
 	}
 	else{
-		util.say(args[0], user['display-name'] + ' -> Syntax: !subgoal resubs [on|off]');
+		util.say(args[0], util.getDisplayName(user) + ' -> Syntax: !subgoal resubs [on|off]');
 	}
 }

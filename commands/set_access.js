@@ -56,7 +56,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 			});
 		}
 
-		var chat_output = 'Access for ' + cmdArgs[1] + ' is now "' + newAccess + '", ' + user['display-name'];
+		var chat_output = 'Access for ' + cmdArgs[1] + ' is now "' + newAccess + '", ' + util.getDisplayName(user);
 		util.say(args[0], chat_output);
 		
 		accessCollection.save();

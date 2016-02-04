@@ -25,7 +25,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 	if( tevent.indexOf('sub') === false && tevent.indexOf('resub') === false && tevent.indexOf('host') === false ){
 		// only two supported
-		util.say(args[0], user['display-name'] + ' -> Supplied "' + tevent + '" not supported. Must be one of sub, resub or host.');
+		util.say(args[0], util.getDisplayName(user) + ' -> Supplied "' + tevent + '" not supported. Must be one of sub, resub or host.');
 	}
 	else {
 		// check for existance
@@ -36,7 +36,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 		// if we dont have a message, output the greeting
 		if( message.length === 0 ){
-			var toSend = user['display-name'] + ' -> There is no greeting for ' + tevent + ' yet. Add it by using "!greeting ' + tevent + 'yourgreetinghere". Check documentation for variables.';
+			var toSend = util.getDisplayName(user) + ' -> There is no greeting for ' + tevent + ' yet. Add it by using "!greeting ' + tevent + 'yourgreetinghere". Check documentation for variables.';
 
 			if( greeting.items.length > 0 ){
 				toSend = greeting.items[0].greeting;
@@ -44,7 +44,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 
 			// Change variables.
 			var ms = random.integer(1, 24);
-			toSend = toSend.replace('${username}', user['display-name'], 'gi');
+			toSend = toSend.replace('${username}', util.getDisplayName(user), 'gi');
 			toSend = toSend.replace('${months}', ms, 'gi');
 			toSend = toSend.replace('${viewers}', 42, 'gi');
 			toSend = toSend.replace('${s}', (ms === 1 ? '' : 's'), 'gi');
@@ -63,7 +63,7 @@ if( util.checkAccess(args[0], user, args[2], 'moderator') ){
 			});
 
 			console.log('say stuff');
-			util.say(args[0], user['display-name'] + ' -> Greeting "' + tevent + '" set to "' + message + '"');
+			util.say(args[0], util.getDisplayName(user) + ' -> Greeting "' + tevent + '" set to "' + message + '"');
 		}
 	}
 }

@@ -112,7 +112,7 @@ else {
 }
 
 var msg = '';
-var username = user['display-name'] != null ? user['display-name'] : user.username;
+var username = util.getDisplayName(user) != null ? util.getDisplayName(user) : user.username;
 if( outcome === eOutcomes.lose ){
 	msg = username + ' wins! SeemsGood (My move was ' + guessToText(myGuess) + '.)';
 
@@ -136,7 +136,7 @@ else if( outcome === eOutcomes.win ){
 }
 else {
 	// Draw
-	msg = 'Bummer. We drew, ' + user['display-name'] + '! Better luck next time.';
+	msg = 'Bummer. We drew, ' + util.getDisplayName(user) + '! Better luck next time.';
 }
 
 if( msg.length > 0 ){

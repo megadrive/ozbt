@@ -399,7 +399,7 @@ function punishIfBannedUrl(channel, user, chatMessage){
 				if( prebannedPhrases.shorteners.indexOf(url.toLowerCase()) >= 0 ){
 					// banned phrase, timeout for an hour
 					client.timeout(channel, user.username, 3600).then(function(){
-						client.say(channel, user['display-name'] + ' has been timed out: ' + url.toLowerCase() + ' is a link shortener.');
+						client.say(channel, util.getDisplayName(user) + ' has been timed out: ' + url.toLowerCase() + ' is a link shortener.');
 						console.log('LINKSHORT (timeout) -> ' + channel + ': ' + user.username);
 						punished_users.insert({
 							'channel': channel,
@@ -415,7 +415,7 @@ function punishIfBannedUrl(channel, user, chatMessage){
 				if( user['user-type'] !== 'mod' || user.username !== _username ){
 					// 60sec timeout @TODO Make it configurable. I should probably make a website for this bot ey.
 					client.timeout(channel, user.username, 60);
-					client.say(channel, user['display-name'] + ', please don\'t post links.');
+					client.say(channel, util.getDisplayName(user) + ', please don\'t post links.');
 					punished_users.insert({
 						'channel': channel,
 						'user': user.username,
@@ -437,7 +437,7 @@ function punishIfBannedUrl(channel, user, chatMessage){
 
 			if( item.consequence === 'ban' ){
 				client.ban(channel, user.username).then(function(){
-					client.say(channel, user['display-name'] + ' has been banned: ' + item.domain + ' is a punishable domain.');
+					client.say(channel, util.getDisplayName(user) + ' has been banned: ' + item.domain + ' is a punishable domain.');
 					console.log('BANNEDURL (ban) -> ' + channel + ': ' + user.username);
 					punished_users.insert({
 						'channel': channel,
@@ -449,7 +449,7 @@ function punishIfBannedUrl(channel, user, chatMessage){
 			}
 			else if( item.consequence === 'timeout' ){
 				client.timeout(channel, user.username, item.timeoutTime).then(function(){
-					client.say(channel, user['display-name'] + ' has been timed out: ' + item.domain + ' is a punishable domain.');
+					client.say(channel, util.getDisplayName(user) + ' has been timed out: ' + item.domain + ' is a punishable domain.');
 					console.log('BANNEDURL (timeout) -> ' + channel + ': ' + user.username + ' (' + item.timeoutTime + ')');
 					punished_users.insert({
 						'channel': channel,
@@ -461,6 +461,13 @@ function punishIfBannedUrl(channel, user, chatMessage){
 			}
 		}
 	}
+}
+
+/**
+ * Add a message to a queue since we can only put out 200 messages every 30 seconds.
+ */
+function addToMessageQueue(channel, message){
+
 }
 
 // From http://stackoverflow.com/questions/8498592/extract-root-domain-name-from-string on 3 July 2015

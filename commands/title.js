@@ -17,7 +17,7 @@ request(api_url + args[0].substr(1, args[0].length -1), function(err, res, body)
 		var jsonObj = JSON.parse(body);
 		if(jsonObj.stream != null){
 			console.log(jsonObj.stream);
-			util.say(args[0], user['display-name'] + ' -> Title is: "' + jsonObj.stream.channel.status + '".');
+			util.say(args[0], util.getDisplayName(user) + ' -> Title is: "' + jsonObj.stream.channel.status + '".');
 		}
 	}
 });
