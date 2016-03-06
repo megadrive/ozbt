@@ -22,91 +22,53 @@ var poll_answers = poll_args.splice(1);
 
 // only show if the broadcaster
 if( util.checkAccess(args[0], user, args[2], 'moderator') ){
-	var strawpoll_id = 0;
+	var strawpoll_id = strawpollDb.where({'channel': args[0]})[0];
 
-	// if there is one argument and it's an integer, its an id for results.
 	//@TODO this check needs to be improved
-	if( !isNaN(poll_title) ){
-		request(strawpoll_api + '/' + poll_title, function(err, response, body){
+	// results?
+	if( poll_args.length == 1 && poll_args[0].toLowerCase() == 'results' ){
+		request(strawpoll_api + '/' + strawpoll_id,
+			function(err, response, body){
 				if( err === null ){
-					var results = JSON.parse(body);
+					var j = JSON.parse(body);
 
-					var txt = 'Results for "' + results.title + '" -- ';
+					var title = j.title;
+					var opts = j.options;
+					var votes = j.votes;
 
-					// i am sure there is a better way to do this
-					var tempObj = '{';
-					for(var i = 0; i < results.options.length; ++i){
-						tempObj += '"' + results.options[i] + '": ' + results.votes[i] + ',';
+					var output = 'Results for "' + title + '" -- ';
+					for(var i = 0; i < opts.lenth; i++){
+						output += opts[i] + ': ' + votes[i];
 					}
-					tempObj = tempObj.substr(0,tempObj.length - 1);
-					tempObj += '}';
-					// end dumb code
-					var votes = JSON.parse(tempObj);
-					votes = sortObject(votes);
 
-					for (var i = 0; i < votes.length; i++) {
-						txt += votes[i].key + ': ' + votes[i].value + ' ';
-					};
-
-					util.say(args[0], txt);
+					util.say(args[0], output);
 				}
 			}
 		);
 	}
-	// Output last
-	else if(poll_title == 'last' && poll_args.length > 0){
-		if(poll_args.length == 1){
-			getLast(args[0]);
-		}
-		else if(poll_args.length == 2 && poll_args[1] == 'results'){
-			request(strawpoll_api + '/' + poll_title, function(err, response, body){
+	// If we have a list of arguments, create the poll.
+	else{
+		if( poll_args.length >= 3){
+			request.post(
+				{
+					url: strawpoll_api,
+					form: {
+						options: poll_answers,
+						title: poll_title
+					}
+				},
+				function(err, response, body){
 					if( err === null ){
-						var results = JSON.parse(body);
+						strawpoll_id = JSON.parse(body).id;
 
-						var txt = 'Results for "' + results.title + '" -- ';
+						util.say(args[0], 'Vote here: http://strawpoll.me/' + strawpoll_id);
 
-						// i am sure there is a better way to do this
-						var tempObj = '{';
-						for(var i = 0; i < results.options.length; ++i){
-							tempObj += '"' + results.options[i] + '": ' + results.votes[i] + ',';
-						}
-						tempObj = tempObj.substr(0,tempObj.length - 1);
-						tempObj += '}';
-						// end dumb code
-						var votes = JSON.parse(tempObj);
-						votes = sortObject(votes);
-
-						for (var i = 0; i < votes.length; i++) {
-							txt += votes[i].key + ': ' + votes[i].value + ' ';
-						};
-
-						util.say(args[0], txt);
+						// Add id to db so we can call it back when using `!strawpoll last`
+						updateInDatabase(args[0], strawpoll_id);
 					}
 				}
 			);
 		}
-	}
-	// If we have a list of arguments, create the poll.
-	else{
-		request.post(
-			{
-				url: strawpoll_api,
-				form: {
-					options: poll_answers,
-					title: poll_title
-				}
-			},
-			function(err, response, body){
-				if( err === null ){
-					strawpoll_id = JSON.parse(body).id;
-
-					util.say(args[0], 'Vote here: http://strawpoll.me/' + strawpoll_id);
-
-					// Add id to db so we can call it back when using `!strawpoll last`
-					updateInDatabase(args[0], strawpoll_id);
-				}
-			}
-		);
 	}
 }
 
