@@ -1,16 +1,13 @@
 {
   "name": "ozbt",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "engines": {
-    "node": "0.12.0",
+    "node": "*",
     "npm": "*"
   },
   "dependencies": {
-    "locallydb": "0.0.9",
-    "random-js": "^1.0.4",
-    "request": "^2.58.0",
-    "tmi.js": "*",
-    "underscore": "^1.8.3"
+    "mysql-model": "0.0.2",
+    "tmi.js": "0.0.28"
   },
   "scripts": {
     "start": "app.js"
