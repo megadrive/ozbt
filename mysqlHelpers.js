@@ -1,6 +1,30 @@
 "use strict";
 
+var _config = require("./config/config.user.js");
+var _mysql = require("mysql");
+var _db = undefined;
+
 module.exports = {
+	"db": () => {
+		if( _db === undefined ){
+			// Create MySQL connection
+			_db = _mysql.createConnection({
+				"host": _config.mysql_addr,
+				"user": _config.mysql_user,
+				"password": _config.mysql_pass,
+				"database": _config.mysql_db
+
+				//@debug
+				//,"debug": true
+			});
+			_db.connect();
+
+			console.log("Connected to MySQL.");
+		}
+
+		return _db;
+	},
+
 	"findAll": (db, tableName, callback) => {
 		var sql = "SELECT * FROM `" + tableName + "` AS " + tableName;
 		db.query(sql, (err, rows, fields) => {
@@ -15,7 +39,7 @@ module.exports = {
 		Object.keys(fields).forEach((key) => {
 			var value = fields[key];
 			if( typeof value === "boolean" ) value = +value;
-			if( typeof value === "string" ) value = "'" + value + "'";
+			if( typeof value === "string" ) value = "'" + value.replace(/[^\\]?'/g, "\\\'") + "'";
 			_fields.push("`" + key + "` = " + value);
 		});
 		_fields = _fields.join(" AND "); // from array to string literal
@@ -42,10 +66,9 @@ module.exports = {
 			var value = fields[key];
 			if( typeof value === "boolean" ) value = +value;
 			if( typeof value === "string" ){
-				value = value.replace(/[^\\]?"/g, '\\"');
-				value = value.replace(/[^\\]?'/g, "\\'");
+				value = value.replace(/[^\\]?'/g, "\\\'");
 			}
-			_values.push('"' + value + '"');
+			_values.push("'" + value + "'");
 		});
 		_values = _values.join(", ");
 
@@ -56,6 +79,10 @@ module.exports = {
 			}
 			callback(rows);
 		});
+	},
+
+	"delete": (db, tableName, fields, callback) => {
+		console.error("ERROR: mysqlHelper.delete() NOT IMPLEMENTED.");
 	},
 
 	//@NOTE Keeping for posterity.
@@ -90,7 +117,7 @@ module.exports = {
 				"subscriber": 3,
 				"moderator": 2,
 				"supermoderator": 1, // dont exist as yet
-				"broadcaster": 0,
+				"broadcaster": 0
 			};
 
 			// Add command permission

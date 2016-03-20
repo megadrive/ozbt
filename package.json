@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "mysql": "^2.10.2",
+    "request": "^2.69.0",
     "tmi.js": "0.0.28"
   },
   "scripts": {
