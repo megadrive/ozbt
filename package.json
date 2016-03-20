@@ -6,7 +6,7 @@
     "npm": "*"
   },
   "dependencies": {
-    "mysql-model": "0.0.2",
+    "mysql": "^2.10.2",
     "tmi.js": "0.0.28"
   },
   "scripts": {
