@@ -81,8 +81,51 @@ module.exports = {
 		});
 	},
 
+	"update": (db, tableName, where, fields, callback) => {
+		var _fields = [];
+		var _values = [];
+
+		// Fields
+		Object.keys(fields).forEach((key) => {
+			var value = fields[key];
+			if( typeof value === "boolean" ) value = +value;
+			if( typeof value === "string" ){
+				value = value.replace(/[^\\]?'/g, "\\\'");
+			}
+			_values.push(key + " = '" + value + "'");
+		});
+		_values = _values.join(",\n");
+
+		var sql = "UPDATE `" + tableName + "` SET " + _values + " WHERE " + where;
+		db.query(sql, (err, rows, fields) => {
+			if(err){
+				throw err;
+			}
+			callback(rows);
+		});
+
+	},
+
 	"delete": (db, tableName, fields, callback) => {
-		console.error("ERROR: mysqlHelper.delete() NOT IMPLEMENTED.");
+		// Fields
+		var _values = [];
+		Object.keys(fields).forEach((key) => {
+			var value = fields[key];
+			if( typeof value === "boolean" ) value = +value;
+			if( typeof value === "string" ){
+				value = value.replace(/[^\\]?'/g, "\\\'");
+			}
+			_values.push(key + " = '" + value + "'");
+		});
+		_values = _values.join(" AND ");
+
+		var sql = "DELETE FROM `" + tableName + "` WHERE " + _values;
+		db.query(sql, (err, rows, fields) => {
+			if(err){
+				throw err;
+			}
+			callback(rows);
+		});
 	},
 
 	//@NOTE Keeping for posterity.

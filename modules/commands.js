@@ -101,7 +101,8 @@ var _commands = {
 		_client = client;
 	},
 	"onChat": onChat,
-	"checkPermission": checkPermission
+	"checkPermission": checkPermission,
+	"ACCESS": ACCESS_LEVELS
 };
 
 module.exports = _commands;

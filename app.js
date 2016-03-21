@@ -12,7 +12,7 @@ var _client = new _tmi.client({
 		"debug": true
 	},
 	"connection": {
-		"cluster": "aws",
+		"cluster": "main",
 		"reconnect": true
 	},
 	"identity": {
@@ -28,6 +28,9 @@ _client.on("connected", (addr, port) => {
 	_commands.register(_client);
 
 	_dbHelpers.findAll(_dbHelpers.db(), "channel", (rows) => {
+		//@debug
+		_client.join("#megadriving"); return;
+
 		for(var r = 0; r < rows.length; r++){
 			if( rows[r].JoinOnAppOpen ){
 				_client.join(rows[r].Channel);

@@ -1,4 +1,6 @@
 
+var consts = require("./consts.js");
+
 module.exports = {
 	'version': function(){
 		var fs = require('fs');
@@ -19,6 +21,40 @@ module.exports = {
 			if( userObj['display-name'] != undefined ){
 				rv = userObj['display-name'];
 			}
+		}
+
+		return rv;
+	},
+
+	// @var user user object
+	"checkPermissionCore": (channel, user, requiredPermission) => {
+		var rv = false;
+
+		if( requiredPermission === consts.access.regular ){
+			console.warn("Warning: Regulars access level not implemented.");
+			rv = false;
+		}
+
+		if( requiredPermission === consts.access.subscriber ){
+			if( user.subscriber === true ){
+				rv = true;
+			}
+		}
+
+		if( requiredPermission === consts.access.moderator ){
+			if( user['user-type'] === 'mod' ){
+				rv = true;
+			}
+		}
+
+		if( requiredPermission === consts.access.supermoderator ){
+			console.warn("Warning: SuperModerator access level not implemented.");
+			rv = false;
+		}
+
+		// Broadcaster
+		if( channel === "#" + user.username ){
+			rv = true;
 		}
 
 		return rv;
