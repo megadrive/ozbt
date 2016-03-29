@@ -5,15 +5,7 @@ var _client = undefined;
 var _dbHelpers = require("../mysqlHelpers.js");
 var fs = require("fs");
 var fork = require("child_process").fork;
-
-var ACCESS_LEVELS = {
-	"everybody": 5,
-	"regular": 4, // dont exist as yet
-	"subscriber": 3,
-	"moderator": 2,
-	"supermoderator": 1, // dont exist as yet
-	"broadcaster": 0
-};
+var consts = require("../consts.js");
 
 var checkPermission = (channel, user, command, callback) => {
 	_dbHelpers.find(_dbHelpers.db(), "commandpermission", {
@@ -26,21 +18,21 @@ var checkPermission = (channel, user, command, callback) => {
 		// Command has previously been given a permission level
 		if( rows.length === 1 ){
 			//@NOTE: Not implemented yet.
-			if( rows[0].PermissionLevel === ACCESS_LEVELS.supermoderator ){
+			if( rows[0].PermissionLevel === consts.access.supermoderator ){
 				console.warn("Warning: SuperModerator access level not implemented. Channel: " + channel + ", " + command);
 				rv = false;
 			}
-			else if( rows[0].PermissionLevel === ACCESS_LEVELS.moderator ){
+			else if( rows[0].PermissionLevel === consts.access.moderator ){
 				if( user['user-type'] !== 'mod' ){
 					rv = false;
 				}
 			}
-			else if( rows[0].PermissionLevel === ACCESS_LEVELS.subscriber ){
+			else if( rows[0].PermissionLevel === consts.access.subscriber ){
 				if( user.subscriber === false ){
 					rv = false;
 				}
 			}
-			else if( rows[0].PermissionLevel === ACCESS_LEVELS.regular ){
+			else if( rows[0].PermissionLevel === consts.access.regular ){
 				console.warn("Warning: Regulars access level not implemented. Channel: " + channel + ", " + command);
 				rv = false;
 			}
@@ -101,8 +93,7 @@ var _commands = {
 		_client = client;
 	},
 	"onChat": onChat,
-	"checkPermission": checkPermission,
-	"ACCESS": ACCESS_LEVELS
+	"checkPermission": checkPermission
 };
 
 module.exports = _commands;

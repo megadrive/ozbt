@@ -1,0 +1,15 @@
+"use strict";
+
+// Rename this file to config.user.js
+module.exports = {
+	"username": "twitch_user",
+	"oauth": "oauth:token",
+
+	"mysql_addr": "localhost",
+	"mysql_user": "user",
+	"mysql_pass": "pass",
+	"mysql_db": "ozbt",
+
+	// Relative to app.js
+	"core_dir": "./core/"
+};

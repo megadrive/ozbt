@@ -1,5 +1,6 @@
 
 var consts = require("./consts.js");
+var db = require("./mysqlHelpers.js");
 
 module.exports = {
 	'version': function(){
@@ -32,7 +33,14 @@ module.exports = {
 
 		if( requiredPermission === consts.access.regular ){
 			console.warn("Warning: Regulars access level not implemented.");
-			rv = false;
+			db.find(db.db(), "regular", {
+				"Channel": channel,
+				"Username": user.username
+			}, (rows) => {
+				if(rows.length === 1){
+					rv = true;
+				}
+			});
 		}
 
 		if( requiredPermission === consts.access.subscriber ){
@@ -49,7 +57,14 @@ module.exports = {
 
 		if( requiredPermission === consts.access.supermoderator ){
 			console.warn("Warning: SuperModerator access level not implemented.");
-			rv = false;
+			db.find(db.db(), "supermoderator", {
+				"Channel": channel,
+				"Username": user.usernamer
+			}, (rows) => {
+				if(rows.length === 1){
+					rv = true;
+				}
+			});
 		}
 
 		// Broadcaster

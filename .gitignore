@@ -20,5 +20,5 @@ node_modules
 *.sublime-workspace
 
 ## custom
-config/*
+config/*.js
 db/*

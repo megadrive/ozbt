@@ -7,5 +7,9 @@ module.exports = {
 		"moderator": 2,
 		"supermoderator": 1, // dont exist as yet
 		"broadcaster": 0
+	},
+	"greeting": {
+		"sub": 0,
+		"resub": 1
 	}
 };

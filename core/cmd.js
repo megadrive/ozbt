@@ -13,6 +13,11 @@ var args = process.env.message.split(" ");
  * !cmd delete !poop
  */
 
+var static = {
+	"help": "!cmd <add|edit|delete> <output text>"
+};
+module.exports = static;
+
 var intent = args[1];
 var cmd = args[2];
 var string = args.splice(3).join(" ");

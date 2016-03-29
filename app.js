@@ -5,6 +5,7 @@ var _config = require("./config/config.user.js");
 // @Modules
 var _dbHelpers = require("./mysqlHelpers.js");
 var _commands = require("./modules/commands.js");
+var _greetings = require("./modules/greetings.js");
 
 var _tmi = require("tmi.js");
 var _client = new _tmi.client({
@@ -12,7 +13,7 @@ var _client = new _tmi.client({
 		"debug": true
 	},
 	"connection": {
-		"cluster": "main",
+		"cluster": "aws",
 		"reconnect": true
 	},
 	"identity": {
@@ -39,8 +40,6 @@ _client.on("connected", (addr, port) => {
 	}); // initial connection
 });
 
-_client.on("chat", _commands.onChat);
-
 _client.on("join", (channel, username) => {
 	// If channel doesnt exist, create a new record
 	_dbHelpers.find(_dbHelpers.db(), "channel", {"Channel": channel}, (rows) => {
@@ -52,3 +51,7 @@ _client.on("join", (channel, username) => {
 		}
 	});
 });
+
+_client.on("chat", _commands.onChat);
+_client.on("subscription", _greetings.onSub);
+_client.on("subscription", _greetings.onResub);
