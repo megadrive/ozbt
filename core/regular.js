@@ -64,7 +64,7 @@ var del = () => {
 	});
 };
 
-if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) ){
+if( util.checkPermissionCore(process.env.channel, user, consts.access.supermoderator) ){
 	var help = util.getDisplayName(user) + " -> !regular <add|delete> <username>";
 	if( regularUsername === undefined ){
 		util.say(process.env.channel, help);
