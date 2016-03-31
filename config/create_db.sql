@@ -28,25 +28,6 @@ CREATE TABLE IF NOT EXISTS `ozbt`.`channel` (
   UNIQUE INDEX `Channel_UNIQUE` (`Channel` ASC))
 ENGINE = InnoDB;
 
-
--- -----------------------------------------------------
--- Table `ozbt`.`greeting`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ozbt`.`greeting` (
-  `GreetingId` INT NOT NULL AUTO_INCREMENT,
-  `Type` INT NOT NULL,
-  `OutputText` VARCHAR(255) NOT NULL,
-  `Channel` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`GreetingId`),
-  INDEX `Greeting_Channel_fk_idx` (`Channel` ASC),
-  CONSTRAINT `Greeting_Channel_fk`
-    FOREIGN KEY (`Channel`)
-    REFERENCES `ozbt`.`channel` (`Channel`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `ozbt`.`subgoal`
 -- -----------------------------------------------------
