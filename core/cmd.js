@@ -14,7 +14,7 @@ var args = process.env.message.split(" ");
  */
 
 var static = {
-	"help": "!cmd <add|edit|delete> <output text>"
+	"help": "!cmd <add|edit|delete> <command> <output text>"
 };
 module.exports = static;
 

@@ -3,7 +3,7 @@
 var _config = require("./config/config.user.js");
 
 // @Modules
-var _dbHelpers = require("./mysqlHelpers.js");
+var db = require("./mysqlHelpers.js");
 var _commands = require("./modules/commands.js");
 var _greetings = require("./modules/greetings.js");
 
@@ -20,6 +20,7 @@ var _client = new _tmi.client({
 		"username": _config.username,
 		"password": _config.oauth
 	}
+	// Comment this line if you don't want to log anything.
 	,"logger": require("./logger.js")
 });
 
@@ -28,7 +29,7 @@ _client.connect();
 _client.on("connected", (addr, port) => {
 	_commands.register(_client);
 
-	_dbHelpers.findAll(_dbHelpers.db(), "channel", (rows) => {
+	db.findAll(db.db(), "channel", (rows) => {
 		for(var r = 0; r < rows.length; r++){
 			if( rows[r].JoinOnAppOpen ){
 				_client.join(rows[r].Channel);
@@ -39,9 +40,9 @@ _client.on("connected", (addr, port) => {
 
 _client.on("join", (channel, username) => {
 	// If channel doesnt exist, create a new record
-	_dbHelpers.find(_dbHelpers.db(), "channel", {"Channel": channel}, (rows) => {
+	db.find(db.db(), "channel", {"Channel": channel}, (rows) => {
 		if( rows.length === 0 ){
-			_dbHelpers.insert(_dbHelpers.db(), "channel", {"Channel": channel}, (result) => {
+			db.insert(db.db(), "channel", {"Channel": channel}, (result) => {
 				if(result.affectedRows === 1 )
 					console.log("> Created channel " + channel);
 			});
