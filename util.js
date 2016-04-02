@@ -59,7 +59,7 @@ module.exports = {
 			console.warn("Warning: SuperModerator access level not implemented.");
 			db.find(db.db(), "supermoderator", {
 				"Channel": channel,
-				"Username": user.usernamer
+				"Username": user.username
 			}, (rows) => {
 				if(rows.length === 1){
 					rv = true;
@@ -84,5 +84,12 @@ module.exports = {
 			'func': 'say',
 			'message': message
 		});
+	},
+
+	/**
+	 * Gets the last time the #command was used in the #channel.
+	 */
+	'commandLastUsed': (command, channel) => {
+		return 99; // @TODO: Add this command.
 	}
 }
