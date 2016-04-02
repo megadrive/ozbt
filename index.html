@@ -88,7 +88,7 @@ ozbt: megadriving -&gt; command "!nextstream" was deleted.
 <code>$s$</code> -&gt; (resub only) if you wish to have words like "4 months resub" instead of "4 month resub". Will only appear if the months is more than 1.</li>
 </ol>
 
-<p><code>!greet [sub|resub] &lt;output text&gt;</code>
+<p><code>!greet [sub|resub] &lt;output text&gt;</code><br>
 <code>!greet delete [sub|resub]</code></p>
 
 <pre><code>megadriving: !greet sub Thanks for subscribing $username$~
@@ -102,8 +102,9 @@ ozbt: Greeting for "sub" has been deleted.
 <h1>
 <a id="regular-add-or-remove-a-regular" class="anchor" href="#regular-add-or-remove-a-regular" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!regular Add or remove a regular.</h1>
 
-<p>Depending on your stream, they can have the same, different or special commands. It's up to you! <strong>Note:</strong> Usernames are <strong>not</strong> checked. Be aware of this.
-<code>!regular [add|delete] &lt;username&gt;</code></p>
+<p>Depending on your stream, they can have the same, different or special commands. It's up to you! <strong>Note:</strong> Usernames are <strong>not</strong> checked. Be aware of this.</p>
+
+<p><code>!regular [add|delete] &lt;username&gt;</code></p>
 
 <pre><code>megadriving: !regular add tirean
 ozbt: Regular "tirean" was added.
@@ -116,8 +117,9 @@ ozbt: Regular "tirean" was deleted.
 <h1>
 <a id="spoll-create-or-get-results-from-a-strawpoll" class="anchor" href="#spoll-create-or-get-results-from-a-strawpoll" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!spoll Create or get results from a strawpoll</h1>
 
-<p>This a slightly more complicated command, you need to use parameters preceded by flags. You can only use <strong>one</strong> <code>-t</code> flag to set the title but as many <code>-o</code> flags to set options as you like. Bear in mind your option includes a <code>-o</code>, it will separate them into separate options.
-<code>!spoll -t Title of poll -o Option 1 -o Option 2 -o Option 3</code>
+<p>This a slightly more complicated command, you need to use parameters preceded by flags. You can only use <strong>one</strong> <code>-t</code> flag to set the title but as many <code>-o</code> flags to set options as you like. Bear in mind your option includes a <code>-o</code>, it will separate them into separate options.</p>
+
+<p><code>!spoll -t Title of poll -o Option 1 -o Option 2 -o Option 3</code>
 <code>!spoll results</code></p>
 
 <pre><code>megadriving: !spoll -t Is ozbt a cool Twitch bot? -o Absolutely! Love it! -o It's alright.. -o It's awful pls stop
