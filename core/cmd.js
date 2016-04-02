@@ -34,6 +34,11 @@ var add = () => {
 			util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " already exists, did you mean to use !cmd edit?");
 		}
 		else {
+			// remove / to prevent abuse.
+			if(string.trim().indexOf("/") === 0){
+				string = string.trim().substr(1);
+			}
+
 			db.insert(db.db(), "customcommand", {
 				"Command": cmd,
 				"OutputText": string,
