@@ -43,6 +43,9 @@ var checkPermission = (channel, user, command, callback) => {
 };
 
 var onChat = (channel, user, message, self) => {
+	if(self)
+		return;
+
 	var command = message.split(" ")[0];
 	checkPermission(channel, user, command, (rv) => {
 		if( rv ){
