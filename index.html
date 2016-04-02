@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>OzBot: The Australian Twitch bot by megadrive</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>OzBot: The Australian Twitch bot</h1>
+        <p>Aye it goes alright.</p>
+        <p class="view"><a href="https://github.com/megadrive/ozbt">View the Project on GitHub <small>megadrive/ozbt</small></a></p>
+        <ul>
+          <li><a href="https://github.com/megadrive/ozbt/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/megadrive/ozbt/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/megadrive/ozbt">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>
+<a id="ozbt-core-command-documentation" class="anchor" href="#ozbt-core-command-documentation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ozbt core command documentation</h3>
+
+<h2>
+<a id="help" class="anchor" href="#help" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Help</h2>
+
+<p>Parameters within <code>&lt;</code> greater than and less than <code>&gt;</code> symbols are <strong>required</strong>.
+Parameters within <code>[</code> block brackets <code>|</code> separated with pipes <code>]</code> are <em>use one of</em>.</p>
+
+<h2>
+<a id="user-levels" class="anchor" href="#user-levels" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>User levels</h2>
+
+<p>There are six (6) user levels currently, used for permissions. Anything above is included in the below items, so a moderator can do anything a regular can do but cannot do something a supermoderator can do. When using these with commands, use the word but in lowercase: <code>Everybody</code> -&gt; <code>everybody</code> or <code>SuperModerator</code> -&gt; <code>supermoderator</code>.</p>
+
+<ol>
+<li>Everybody</li>
+<li>Regular</li>
+<li>Subscriber</li>
+<li>Moderator</li>
+<li>SuperModerator</li>
+<li>Broadcaster</li>
+</ol>
+
+<h1>
+<a id="access-set-permission-for-a-custom-command" class="anchor" href="#access-set-permission-for-a-custom-command" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!access Set permission for a custom command.</h1>
+
+<p><code>!access &lt;custom command&gt; &lt;userlevel&gt;</code></p>
+
+<pre><code>megadriving: !access !nextstream moderator
+ozbt: megadriving -&gt; Access for "nextstream" set to "moderator".
+</code></pre>
+
+<h1>
+<a id="cmd-create-update-or-delete-a-custom-command" class="anchor" href="#cmd-create-update-or-delete-a-custom-command" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!cmd Create, update or delete a custom command.</h1>
+
+<p>By default, all commands are open for everybody to use, follow up this command with <code>!access</code> if you wish to change it.</p>
+
+<p><code>!cmd [add|edit|delete] &lt;commandName&gt; &lt;output text&gt;</code></p>
+
+<pre><code>megadriving: !cmd add !nextstream Next stream is in two days.
+ozbt: megadriving -&gt; command "!nextstream" was created.
+megadriving: !cmd edit !nextstream I changed my mind, it's in a week.
+ozbt: megadriving -&gt; command "!nextstream" was updated.
+megadriving: !cmd delete !nextstream
+ozbt: megadriving -&gt; command "!nextstream" was deleted.
+</code></pre>
+
+<h1>
+<a id="greet-create-update-or-delete-text-that-greets-a-user-if-they-subscribe-or-resubscribe" class="anchor" href="#greet-create-update-or-delete-text-that-greets-a-user-if-they-subscribe-or-resubscribe" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!greet Create, update or delete text that greets a user if they subscribe or resubscribe.</h1>
+
+<p>Greetings have a few variables you can use, listed below.</p>
+
+<ol>
+<li>
+<code>$username</code> -&gt; The users username.</li>
+<li>
+<code>$months$</code> -&gt; (resub only) The number of months subscribed.</li>
+<li>
+<code>$s$</code> -&gt; (resub only) if you wish to have words like "4 months resub" instead of "4 month resub". Will only appear if the months is more than 1.</li>
+</ol>
+
+<p><code>!greet [sub|resub] &lt;output text&gt;</code>
+<code>!greet delete [sub|resub]</code></p>
+
+<pre><code>megadriving: !greet sub Thanks for subscribing $username$~
+ozbt: megadriving: Greeting for "sub" has been updated.
+megadriving: !greet resub Thanks for resubscribing $username$~ That's $months$$s$ now!
+ozbt: megadriving: Greeting for "resub" has been updated.
+megadriving: !greet delete sub
+ozbt: Greeting for "sub" has been deleted.
+</code></pre>
+
+<h1>
+<a id="regular-add-or-remove-a-regular" class="anchor" href="#regular-add-or-remove-a-regular" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!regular Add or remove a regular.</h1>
+
+<p>Depending on your stream, they can have the same, different or special commands. It's up to you! <strong>Note:</strong> Usernames are <strong>not</strong> checked. Be aware of this.
+<code>!regular [add|delete] &lt;username&gt;</code></p>
+
+<pre><code>megadriving: !regular add tirean
+ozbt: Regular "tirean" was added.
+megadriving: !regular add tirean
+ozbt: Regular "tirean" already exists.
+megadriving: !regular delete tirean
+ozbt: Regular "tirean" was deleted.
+</code></pre>
+
+<h1>
+<a id="spoll-create-or-get-results-from-a-strawpoll" class="anchor" href="#spoll-create-or-get-results-from-a-strawpoll" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!spoll Create or get results from a strawpoll</h1>
+
+<p>This a slightly more complicated command, you need to use parameters preceded by flags. You can only use <strong>one</strong> <code>-t</code> flag to set the title but as many <code>-o</code> flags to set options as you like. Bear in mind your option includes a <code>-o</code>, it will separate them into separate options.
+<code>!spoll -t Title of poll -o Option 1 -o Option 2 -o Option 3</code>
+<code>!spoll results</code></p>
+
+<pre><code>megadriving: !spoll -t Is ozbt a cool Twitch bot? -o Absolutely! Love it! -o It's alright.. -o It's awful pls stop
+ozbt: Vote on "Is ozbt a cool Twitch bot?" here: http://strawpoll.me/7255934
+megadriving: !spoll results
+ozbt: megadriving -&gt; Results for "Is ozbt a cool Twitch bot?": Absolutely! Love it!: 100 It's alright..: 101 It's awful pls stop: 999
+</code></pre>
+
+<h1>
+<a id="supermod-add-or-remove-a-super-moderator" class="anchor" href="#supermod-add-or-remove-a-super-moderator" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!supermod Add or remove a super moderator.</h1>
+
+<p>Depending on your stream, they can have the same, different or special commands. It's up to you! <strong>Note:</strong> Usernames are <strong>not</strong> checked. Be aware of this.
+<code>!supermod [add|delete] &lt;username&gt;</code></p>
+
+<pre><code>megadriving: !supermod add tirean
+ozbt: Regular "tirean" was added.
+megadriving: !supermod add tirean
+ozbt: Regular "tirean" already exists.
+megadriving: !supermod delete tirean
+ozbt: Regular "tirean" was deleted.
+</code></pre>
+
+<h1>
+<a id="uptime-shows-the-uptime-of-the-stream" class="anchor" href="#uptime-shows-the-uptime-of-the-stream" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!uptime Shows the uptime of the stream.</h1>
+
+<p>(Not using night's code.)
+<code>!uptime</code></p>
+
+<pre><code>megadriving: !uptime
+ozbt: megadriving -&gt; Stream is offline.
+megadriving: !uptime
+ozbt: megadriving -&gt; Streaming for 5:19.
+</code></pre>
+
+<h3>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+
+<p><a href="https://github.com/megadrive" class="user-mention">@megadrive</a></p>
+
+<h3>
+<a id="support" class="anchor" href="#support" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support</h3>
+
+<p>(<a href="http://github.com/megadrive/ozbt/issues)%5BOpen">http://github.com/megadrive/ozbt/issues)[Open</a> an issue] and I'll do my best to help.</p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/megadrive">megadrive</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
