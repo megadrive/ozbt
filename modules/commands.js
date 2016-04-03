@@ -59,6 +59,7 @@ var onChat = (channel, user, message, self) => {
 									case "join_channel":
 										_client.join(m.channel);
 										break;
+									}
 							});
 						}
 					});
