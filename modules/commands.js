@@ -19,7 +19,7 @@ var checkPermission = (channel, user, command, callback) => {
 		// Command has previously been given a permission level
 		if( rows.length === 1 ){
 			//@NOTE: Not implemented yet.
-			if( util.checkPermissionCore(channel, user, rows[0].PermissionLevel === false) ){
+			if( util.checkPermissionCore(channel, user, rows[0].PermissionLevel) === false ){
 				rv = false;
 			}
 		}
