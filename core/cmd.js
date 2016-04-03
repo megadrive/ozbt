@@ -34,10 +34,10 @@ var add = () => {
 			util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " already exists, did you mean to use !cmd edit?");
 		}
 		else {
-			// remove / to prevent abuse.
-			if(string.trim().indexOf("/") === 0){
-				string = string.trim().substr(1);
-			}
+			// remove / if at the beginning of the string to prevent abuse.
+			var rslashes = /^\/+/;
+			string = string.replace(rslashes, "");
+			console.log(string); return;
 
 			db.insert(db.db(), "customcommand", {
 				"Command": cmd,
