@@ -1,5 +1,7 @@
 
 module.exports = {
+	"true": 1,
+	"false": 0,
 	"access": {
 		"everybody": 5,
 		"regular": 4, // dont exist as yet

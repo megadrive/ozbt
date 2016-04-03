@@ -14,7 +14,7 @@ module.exports = static;
 
 if("#" + user.username === process.env.channel){
 	process.send({
-		"action": "joinChannel",
+		"action": "join_channel",
 		"channel": "#" + user.username
 	});
 }
