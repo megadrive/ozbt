@@ -31,8 +31,11 @@ module.exports = {
 	"checkPermissionCore": (channel, user, requiredPermission) => {
 		var rv = false;
 
+		if( requiredPermission === consts.access.everybody ){
+			rv = true;
+		}
+
 		if( requiredPermission === consts.access.regular ){
-			console.warn("Warning: Regulars access level not implemented.");
 			db.find(db.db(), "regular", {
 				"Channel": channel,
 				"Username": user.username
@@ -56,7 +59,6 @@ module.exports = {
 		}
 
 		if( requiredPermission === consts.access.supermoderator ){
-			console.warn("Warning: SuperModerator access level not implemented.");
 			db.find(db.db(), "supermoderator", {
 				"Channel": channel,
 				"Username": user.username
@@ -70,8 +72,10 @@ module.exports = {
 		// Broadcaster
 		if( channel === "#" + user.username ){
 			rv = true;
+			console.log("Broadcaster allowed.");
 		}
 
+		console.log(channel + ": " + requiredPermission + (rv == false ? " not allowed" : " allowed"));
 		return rv;
 	},
 
