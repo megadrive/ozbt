@@ -17,4 +17,9 @@ if("#" + user.username === process.env.channel){
 		"action": "join_channel",
 		"channel": "#" + user.username
 	});
+
+	db.insert(db.db(), "channel", {
+		"Channel": "#" + user.username,
+		"JoinOnAppOpen": consts.true
+	});
 }

@@ -37,7 +37,6 @@ var add = () => {
 			// remove / if at the beginning of the string to prevent abuse.
 			var rslashes = /^\/+/;
 			string = string.replace(rslashes, "");
-			console.log(string); return;
 
 			db.insert(db.db(), "customcommand", {
 				"Command": cmd,
@@ -87,7 +86,6 @@ var del = () => {
 		"Channel": process.env.channel,
 		"Command": cmd
 	}, (rows) => {
-		console.log(rows);
 		if( rows.length > 0 ){
 			if( rows.length > 1 )
 				console.error("ERROR: There were duplicate entries for the channel command " + cmd + " in channel " + process.env.channel + "! They have all been removed now.");
