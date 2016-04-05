@@ -72,10 +72,8 @@ module.exports = {
 		// Broadcaster
 		if( channel === "#" + user.username ){
 			rv = true;
-			console.log("Broadcaster allowed.");
 		}
-
-		console.log(channel + ": " + requiredPermission + (rv == false ? " not allowed" : " allowed"));
+	
 		return rv;
 	},
 
