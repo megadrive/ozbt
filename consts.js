@@ -4,10 +4,10 @@ module.exports = {
 	"false": 0,
 	"access": {
 		"everybody": 5,
-		"regular": 4, // dont exist as yet
+		"regular": 4,
 		"subscriber": 3,
 		"moderator": 2,
-		"supermoderator": 1, // dont exist as yet
+		"supermoderator": 1,
 		"broadcaster": 0
 	},
 	"greeting": {

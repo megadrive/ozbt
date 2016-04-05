@@ -75,11 +75,6 @@ var doesChannelCommandExist = (channel, command, callback) => {
 	});
 };
 
-//@TODO @{touser} @{channel} etc.
-var replaceVariables = (channel, user, message) => {
-
-};
-
 var _commands = {
 	"register": (client) => {
 		_client = client;
