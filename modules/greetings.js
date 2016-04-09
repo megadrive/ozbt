@@ -17,24 +17,24 @@ var formatGreetingText = (text, username, months) => {
 	return s;
 };
 
-var onSub = (channel, username) => {
+var onSub = (channel, user) => {
 	db.find(db.db(), "greeting", {
 		"Channel": channel,
 		"Type": _consts.greeting.sub
 	}, (rows) => {
 		if(rows.length > 0){
-			util.say(channel, formatGreetingText(rows[0], username));
+			_client.say(channel, formatGreetingText(rows[0].OutputText, util.getDisplayName(user)));
 		}
 	});
 };
 
-var onResub = (channel, username, months) => {
+var onResub = (channel, user, months) => {
 	db.find(db.db(), "greeting", {
 		"Channel": channel,
 		"Type": _consts.greeting.resub
 	}, (rows) => {
 		if(rows.length > 0){
-			util.say(channel, formatGreetingText(rows[0], username));
+			_client.say(channel, formatGreetingText(rows[0].OutputText, util.getDisplayName(user), months));
 		}
 	});
 };

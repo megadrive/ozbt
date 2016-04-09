@@ -6,7 +6,7 @@
     "npm": "*"
   },
   "dependencies": {
-    "minimist": "^1.2.0",
+    "hashids": "1.0.2",
     "mysql": "^2.10.2",
     "request": "^2.69.0",
     "tmi.js": "0.0.28"
