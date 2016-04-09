@@ -4,6 +4,7 @@ var _config = require("./config/config.user.js");
 
 // @Modules
 var db = require("./mysqlHelpers.js");
+var consts = require("./consts.js");
 var _commands = require("./modules/commands.js");
 var _greetings = require("./modules/greetings.js");
 var _subgoals = require("./modules/subgoals.js");
