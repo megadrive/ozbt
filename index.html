@@ -108,8 +108,10 @@ ozbt: Greeting for "sub" has been deleted.
 
 <pre><code>megadriving: !regular add tirean
 ozbt: Regular "tirean" was added.
+
 megadriving: !regular add tirean
 ozbt: Regular "tirean" already exists.
+
 megadriving: !regular delete tirean
 ozbt: Regular "tirean" was deleted.
 </code></pre>
@@ -126,6 +128,38 @@ ozbt: Regular "tirean" was deleted.
 ozbt: Vote on "Is ozbt a cool Twitch bot?" here: http://strawpoll.me/7255934
 megadriving: !spoll results
 ozbt: megadriving -&gt; Results for "Is ozbt a cool Twitch bot?": Absolutely! Love it!: 100 It's alright..: 101 It's awful pls stop: 999
+</code></pre>
+
+<h1>
+<a id="subgoal" class="anchor" href="#subgoal" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!subgoal Create, edit, update or delete subscriber goals</h1>
+
+<p>A "subgoal" is a goal that increases when someone subscribes. It could be useful for an incentive to subscribe as a vote to learn how to speedrun a certain game or to play a certain game. The <code>hash</code> that is referenced  is used to make modifications to the subgoals later.</p>
+
+<p><code>!subgoal list</code><br>
+<code>!subgoal [add|edit|delete] &lt;subs&gt; &lt;Name of subgoal&gt;</code><br>
+<code>!subgoal modsubs [+|-]&lt;points&gt;</code> <em>(Super moderators only.)</em><br>
+<code>!subgoal countresubs [yes|no]</p>
+
+<pre><code>megadriving: !subgoal add 10 Play Super Mario Bros.
+ozbt: megadriving -> subgoal "Play Super Mario Bros." was created. (hash: "sMb")
+
+megadriving: !subgoal list
+ozbt: 1. Super Mario Bros. 0/10 (0%) (hash: sMb)
+
+megadriving: !subgoal edit sMb 50 Super Mario Bros.
+ozbt: megadriving -> subgoal "Play Super Mario Bros." was edited.
+
+megadriving: !subgoal countresubs sMb yes
+ozbt: megadriving -> Resubs will now count for the subgoal with hash "sMb".
+
+megadriving: !subgoal modsubs sMb +10
+ozbt: megadriving -> "Play Super Mario Bros." has been updated, now has 10.
+
+megadriving: !subgoal list
+ozbt: 1. Super Mario Bros. 5/50 (10%) (hash: sMb)
+
+megadriving: !subgoal delete sMb
+ozbt: megadriving -> subgoal "Play Super Mario Bros." was deleted.
 </code></pre>
 
 <h1>
