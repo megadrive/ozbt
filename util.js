@@ -28,50 +28,39 @@ module.exports = {
 	},
 
 	// @var user user object
-	"checkPermissionCore": (channel, user, requiredPermission) => {
-		var rv = false;
-
-		if( requiredPermission === consts.access.everybody ){
-			rv = true;
-		}
-
-		if( requiredPermission === consts.access.regular ){
-			db.find(db.db(), "regular", {
-				"Channel": channel,
-				"Username": user.username
-			}, (rows) => {
-				if(rows.length === 1){
-					rv = true;
-				}
-			});
-		}
-
-		if( requiredPermission === consts.access.subscriber ){
-			if( user.subscriber === true ){
-				rv = true;
-			}
-		}
-
-		if( requiredPermission === consts.access.moderator ){
-			if( user['user-type'] === 'mod' ){
-				rv = true;
-			}
-		}
-
-		if( requiredPermission === consts.access.supermoderator ){
-			db.find(db.db(), "supermoderator", {
-				"Channel": channel,
-				"Username": user.username
-			}, (rows) => {
-				if(rows.length === 1){
-					rv = true;
-				}
-			});
-		}
+	"checkPermissionCore": (channel, user, atLeastPermission) => {
+		// Everybody
+		var rv = true;
 
 		// Broadcaster
-		if( channel === "#" + user.username ){
-			rv = true;
+		if("#" + user.username != channel){
+			// Super Moderator
+			if( atLeastPermission >= consts.access.supermoderator ){
+				db.find(db.db(), "supermoderator", {
+					"Channel": channel,
+					"Username": user.username
+				}, (rows) => {
+					if(rows.length === 0){
+						// Moderator
+						if(user["user-type"] != null && user["user-type"].indexOf("mod") == false){
+							// Subscriber
+							if(user.subscriber == false){
+								// Regular
+								if( atLeastPermission >= consts.access.regular ){
+									db.find(db.db(), "regular", {
+										"Channel": channel,
+										"Username": user.username
+									}, (rows) => {
+										if(rows.length === 0){
+											rv = false;
+										}
+									});
+								}
+							}
+						}
+					}
+				});
+			}
 		}
 	
 		return rv;
