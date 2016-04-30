@@ -37,7 +37,18 @@ var onChat = (channel, user, message, self) => {
 		if( rv ){
 			doesChannelCommandExist(channel, command, (exists, row) => {
 				if( exists ){
+					// Check for a cooldown
+					if(row.Cooldown > 0) {
+						if(row.LastUsed + row.Cooldown > Date.now())
+							return; // Too early - don't execute
+					}
 					_client.say(channel, row.OutputText);
+					// Update last use time
+					_dbHelpers.update(_dbHelpers.db(), "customcommands", {"Channel": channel, "Command": command}, {"LastUsed": Date.now()}, (rows) => {
+						if(rows !== 1) {
+							console.error("Could not update last run time for command " + command + " on channel " + channel);
+						}
+					});
 				}
 				else {
 					let file = _config.core_dir + command.substring(1) + ".js";

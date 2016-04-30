@@ -9,18 +9,25 @@ var args = process.env.message.split(" ");
 
 /**
  * !cmd add !poop I poop back and forth.
+ * !cmd add !poop -c 10 I poop back and forth, but never more than once every 10 seconds.
  * !cmd edit !poop You do, not me.
  * !cmd delete !poop
  */
 
 var static = {
-	"help": "!cmd <add|edit|delete> <command> <output text>"
+	"help": "!cmd <add|edit|delete> <command> [-c N] <output text>"
 };
 module.exports = static;
 
-var intent = args[1];
-var cmd = args[2];
-var string = args.splice(3).join(" ");
+var cooldown = null; // null => unspecified
+var argPtr = 1;
+var intent = args[argPtr++];
+var cmd = args[argPtr++];
+if(args[argPtr] === "-c") {
+	++argPtr; // Skip -c
+	cooldown = Number(args[argPtr++]);
+}
+var string = args.splice(argPtr).join(" ");
 
 // Add a new custom command
 var add = () => {
@@ -37,11 +44,17 @@ var add = () => {
 			// remove / if at the beginning of the string to prevent abuse.
 			var rslashes = /^\/+/;
 			string = string.replace(rslashes, "");
+			
+			if(!checkCooldown())
+				return;
+			if(cooldown === null)
+				cooldown = 0; // Set a default value
 
 			db.insert(db.db(), "customcommand", {
 				"Command": cmd,
 				"OutputText": string,
-				"Channel": process.env.channel
+				"Channel": process.env.channel,
+				"Cooldown": cooldown
 			}, (rows) => {
 				if( rows.affectedRows === 1 ){
 					util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " was created.");
@@ -61,7 +74,14 @@ var edit = () => {
 		"Command": cmd
 	}, (rows) => {
 		if( rows.length === 1 ){
-			db.update(db.db(), "customcommand", "Command='" + cmd + "'", {"OutputText": string}, (rows) => {
+			if(!checkCooldown())
+				return;
+			
+			var updateData = {"OutputText": string};
+			if(cooldown !== null) // If cooldown is unspecified, don't include it in the query
+				updateData.Cooldown = cooldown;
+				
+			db.update(db.db(), "customcommand", "Command='" + cmd + "'", updateData, (rows) => {
 				if( rows.affectedRows === 1 ){
 					util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " was updated.");
 				}
@@ -118,4 +138,22 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 			del();
 			break;
 	}
+}
+
+/**
+ * Checks that all is good with the user provided cooldown
+ */
+function checkCooldown() {
+	if(cooldown === null)
+		return true;
+	// Validate the cooldown value
+	if(isNaN(cooldown) || cooldown < 0) {
+		util.say(process.env.channel, util.getDisplayName(user) + " -> The cooldown must be a positive number (minimum amount of seconds between each use of the command). Please try again.");
+		return false;
+	}
+	// Convert from seconds to ms
+	cooldown *= 1000;
+	// Remove decimal part
+	cooldown |= 0; // 8.4 | 0 === 8
+	return true;
 }

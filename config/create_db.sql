@@ -59,6 +59,8 @@ CREATE TABLE IF NOT EXISTS `ozbt`.`customcommand` (
   `Command` VARCHAR(45) NOT NULL,
   `OutputText` VARCHAR(255) NOT NULL,
   `Channel` VARCHAR(45) NOT NULL,
+  `Cooldown` INT NOT NULL DEFAULT 0,
+  `LastUsed` TIMESTAMP NOT NULL DFAULT 0,
   PRIMARY KEY (`CustomCommandId`),
   UNIQUE INDEX `CustomCommandId_UNIQUE` (`CustomCommandId` ASC),
   INDEX `CustomCommand_Channel_fk_idx` (`Channel` ASC),
