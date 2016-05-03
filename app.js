@@ -8,6 +8,7 @@ var consts = require("./consts.js");
 var _commands = require("./modules/commands.js");
 var _greetings = require("./modules/greetings.js");
 var _subgoals = require("./modules/subgoals.js");
+var _banlinks = require("./modules/banlinks.js");
 var util = require("./util.js");
 
 var _tmi = require("tmi.js");
@@ -33,6 +34,7 @@ _client.on("connected", (addr, port) => {
 	_commands.register(_client);
 	_greetings.register(_client);
 	_subgoals.register(_client);
+	_banlinks.register(_client);
 
 	db.findAll(db.db(), "channel", (rows) => {
 		for(var r = 0; r < rows.length; r++){
@@ -56,6 +58,7 @@ _client.on("join", (channel, username) => {
 });
 
 _client.on("chat", _commands.onChat);
+_client.on("chat", _banlinks.onChat);
 
 _client.on("chat", (channel, user, message, self) => {
 	if( util.checkPermissionCore(channel, user, consts.access.supermoderator) ){
