@@ -12,6 +12,11 @@
     "tmi.js": "0.0.28"
   },
   "scripts": {
-    "start": "app.js"
+    "start": "app.js",
+    "test": "./node_modules/.bin/mocha --reporter spec test"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5"
   }
 }

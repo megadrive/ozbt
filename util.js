@@ -1,3 +1,4 @@
+"use strict";
 
 var consts = require("./consts.js");
 var db = require("./mysqlHelpers.js");
@@ -29,40 +30,20 @@ module.exports = {
 
 	// @var user user object
 	"checkPermissionCore": (channel, user, atLeastPermission) => {
-		// Everybody
-		var rv = true;
+		var rv = false;
 
-		// Broadcaster
-		if("#" + user.username != channel){
-			// Super Moderator
-			if( atLeastPermission >= consts.access.supermoderator ){
-				db.find(db.db(), "supermoderator", {
-					"Channel": channel,
-					"Username": user.username
-				}, (rows) => {
-					if(rows.length === 0){
-						// Moderator
-						if(user["user-type"] != null && user["user-type"].indexOf("mod") == false){
-							// Subscriber
-							if(user.subscriber == false){
-								// Regular
-								if( atLeastPermission >= consts.access.regular ){
-									db.find(db.db(), "regular", {
-										"Channel": channel,
-										"Username": user.username
-									}, (rows) => {
-										if(rows.length === 0){
-											rv = false;
-										}
-									});
-								}
-							}
-						}
-					}
-				});
-			}
+		if("#" + user.username === channel || atLeastPermission === consts.access.everybody){
+			rv = true;
 		}
-	
+
+		if(atLeastPermission >= consts.access.moderator && user.mod == true){
+			rv = true;
+		}
+
+		if(atLeastPermission >= consts.access.subscriber && user.subscriber == true){
+			rv = true;
+		}
+
 		return rv;
 	},
 
@@ -75,12 +56,5 @@ module.exports = {
 			'func': 'say',
 			'message': message
 		});
-	},
-
-	/**
-	 * Gets the last time the #command was used in the #channel.
-	 */
-	'commandLastUsed': (command, channel) => {
-		return 99; // @TODO: Add this command.
 	}
 }
