@@ -23,7 +23,7 @@ var onSub = (channel, user) => {
 		"Type": _consts.greeting.sub
 	}, (rows) => {
 		if(rows.length > 0){
-			_client.say(channel, formatGreetingText(rows[0].OutputText, util.getDisplayName(user)));
+			_client.say(channel, formatGreetingText(rows[0].OutputText, user));
 		}
 	});
 };
@@ -34,7 +34,7 @@ var onResub = (channel, user, months) => {
 		"Type": _consts.greeting.resub
 	}, (rows) => {
 		if(rows.length > 0){
-			_client.say(channel, formatGreetingText(rows[0].OutputText, util.getDisplayName(user), months));
+			_client.say(channel, formatGreetingText(rows[0].OutputText, user, months));
 		}
 	});
 };
