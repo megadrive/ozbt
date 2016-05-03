@@ -9,6 +9,7 @@ var _commands = require("./modules/commands.js");
 var _greetings = require("./modules/greetings.js");
 var _subgoals = require("./modules/subgoals.js");
 var _banlinks = require("./modules/banlinks.js");
+var _linedcmds = require("./modules/linedcmds.js");
 var util = require("./util.js");
 
 var _tmi = require("tmi.js");
@@ -35,6 +36,7 @@ _client.on("connected", (addr, port) => {
 	_greetings.register(_client);
 	_subgoals.register(_client);
 	_banlinks.register(_client);
+	_linedcmds.register(_client);
 
 	db.findAll(db.db(), "channel", (rows) => {
 		for(var r = 0; r < rows.length; r++){
@@ -63,17 +65,7 @@ _client.on("join", (channel, username) => {
 
 _client.on("chat", _commands.onChat);
 _client.on("chat", _banlinks.onChat);
-
-_client.on("chat", (channel, user, message, self) => {
-	if( util.checkPermissionCore(channel, user, consts.access.supermoderator) ){
-		if(message.indexOf("!!fireSub") === 0){
-			_client.emit("subscription", channel, user);
-		}
-		if(message.indexOf("!!fireResub") === 0){
-			_client.emit("subanniversary", channel, user, user.username.length);
-		}
-	}
-});
+_client.on("chat", _linedcmds.onChat);
 
 _client.on("subscription", _greetings.onSub);
 _client.on("subanniversary", _greetings.onResub);
