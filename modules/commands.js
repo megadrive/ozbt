@@ -18,7 +18,6 @@ var checkPermission = (channel, user, command, callback) => {
 
 		// Command has previously been given a permission level
 		if( rows.length === 1 ){
-			//@NOTE: Not implemented yet.
 			if( util.checkPermissionCore(channel, user, rows[0].PermissionLevel) === false ){
 				rv = false;
 			}
@@ -40,29 +39,32 @@ var onChat = (channel, user, message, self) => {
 					_client.say(channel, row.OutputText);
 				}
 				else {
-					let file = _config.core_dir + command.substring(1) + ".js";
-					fs.access(file, fs.R_OK, (err) => {
-						// Run a core command.
-						if(!err){
-							var task = fork(file, [], {
-								"env": {
-									"channel": channel,
-									"user": JSON.stringify(user),
-									"message": message
-								}
-							});
-							task.on("message", (m) => {
-								switch(m.func){
-									case "say":
-										_client.say(m.channel, m.message);
-										break;
-									case "join_channel":
-										_client.join(m.channel);
-										break;
+					// Core commands should always start with !
+					if(command[0] === "!"){
+						let file = _config.core_dir + command.substring(1) + ".js";
+						fs.access(file, fs.R_OK, (err) => {
+							// Run a core command.
+							if(!err){
+								var task = fork(file, [], {
+									"env": {
+										"channel": channel,
+										"user": JSON.stringify(user),
+										"message": message
 									}
-							});
-						}
-					});
+								});
+								task.on("message", (m) => {
+									switch(m.func){
+										case "say":
+											_client.say(m.channel, m.message);
+											break;
+										case "join_channel":
+											_client.join(m.channel);
+											break;
+										}
+								});
+							}
+						});
+					}
 				}
 			});
 		}

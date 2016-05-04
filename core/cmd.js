@@ -61,6 +61,9 @@ var edit = () => {
 		"Command": cmd
 	}, (rows) => {
 		if( rows.length === 1 ){
+			var rslashes = /^\/+/;
+			string = string.replace(rslashes, "");
+			
 			db.update(db.db(), "customcommand", "Command='" + cmd + "'", {"OutputText": string}, (rows) => {
 				if( rows.affectedRows === 1 ){
 					util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " was updated.");

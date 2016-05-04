@@ -1,3 +1,4 @@
+"use strict";
 
 var util = require("../util.js");
 var db = require("../mysqlHelpers.js");
@@ -10,10 +11,10 @@ var facts = JSON.parse(fs.readFileSync("./config/random_facts.json"));
 // Get arguments.
 var args = process.env.message.split(" ");
 
-var static = {
+var _fact = {
 	"help": "!fact"
 };
-module.exports = static;
+module.exports = _fact;
 
 if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) ){
 	var n = Math.floor(Math.random(0, facts.length) * facts.length);
