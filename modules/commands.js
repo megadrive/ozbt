@@ -8,6 +8,12 @@ var fork = require("child_process").fork;
 var consts = require("../consts.js");
 var util = require("../util.js");
 
+var loki = require("lokijs");
+var ldb = new loki("cmdCooldownDb");
+var coll = ldb.addCollection("cmdCooldown");
+
+var minimum_delay = 15; // seconds
+
 var checkPermission = (channel, user, command, callback) => {
 	_dbHelpers.find(_dbHelpers.db(), "commandpermission", {
 		"channel": channel,
@@ -36,15 +42,18 @@ var onChat = (channel, user, message, self) => {
 		if( rv ){
 			doesChannelCommandExist(channel, command, (exists, row) => {
 				if( exists ){
-					_client.say(channel, row.OutputText);
+					checkDelay(channel, command, () => {
+						_client.say(channel, row.OutputText);
+					});
 				}
 				else {
 					// Core commands should always start with !
 					if(command[0] === "!"){
-						let file = _config.core_dir + command.substring(1) + ".js";
+						var file = _config.core_dir + command.substring(1) + ".js";
 						fs.access(file, fs.R_OK, (err) => {
 							// Run a core command.
 							if(!err){
+							checkDelay(channel, command, () => {
 								var task = fork(file, [], {
 									"env": {
 										"channel": channel,
@@ -62,13 +71,37 @@ var onChat = (channel, user, message, self) => {
 											break;
 										}
 								});
-							}
-						});
-					}
+							});
+						}
+					});
 				}
 			});
 		}
 	});
+};
+
+var checkDelay = (channel, command, callback) => {
+	var lastRow = coll.find({"Channel": channel, "Command": command});
+
+	if(lastRow.length === 0){
+		coll.insert({
+			"Channel": channel,
+			"Command": command,
+			"Timestamp": 0
+		});
+		lastRow = coll.find({"Channel": channel, "Command": command});
+	}
+
+	if(lastRow.length === 1){
+		var now = new Date().getTime();
+		var diff = (now - lastRow[0].Timestamp) / 1000;
+
+		if(diff >= minimum_delay){
+			lastRow[0].Timestamp = new Date().getTime();
+			coll.update(lastRow);
+			callback();
+		}
+	}
 };
 
 var doesChannelCommandExist = (channel, command, callback) => {
