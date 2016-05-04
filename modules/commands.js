@@ -43,48 +43,33 @@ var onChat = (channel, user, message, self) => {
 		if( rv ){
 			doesChannelCommandExist(channel, command, (exists, row) => {
 				if( exists ){
-					var lastRow = coll.find({"Channel": channel, "Command": command});
-					if(lastRow[0]){
-						var now = new Date().getTime();
-						var diff = (now - lastRow[0].Timestamp) / 1000;
-
-						if(diff >= minimum_delay){
-							lastRow[0].Timestamp = new Date().getTime();
-							coll.update(lastRow);
-							_client.say(channel, row.OutputText);
-						}
-					}
-					else {
-						coll.insert({
-							"Channel": channel,
-							"Command": command,
-							"Timestamp": new Date().getTime()
-						});
-					}
+					checkDelay(channel, command, () => {
+						_client.say(channel, row.OutputText);
+					});
 				}
 				else {
 					var file = _config.core_dir + command.substring(1) + ".js";
 					fs.access(file, fs.R_OK, (err) => {
 						// Run a core command.
 						if(!err){
-
-
-							var task = fork(file, [], {
-								"env": {
-									"channel": channel,
-									"user": JSON.stringify(user),
-									"message": message
-								}
-							});
-							task.on("message", (m) => {
-								switch(m.func){
-									case "say":
-										_client.say(m.channel, m.message);
-										break;
-									case "join_channel":
-										_client.join(m.channel);
-										break;
+							checkDelay(channel, command, () => {
+								var task = fork(file, [], {
+									"env": {
+										"channel": channel,
+										"user": JSON.stringify(user),
+										"message": message
 									}
+								});
+								task.on("message", (m) => {
+									switch(m.func){
+										case "say":
+											_client.say(m.channel, m.message);
+											break;
+										case "join_channel":
+											_client.join(m.channel);
+											break;
+										}
+								});
 							});
 						}
 					});
@@ -92,6 +77,30 @@ var onChat = (channel, user, message, self) => {
 			});
 		}
 	});
+};
+
+var checkDelay = (channel, command, callback) => {
+	var lastRow = coll.find({"Channel": channel, "Command": command});
+
+	if(lastRow.length === 0){
+		coll.insert({
+			"Channel": channel,
+			"Command": command,
+			"Timestamp": 0
+		});
+		lastRow = coll.find({"Channel": channel, "Command": command});
+	}
+
+	if(lastRow.length === 1){
+		var now = new Date().getTime();
+		var diff = (now - lastRow[0].Timestamp) / 1000;
+
+		if(diff >= minimum_delay){
+			lastRow[0].Timestamp = new Date().getTime();
+			coll.update(lastRow);
+			callback();
+		}
+	}
 };
 
 var doesChannelCommandExist = (channel, command, callback) => {
