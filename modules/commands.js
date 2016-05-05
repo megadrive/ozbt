@@ -53,27 +53,28 @@ var onChat = (channel, user, message, self) => {
 						fs.access(file, fs.R_OK, (err) => {
 							// Run a core command.
 							if(!err){
-							checkDelay(channel, command, () => {
-								var task = fork(file, [], {
-									"env": {
-										"channel": channel,
-										"user": JSON.stringify(user),
-										"message": message
-									}
-								});
-								task.on("message", (m) => {
-									switch(m.func){
-										case "say":
-											_client.say(m.channel, m.message);
-											break;
-										case "join_channel":
-											_client.join(m.channel);
-											break;
+								checkDelay(channel, command, () => {
+									var task = fork(file, [], {
+										"env": {
+											"channel": channel,
+											"user": JSON.stringify(user),
+											"message": message
 										}
+									});
+									task.on("message", (m) => {
+										switch(m.func){
+											case "say":
+												_client.say(m.channel, m.message);
+												break;
+											case "join_channel":
+												_client.join(m.channel);
+												break;
+											}
+									});
 								});
-							});
-						}
-					});
+							}
+						});
+					}
 				}
 			});
 		}
