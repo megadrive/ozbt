@@ -47,10 +47,6 @@ _client.on("connected", (addr, port) => {
 	}); // initial connection
 });
 
-_client.on("disconnected", (reason) => {
-	_client.connect(); // try indefinitely.
-});
-
 _client.on("join", (channel, username) => {
 	// If channel doesnt exist, create a new record
 	db.find(db.db(), "channel", {"Channel": channel}, (rows) => {
