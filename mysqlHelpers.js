@@ -66,7 +66,7 @@ module.exports = {
 			var value = fields[key];
 			if( typeof value === "boolean" ) value = +value;
 			if( typeof value === "string" ){
-				value = value.replace(/[^\\]?'/g, "\\\'");
+				value = value.replace(/([^\\]?)'/g, "$1\\'");
 			}
 			_values.push("'" + value + "'");
 		});
@@ -90,7 +90,7 @@ module.exports = {
 			var value = fields[key];
 			if( typeof value === "boolean" ) value = +value;
 			if( typeof value === "string" ){
-				value = value.replace(/[^\\]?'/g, "\\\'");
+				value = value.replace(/([^\\]?)'/g, "$1\\'");
 			}
 			_values.push(key + " = '" + value + "'");
 		});
@@ -126,6 +126,14 @@ module.exports = {
 			}
 			callback(rows);
 		});
+	},
+
+	"addslashes": (text) => {
+		return text.replace(/([^\\]?)'/g, "$1\\'");
+	},
+
+	"removeslashes": (text) => {
+		return text.replace(/([^\\]?)\\'/g, "\'");
 	},
 
 	//@NOTE Keeping for posterity.
