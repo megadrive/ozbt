@@ -95,9 +95,10 @@ var checkDelay = (channel, command, callback) => {
 		justCreated = true;
 	}
 
+	var now = new Date().getTime();
+	var diff = now; // temp
 	if(lastRow != undefined){
-		var now = new Date().getTime();
-		var diff = (now - lastRow.Timestamp) / 1000;
+		diff = (now - lastRow.Timestamp) / 1000;
 	}
 
 	if(justCreated || diff >= minimum_delay){
