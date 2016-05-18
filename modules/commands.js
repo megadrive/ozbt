@@ -83,25 +83,27 @@ var onChat = (channel, user, message, self) => {
 
 var checkDelay = (channel, command, callback) => {
 	var lastRow = coll.find({"Channel": channel, "Command": command});
+	var justCreated = false;
 
 	if(lastRow.length === 0){
-		coll.insert({
+		var line = {
 			"Channel": channel,
 			"Command": command,
 			"Timestamp": 0
-		});
-		lastRow = coll.find({"Channel": channel, "Command": command});
+		};
+		coll.insert(line);
+		justCreated = true;
 	}
 
-	if(lastRow.length === 1){
+	if(lastRow != undefined){
 		var now = new Date().getTime();
-		var diff = (now - lastRow[0].Timestamp) / 1000;
+		var diff = (now - lastRow.Timestamp) / 1000;
+	}
 
-		if(diff >= minimum_delay){
-			lastRow[0].Timestamp = new Date().getTime();
-			coll.update(lastRow);
-			callback();
-		}
+	if(justCreated || diff >= minimum_delay){
+		lastRow.Timestamp = new Date().getTime();
+		coll.update(lastRow);
+		callback();
 	}
 };
 
