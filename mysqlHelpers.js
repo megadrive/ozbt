@@ -17,9 +17,18 @@ module.exports = {
 				//@debug
 				//,"debug": true
 			});
-			_db.connect();
+			_db.connect((err) => {
+				if(!err){
+					console.log("Connected to MySQL.");
+				}
+				else {
+					console.log(err);
+					if(err.fatal){
+						process.exit(0);
+					}
+				}
+			});
 
-			console.log("Connected to MySQL.");
 		}
 
 		return _db;

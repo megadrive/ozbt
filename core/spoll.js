@@ -28,20 +28,29 @@ for(var i = 0; i < opts.length; ++i){
 	}
 }
 
-var createPoll = () => {
-	request.post({
+var jOpts = {
+	"title": title,
+	"options": options
+};
+
+console.log({
 		"url": api,
-		"formData": {
-			"title": title,
-			"options": options
-		},
-		"headers": "Content-Type: application/json"
+		"formData": jOpts,
+		"headers": "Content-type: application/json"
+	});
+
+var createPoll = () => {
+	request({
+		"url": api,
+		"method": "post",
+		"json": true,
+		"body": jOpts
 	}, (err, res, body) => {
 		if(err){
 			console.error(err);
 		}
 		else {
-			var j = JSON.parse(body);
+			var j = body;
 			util.say(process.env.channel, "Vote on \"" + title + "\" here: http://strawpoll.me/" + j.id);
 
 			var f = tempDir + process.env.channel;

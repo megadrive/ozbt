@@ -9,10 +9,10 @@ var consts = require("../consts.js");
 var util = require("../util.js");
 
 var loki = require("lokijs");
-var ldb = new loki("cmdCooldownDb");
+var ldb = new loki(consts.lokidb);
 var coll = ldb.addCollection("cmdCooldown");
 
-var minimum_delay = 15; // seconds
+var minimum_delay = 10; // seconds
 
 var checkPermission = (channel, user, command, callback) => {
 	_dbHelpers.find(_dbHelpers.db(), "commandpermission", {
@@ -42,7 +42,7 @@ var onChat = (channel, user, message, self) => {
 		if( rv ){
 			doesChannelCommandExist(channel, command, (exists, row) => {
 				if( exists ){
-					checkDelay(channel, command, () => {
+					checkDelay(channel, user, command, () => {
 						_client.say(channel, row.OutputText);
 					});
 				}
@@ -53,7 +53,7 @@ var onChat = (channel, user, message, self) => {
 						fs.access(file, fs.R_OK, (err) => {
 							// Run a core command.
 							if(!err){
-								checkDelay(channel, command, () => {
+								checkDelay(channel, user, command, () => {
 									var task = fork(file, [], {
 										"env": {
 											"channel": channel,
@@ -69,8 +69,17 @@ var onChat = (channel, user, message, self) => {
 											case "join_channel":
 												_client.join(m.channel);
 												break;
+											case "timeout_user":
+												_client.timeout(m.channel, m.username, m.time);
 											}
 									});
+									task.on("close", (code) => {
+										console.log(channel + ": Command task \"" + command + "\" closed.");
+									});
+									// Kill the child task after x seconds
+									setTimeout(() => {
+										task.kill();
+									}, consts.max_time_command_s * 1000);
 								});
 							}
 						});
@@ -81,30 +90,53 @@ var onChat = (channel, user, message, self) => {
 	});
 };
 
-var checkDelay = (channel, command, callback) => {
-	var lastRow = coll.find({"Channel": channel, "Command": command});
-	var justCreated = false;
-
-	if(lastRow.length === 0){
-		var line = {
-			"Channel": channel,
-			"Command": command,
-			"Timestamp": 0
-		};
-		coll.insert(line);
-		justCreated = true;
-	}
-
-	var now = new Date().getTime();
-	var diff = now; // temp
-	if(lastRow != undefined){
-		diff = (now - lastRow.Timestamp) / 1000;
-	}
-
-	if(justCreated || diff >= minimum_delay){
-		lastRow.Timestamp = new Date().getTime();
-		coll.update(lastRow);
+var checkDelay = (channel, user, command, callback) => {
+	if( util.checkPermissionCore(channel, user, consts.access.moderator) ){
 		callback();
+	}
+	else {
+		ldb.loadDatabase({}, () => {
+			var tstamp = new Date().getTime() - minimum_delay;
+
+			// find any current records
+			var lastRow = coll.where((d) => {
+				return d.Channel == channel && d.Command == command && d.Timestamp < tstamp
+			});
+
+			var ok = false;
+
+			// if none exist, create
+			if(lastRow.length === 0){
+				var line = {
+					"Channel": channel,
+					"Command": command,
+					"Timestamp": new Date().getTime()
+				};
+				lastRow = coll.insert(line);
+				ok = true;
+			}
+			// otherwise, detect whether to output
+			else {
+				var now = new Date().getTime();
+				var diff = now; // temp
+				if(lastRow.length > 0){
+					diff = (now - lastRow[0].Timestamp) / 1000;
+				}
+
+				console.log(lastRow, diff, "("+now+" - "+lastRow[0].Timestamp+") / 1000");
+
+				if(diff >= minimum_delay){
+					lastRow[0].Timestamp = new Date().getTime();
+					coll.update(lastRow);
+					ldb.save();
+					ok = true;
+				}
+			}
+
+			if(ok){
+				callback();
+			}
+		});
 	}
 };
 

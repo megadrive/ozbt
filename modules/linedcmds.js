@@ -8,7 +8,7 @@ var util = require("../util.js");
 
 // only count lines per channel
 var loki = require("lokijs");
-var ldb = new loki("linedcmdsDb");
+var ldb = new loki(consts.lokidb);
 var coll = ldb.addCollection("linedcmds");
 
 var tbl = "linedcmds";
