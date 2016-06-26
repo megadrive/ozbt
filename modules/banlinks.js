@@ -22,8 +22,11 @@ var onChat = (channel, user, message, self) => {
 			if(doBanLinks != undefined && doBanLinks === consts.true){
 				var matched = message.match(rurl);
 				if(matched !== null){
-					_client.timeout(channel, user.username, banLength);
-					_client.say(channel, util.getDisplayName(user) + " -> Links have been banned, please refrain from posting links.");
+					_client.timeout(channel, user.username, banLength, "ozbt: banlinks on").then((data) => {
+						_client.say(channel, util.getDisplayName(user) + " -> Links have been banned, please refrain from posting links.");
+					}).catch((err) => {
+						console.error(err);
+					});
 				}
 			}
 		}

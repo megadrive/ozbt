@@ -13,6 +13,7 @@ var ldb = new loki(consts.lokidb);
 var coll = ldb.addCollection("cmdCooldown");
 
 var minimum_delay = 10; // seconds
+var ratuser = /@[A-Za-z_]+/g;
 
 var checkPermission = (channel, user, command, callback) => {
 	_dbHelpers.find(_dbHelpers.db(), "commandpermission", {
@@ -43,7 +44,12 @@ var onChat = (channel, user, message, self) => {
 			doesChannelCommandExist(channel, command, (exists, row) => {
 				if( exists ){
 					checkDelay(channel, user, command, () => {
-						_client.say(channel, row.OutputText);
+						var matches = ratuser.exec(message);
+						var message_out = row[0].OutputText;
+						if(matches.length > 0){
+							message_out += " " + matches[0];
+						}
+						_client.say(channel, message_out);
 					});
 				}
 				else {
@@ -64,13 +70,22 @@ var onChat = (channel, user, message, self) => {
 									task.on("message", (m) => {
 										switch(m.func){
 											case "say":
+												// If someone @mentions someone in a command, @mention them if there is a message sent back.
+												var matches = ratuser.exec(m.message);
+												if(matches.length > 0){
+													m.message += " " + matches[0];
+												}
 												_client.say(m.channel, m.message);
 												break;
 											case "join_channel":
 												_client.join(m.channel);
 												break;
 											case "timeout_user":
-												_client.timeout(m.channel, m.username, m.time);
+												_client.timeout(m.channel, m.username, m.time, m.reason).then((data) => {
+													if(m.message !== undefined && m.message.length > 0){
+														_client.say(m.channel, m.message);
+													}
+												});
 											}
 									});
 									task.on("close", (code) => {

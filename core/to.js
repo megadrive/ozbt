@@ -39,17 +39,20 @@ var timeout = (channel, to_user, lengthString) => {
 	}
 
 	if(toTime > 0){
-		util.say(process.env.channel, util.getDisplayName(user) + " -> Timing out \"" + to_user + "\" for " + num + " " + nTime + ".");
-
 		process.send({
 			"func": "timeout_user",
 			"channel": process.env.channel,
 			"username": to_user,
-			"time": toTime
+			"time": toTime,
+			"reason": "Timed out via !to",
+			"message": util.getDisplayName(user) + " -> Timing out \"" + to_user + "\" for " + num + " " + nTime + "."
 		});
 	}
 };
 
 if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) ){
+	if(args[1].indexOf('@') === 0){
+		args[1] = args[1].substr(1);
+	}
 	timeout(process.env.channel, args[1], args[2]);
 }
