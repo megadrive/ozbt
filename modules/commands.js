@@ -13,7 +13,6 @@ var ldb = new loki(consts.lokidb);
 var coll = ldb.addCollection("cmdCooldown");
 
 var minimum_delay = 10; // seconds
-var ratuser = /@[A-Za-z_]+/g;
 
 var checkPermission = (channel, user, command, callback) => {
 	_dbHelpers.find(_dbHelpers.db(), "commandpermission", {
@@ -44,11 +43,7 @@ var onChat = (channel, user, message, self) => {
 			doesChannelCommandExist(channel, command, (exists, row) => {
 				if( exists ){
 					checkDelay(channel, user, command, () => {
-						var matches = ratuser.exec(message);
-						var message_out = row[0].OutputText;
-						if(matches.length > 0){
-							message_out += " " + matches[0];
-						}
+						var message_out = appendAtUser(user, message, row.OutputText);
 						_client.say(channel, message_out);
 					});
 				}
@@ -70,11 +65,8 @@ var onChat = (channel, user, message, self) => {
 									task.on("message", (m) => {
 										switch(m.func){
 											case "say":
-												// If someone @mentions someone in a command, @mention them if there is a message sent back.
-												var matches = ratuser.exec(m.message);
-												if(matches.length > 0){
-													m.message += " " + matches[0];
-												}
+												// If a user @mentions someone
+												m.message = appendAtUser(user, message, m.message);
 												_client.say(m.channel, m.message);
 												break;
 											case "join_channel":
@@ -160,6 +152,28 @@ var doesChannelCommandExist = (channel, command, callback) => {
 		callback(rows.length > 0, rows[0]);
 	});
 };
+
+var appendAtUser = (user, original_message, new_message) => {
+	var ratuser = /@([A-Za-z_]+)/g;
+
+	// If someone @mentions someone in a command, @mention them if there is a message sent back.
+	var matches = ratuser.exec(original_message);
+	if(matches !== null && matches.length > 0){
+		//m.message += " " + matches[0];
+		var re = new RegExp("^" + util.getDisplayName(user));
+		var new_matches = re.exec(new_message);
+		if(new_matches === null){
+			// Append to the end:
+			new_message += " " + matches[0]; //@username
+		}
+		else {
+			// Replace without the @
+			new_message = new_message.replace(re, matches[1]);
+		}
+	}
+
+	return new_message;
+}
 
 var _commands = {
 	"register": (client) => {
