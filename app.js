@@ -19,7 +19,6 @@ var _client = new _tmi.client({
 		"debug": false
 	},
 	"connection": {
-		"cluster": "aws",
 		"reconnect": true
 	},
 	"identity": {
@@ -68,7 +67,7 @@ _client.on("chat", _linedcmds.onChat);
 _client.on("chat", _giveaways.onChat);
 
 _client.on("subscription", _greetings.onSub);
-_client.on("subanniversary", _greetings.onResub);
+_client.on("resub", _greetings.onResub);
 
 _client.on("subscription", _subgoals.onSub);
-_client.on("subanniversary", _subgoals.onResub);
+_client.on("resub", _subgoals.onResub);
