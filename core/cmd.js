@@ -3,7 +3,6 @@ var util = require("../util.js");
 var db = require("../mysqlHelpers.js");
 var consts = require("../consts.js");
 var user = JSON.parse(process.env.user);
-var q = require("q");
 
 // Get arguments.
 var args = process.env.message.split(" ");
