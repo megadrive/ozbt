@@ -56,5 +56,16 @@ module.exports = {
 			'func': 'say',
 			'message': message
 		});
+	},
+
+	/**
+	 * Convenience function, saves creating the whole block every time in commands.
+	 */
+	'whisper': function(username, message){
+		process.send({
+			'func': 'whisper',
+			'username': username,
+			'message': message
+		});
 	}
 }

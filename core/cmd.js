@@ -3,6 +3,7 @@ var util = require("../util.js");
 var db = require("../mysqlHelpers.js");
 var consts = require("../consts.js");
 var user = JSON.parse(process.env.user);
+var q = require("q");
 
 // Get arguments.
 var args = process.env.message.split(" ");
@@ -109,6 +110,40 @@ var del = () => {
 	});
 };
 
+// @NOTE: This function will be a mess. Fix it asap.
+var list = () => {
+	var userlevel = 99;
+	if( util.checkPermissionCore(process.env.channel, user, consts.access.broadcaster) )
+		userlevel = consts.access.broadcaster;
+	if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) )
+		userlevel = consts.access.moderator;
+	if( util.checkPermissionCore(process.env.channel, user, consts.access.subscriber) )
+		userlevel = consts.access.subscriber;
+	if(userlevel === 99)
+		userlevel = consts.access.everybody;
+
+	// some custom sql
+	var sql = "SELECT * " + 
+		"FROM `customcommand` LEFT JOIN `commandpermission` " +
+		"ON `customcommand`.`Command` = `commandpermission`.`Command`;";
+
+	db.db().query(sql, (err, rows, fields) => {
+		if(!err){
+			var available_commands = [];
+
+			for(var i = 0; i < rows.length; i++){
+				if(rows[i].Command != null && rows[i].PermissionLevel != null){
+					if(util.checkPermissionCore(process.env.channel, user, rows[i].PermissionLevel)){
+						available_commands.push(rows[i].Command);
+					}
+				}
+			}
+
+			util.whisper(user.username, "Commands available to you in chat for: " + process.env.channel + ": " + available_commands.join(" "));
+		}
+	});
+};
+
 if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) ){
 	switch(intent){
 		case "add":
@@ -119,6 +154,9 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 			break;
 		case "delete":
 			del();
+			break;
+		case "list":
+			list();
 			break;
 	}
 }

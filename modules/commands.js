@@ -69,6 +69,9 @@ var onChat = (channel, user, message, self) => {
 												m.message = appendAtUser(user, message, m.message);
 												_client.say(m.channel, m.message);
 												break;
+											case "whisper":
+												_client.whisper(m.username, m.message);
+												break;
 											case "join_channel":
 												_client.join(m.channel);
 												break;
