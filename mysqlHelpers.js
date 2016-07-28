@@ -75,7 +75,7 @@ module.exports = {
 			var value = fields[key];
 			if( typeof value === "boolean" ) value = +value;
 			if( typeof value === "string" ){
-				value = value.replace(/[^\\]?'/g, "\\\'");
+				value = value.replace(/\\?'/g, "\\\'");
 			}
 			_values.push("'" + value + "'");
 		});
@@ -99,7 +99,7 @@ module.exports = {
 			var value = fields[key];
 			if( typeof value === "boolean" ) value = +value;
 			if( typeof value === "string" ){
-				value = value.replace(/[^\\]?'/g, "\\\'");
+				value = value.replace(/\\?'/g, "\\\'");
 			}
 			_values.push(key + " = '" + value + "'");
 		});
@@ -122,7 +122,7 @@ module.exports = {
 			var value = fields[key];
 			if( typeof value === "boolean" ) value = +value;
 			if( typeof value === "string" ){
-				value = value.replace(/[^\\]?'/g, "\\\'");
+				value = value.replace(/\\?'/g, "\\\'");
 			}
 			_values.push(key + " = '" + value + "'");
 		});
