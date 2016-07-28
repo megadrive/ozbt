@@ -122,10 +122,9 @@ var list = () => {
 		userlevel = consts.access.everybody;
 
 	// some custom sql
-	var sql = "SELECT * " + 
-		"FROM `customcommand` LEFT JOIN `commandpermission` " +
-		"ON `customcommand`.`Command` = `commandpermission`.`Command` " + 
-		"   AND `customcommand`.`Channel` = `commandpermission`.`Channel`;";
+	var sql =	"SELECT * FROM `customcommand` " + 
+				"LEFT JOIN `commandpermission` " +
+				"ON `commandpermission`.`Command` = `customcommand`.`Command` AND `commandpermission`.`Channel` = `customcommand`.`Channel`";
 
 	db.db().query(sql, (err, rows, fields) => {
 		if(!err){
