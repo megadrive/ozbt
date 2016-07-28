@@ -124,7 +124,8 @@ var list = () => {
 	// some custom sql
 	var sql = "SELECT * " + 
 		"FROM `customcommand` LEFT JOIN `commandpermission` " +
-		"ON `customcommand`.`Command` = `commandpermission`.`Command`;";
+		"ON `customcommand`.`Command` = `commandpermission`.`Command` " + 
+		"   AND `customcommand`.`Channel` = `commandpermission`.`Channel`;";
 
 	db.db().query(sql, (err, rows, fields) => {
 		if(!err){
