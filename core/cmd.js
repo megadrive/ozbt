@@ -124,7 +124,8 @@ var list = () => {
     // some custom sql
     var sql =   "SELECT * FROM `customcommand` C \
                     INNER JOIN `commandpermission` P \
-                ON C.`Command` = P.`Command` AND C.`Channel` = '" + process.env.channel + "'";
+                ON C.`Command` = P.`Command` AND C.`Channel` = '" + process.env.channel + "'\
+                WHERE P.`PermissionLevel` >= " + userlevel;
 
     db.db().query(sql, (err, rows, fields) => {
         if(!err){
