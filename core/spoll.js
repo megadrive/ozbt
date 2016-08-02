@@ -53,6 +53,7 @@ var createPoll = () => {
 			var j = body;
 			util.say(process.env.channel, "Vote on \"" + title + "\" here: http://strawpoll.me/" + j.id);
 
+			fs.mkdirSync(tempDir);
 			var f = tempDir + process.env.channel;
 			fs.writeFile(f, j.id, (err) => {
 				if(!err){
