@@ -33,12 +33,6 @@ var jOpts = {
 	"options": options
 };
 
-console.log({
-		"url": api,
-		"formData": jOpts,
-		"headers": "Content-type: application/json"
-	});
-
 var createPoll = () => {
 	request({
 		"url": api,
