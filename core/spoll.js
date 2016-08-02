@@ -68,8 +68,6 @@ var getResult = () => {
 		}
 		else {
 			request(api + "/" + data, (err, res, body) => {
-				console.log(api + "/" + data);
-
 				if(err){
 					console.error(err);
 				}
