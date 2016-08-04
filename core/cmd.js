@@ -110,13 +110,13 @@ var del = () => {
 };
 
 // @NOTE: This function will be a mess. Fix it asap.
-var list = () => {
+var list = (channel, userObj) => {
     var userlevel = 99;
-    if( util.checkPermissionCore(process.env.channel, user, consts.access.broadcaster) )
+    if( util.checkPermissionCore(channel, userObj, consts.access.broadcaster) )
         userlevel = consts.access.broadcaster;
-    if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) )
+    if( util.checkPermissionCore(channel, userObj, consts.access.moderator) )
         userlevel = consts.access.moderator;
-    if( util.checkPermissionCore(process.env.channel, user, consts.access.subscriber) )
+    if( util.checkPermissionCore(channel, userObj, consts.access.subscriber) )
         userlevel = consts.access.subscriber;
     if(userlevel === 99)
         userlevel = consts.access.everybody;
@@ -124,8 +124,10 @@ var list = () => {
     // some custom sql
     var sql =   "SELECT * FROM `customcommand` C \
                     INNER JOIN `commandpermission` P \
-                ON C.`Command` = P.`Command` AND C.`Channel` = '" + process.env.channel + "'\
+                ON C.`Command` = P.`Command` AND C.`Channel` = '" + channel + "'\
                 WHERE P.`PermissionLevel` >= " + userlevel;
+
+    console.log(sql);
 
     db.db().query(sql, (err, rows, fields) => {
         if(!err){
@@ -133,13 +135,13 @@ var list = () => {
 
             for(var i = 0; i < rows.length; i++){
                 if(rows[i].Command != null && rows[i].PermissionLevel != null){
-                    if(util.checkPermissionCore(process.env.channel, user, rows[i].PermissionLevel)){
+                    if(util.checkPermissionCore(channel, user, rows[i].PermissionLevel)){
                         available_commands.push(rows[i].Command);
                     }
                 }
             }
 
-            util.whisper(user.username, "Commands available to you in chat for: " + process.env.channel + ": " + available_commands.join(" "));
+            util.whisper(user.username, "Commands available to you in chat for " + channel + ": " + available_commands.join(" "));
         }
     });
 };
@@ -156,7 +158,12 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
             del();
             break;
         case "list":
-            list();
+            list(process.env.channel, user);
             break;
     }
 }
+
+// This is here so that we can create alias commands. !commands will be an alias for list
+module.exports = {
+    "list": list
+};
