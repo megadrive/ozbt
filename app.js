@@ -11,6 +11,7 @@ var _subgoals = require("./modules/subgoals.js");
 var _banlinks = require("./modules/banlinks.js");
 var _linedcmds = require("./modules/linedcmds.js");
 var _giveaways = require("./modules/giveaways.js");
+var _giveaways = require("./modules/banhtml.js");
 var _kappa = require("./modules/kappa.js");
 var util = require("./util.js");
 
@@ -40,6 +41,7 @@ _client.on("connected", (addr, port) => {
 	_linedcmds.register(_client);
 	_giveaways.register(_client);
 	_kappa.register(_client);
+	_banhtml.register(_client);
 
 	db.findAll(db.db(), "channel", (rows) => {
 		for(var r = 0; r < rows.length; r++){
@@ -68,6 +70,7 @@ _client.on("chat", _banlinks.onChat);
 _client.on("chat", _linedcmds.onChat);
 _client.on("chat", _giveaways.onChat);
 _client.on("chat", _kappa.onChat);
+_client.on("chat", _banhtml.onChat);
 
 _client.on("subscription", _greetings.onSub);
 _client.on("resub", _greetings.onResub);
