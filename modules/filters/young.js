@@ -3,6 +3,7 @@
 var request = require("request");
 
 var db = require("../../dbHelpers.js");
+var _client = undefined;
 
 var TIMEOUT_LENGTH = 86400; // one day
 
@@ -15,7 +16,7 @@ function diffBetweenDateAndNow(dateString){
   return Math.round(Math.abs((new Date().getTime() - new Date(dateString).getTime())/(oneDay)));
 }
 
-_client.on("chat", (channel, user, message, self) => {
+var onChat = (channel, user, message, self) => {
 	if(self)
 		return; // just in case user created a brand new account for the bot
 
@@ -52,4 +53,15 @@ _client.on("chat", (channel, user, message, self) => {
       });
     }
   });
-});
+}
+
+module.exports = {
+	"register": (client) => {
+		if(client){
+			_client = client;
+			_client.on("chat", onChat);
+		}
+
+		return client ? true : false;
+	}
+};

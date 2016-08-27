@@ -21,7 +21,9 @@ var onChat = (channel, user, message, self) => {
 	if(channel != "#tirean")
 		return;
 
-	if(message.match(tags).length > 0){
+	var matches = message.match(tags);
+
+	if(matches && matches.length > 0){
 		client.timeout(channel, user.username, 86400);
 	}
 }

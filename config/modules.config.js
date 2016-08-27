@@ -10,15 +10,17 @@
  * If changed, the bot must be restarted.
  */
 
-module.exports = {[
+module.exports = [
   "banhtml",
   "banlinks",
   "banselfpromo",
-  "banshortlinks",
+  //"banshortlinks", // @NOTE: Not completed.
   "commands",
   //"giveaways", // @NOTE: Unworking, probably won't continue.
   "greetings",
   "kappa",
   "linedcmds", // @NOTE: Still needs a frontend.
-  "subgoals" // @NOTE: Still needs a frontend.
-]};
+  "subgoals", // @NOTE: Still needs a frontend.
+
+  "filters/young"
+];

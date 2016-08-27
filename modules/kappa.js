@@ -9,10 +9,6 @@ var util = require("../util.js");
 var Chance = require("chance");
 var chance = new Chance();
 
-var loki = require("lokijs");
-var ldb = new loki(consts.lokidb);
-var coll = null;
-
 var bots = ["nightbot", "xanbot", "moobot"];
 
 var onChat = (channel, user, message, self) => {
@@ -26,19 +22,14 @@ var onChat = (channel, user, message, self) => {
 		var rand = chance.floating({"min":0, "max":1});
 
 		if(rand >= chancePercentage){
-			ldb.loadDatabase({}, () => {
-				coll = ldb.getCollection("kappa");
-				if(coll === null)
-					coll = ldb.addCollection("kappa");
-
-				coll.insert({
-					"channel": channel,
-					"username": user.username,
-					"message": message
-				});
-
-				console.info("Kappa:\tAdded quote by '" + user.username + "': " + message);
-				ldb.save();
+			db.insert(db.db(), "kappa", {
+				"Channel": channel,
+				"Username": user.username,
+				"Message": message
+			}, (result) => {
+				if(result.length){
+					console.info("Kappa:\tAdded quote by '" + user.username + "': " + message);
+				}
 			});
 		}
 	}
