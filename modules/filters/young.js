@@ -20,7 +20,7 @@ var onChat = (channel, user, message, self) => {
 	if(self)
 		return; // just in case user created a brand new account for the bot
 
-  db.find("user_info", {
+  db.find(db.db(), "user_info", {
     "name": { "$eq": user.username }
   }, (users) => {
     if(users.length){
