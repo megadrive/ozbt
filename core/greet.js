@@ -7,80 +7,43 @@ var user = JSON.parse(process.env.user);
 // Get arguments.
 var args = process.env.message.split(" ");
 
-var greet = args[1];
+var greet = args[1] ? args[1].toLowerCase() : undefined;
 var string = args.splice(2).join(" ");
 
-function updateGreeting(greeting, text){
-	if(greeting.startsWith("sub")) greeting = "sub";
-	if(greeting.startsWith("resub")) greeting = "resub";
-
+function updateMessage(type, message){
 	var selector = {
 		"Channel": process.env.channel,
-		"Type": consts.greeting[greeting]
+		"Type": type
 	};
-};
+	var update = {
+		"OutputText": string
+	};
 
-var sub = () => {
-	db.find(db.db(), "greeting", {
-		"Channel": process.env.channel,
-		"Type": consts.greeting.sub
-	}, (rows) => {
-		if( string != undefined ){
-			if(rows.length > 0){
-				db.update(db.db(), "greeting", {
-					"Channel": process.env.channel,
-					"Type": consts.greeting.sub
-				}, {"OutputText": string}, (rows) => {
-					if(rows.affectedRows === 1){
-						util.say(process.env.channel, util.getDisplayName(user) + " -> Greeting for \"" + greet + "\" has been updated.");
-					}
-				});
-			}
-			else {
-				db.insert(db.db(), "greeting", {
-					"Channel": process.env.channel,
-					"Type": consts.greeting.sub,
-					"OutputText": string
-				}, (rows) => {
-					if(rows.affectedRows === 1){
-						util.say(process.env.channel, util.getDisplayName(user) + " -> Greeting for \"" + greet + "\" has been updated.");
-					}
-				});
-			}
+	if(greet === undefined || greet !== "sub" || greet !== "resub")
+		return;
+
+	// @TODO: Change to an upsert
+	db.update(db.db(), "greeting", selector, update, (rows) => {
+		if(rows.length === 1){
+			util.say(process.env.channel, util.getDisplayName(user) + " -> Greeting for \"" + greet + "\" has been updated.");
 		}
-		else {
-			util.say(process.env.channel, util.getDisplayName(user) + " -> " + rows[0].OutputText);
+		else if(rows.length === 0){ // none found
+			selector["OutputText"] = string;
+			db.insert(db.db(), "greeting", selector, (rows) => {
+				if(rows.inserted.length){
+					util.say(process.env.channel, util.getDisplayName(user) + " -> Greeting for \"" + greet + "\" has been created.");
+				}
+			});
 		}
 	});
+}
+
+var sub = () => {
+	updateMessage(consts.greeting.sub, string);
 };
 
 var resub = () => {
-	db.find(db.db(), "greeting", {
-		"Channel": process.env.channel,
-		"Type": consts.greeting.resub
-	}, (rows) => {
-		if(rows.length > 0){
-			db.update(db.db(), "greeting", {
-				"Channel": process.env.channel,
-				"Type": consts.greeting.resub
-			}, {"OutputText": string}, (rows) => {
-				if(rows.affectedRows === 1){
-					util.say(process.env.channel, util.getDisplayName(user) + " -> Greeting for \"" + greet + "\" has been updated.");
-				}
-			});
-		}
-		else {
-			db.insert(db.db(), "greeting", {
-				"Channel": process.env.channel,
-				"Type": consts.greeting.resub,
-				"OutputText": string
-			}, (rows) => {
-				if(rows.affectedRows === 1){
-					util.say(process.env.channel, util.getDisplayName(user) + " -> Greeting for \"" + greet + "\" has been updated.");
-				}
-			});
-		}
-	});
+	updateMessage(consts.greeting.resub, string);
 };
 
 var del = () => {
@@ -88,8 +51,11 @@ var del = () => {
 		db.delete(db.db(), "greeting", {
 			"Channel": process.env.channel,
 			"Type": consts.greeting[string.toLowerCase()]
-		}, (rows) => {
-			if(rows.affectedRows > 0){
+		}, (err, arr) => {
+			if(err)
+				throw new Error(err);
+
+			if(arr.length){
 				util.say(process.env.channel, util.getDisplayName(user) + " -> Greeting for \"" + string + "\" has been deleted.");
 			}
 		});

@@ -73,11 +73,13 @@ var add = (channel, username) => {
 	}
 };
 
-var _giveaways = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-	},
-	"onChat": onChat
-};
+		if(client){
+			_client = client;
+			_client.on("chat", onChat);
+		}
 
-module.exports = _giveaways;
+		return client ? true : false;
+	}
+};

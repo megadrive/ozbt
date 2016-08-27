@@ -83,6 +83,9 @@ var onChat = (channel, user, message, self) => {
 												});
 											}
 									});
+									task.on("error", (err) =>{
+										throw new Error(err);
+									});
 									task.on("close", (code) => {
 										console.log(channel + ": Command task \"" + command + "\" closed.");
 									});
@@ -178,12 +181,13 @@ var appendAtUser = (user, original_message, new_message) => {
 	return new_message;
 }
 
-var _commands = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-	},
-	"onChat": onChat,
-	"checkPermission": checkPermission
-};
+		if(client){
+			_client = client;
+			_client.on("chat", onChat);
+		}
 
-module.exports = _commands;
+		return client ? true : false;
+	}
+};

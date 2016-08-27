@@ -70,12 +70,14 @@ var onResub = (channel, username, months) => {
 	});
 };
 
-var _subgoals = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-	},
-	"onSub": onSub,
-	"onResub": onResub
-};
+		if(client){
+			_client = client;
+			_client.on("subscription", onSub);
+			_client.on("resub", onResub);
+		}
 
-module.exports = _subgoals;
+		return client ? true : false;
+	}
+};

@@ -15,11 +15,13 @@ var onChat = (channel, user, message, self) => {
   if(user.)
 };
 
-var banshortlinks = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-    _client.on("chat", onChat);
+		if(client){
+			_client = client;
+			_client.on("chat", onChat);
+		}
+
+		return client ? true : false;
 	}
 };
-
-module.exports = banshortlinks;

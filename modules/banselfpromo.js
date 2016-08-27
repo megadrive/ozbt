@@ -13,17 +13,18 @@ var onChat = (channel, user, message, self) => {
   var rselfpromo = new RegExp("https?://(www\.)?twitch\.tv/" + user.username, "gi");
 
   if(message.test(rselfpromo)){
-    console.info(message);
+		console.log("SHould ban");
     //client.ban(channel, user.username, "Banned for self-promotion.");
   }
 }
 
-var _banselfpromo = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-    client.onChat(onChat);
-	},
-	"onChat": onChat
-};
+		if(client){
+			_client = client;
+			_client.on("chat", onChat);
+		}
 
-module.exports = _banselfpromo;
+		return client ? true : false;
+	}
+};

@@ -44,11 +44,13 @@ var onChat = (channel, user, message, self) => {
 	}
 }
 
-var _kappa = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-	},
-	"onChat": onChat
-};
+		if(client){
+			_client = client;
+			_client.on("chat", onChat);
+		}
 
-module.exports = _kappa;
+		return client ? true : false;
+	}
+};

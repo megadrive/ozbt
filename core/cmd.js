@@ -1,28 +1,18 @@
 
 var util = require("../util.js");
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var consts = require("../consts.js");
 var user = JSON.parse(process.env.user);
 
 // Get arguments.
 var args = process.env.message.split(" ");
 
-/**
- * !cmd add !poop I poop back and forth.
- * !cmd edit !poop You do, not me.
- * !cmd delete !poop
- */
-
-var static = {
-    "help": "!cmd <add|edit|delete> <command> <output text>"
-};
-module.exports = static;
-
 var intent = args[1];
 var cmd = args[2];
 var string = args.splice(3).join(" ");
 
 // Add a new custom command
+// @TODO: This can be changed to not use db.find(). Use the cb to figure out output.
 var add = () => {
     // Check for existance. If it exists already, output an error pointing to !cmd edit.
     db.find(db.db(), "customcommand", {
@@ -43,74 +33,58 @@ var add = () => {
                 "OutputText": string,
                 "Channel": process.env.channel
             }, (rows) => {
-                if( rows.affectedRows === 1 ){
-                    util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " was created.");
-                }
-                else {
-                    console.error("There was an error when running " + process.env.message + " in " + process.env.channel);
-                }
+              if( rows.inserted.length === 1 ){
+                  util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " was created.");
+              }
+              else {
+                  console.error("There was an error when running " + process.env.message + " in " + process.env.channel);
+              }
             });
         }
     });
 };
 
 var edit = () => {
-    // Check for existance. If it exists already, output an error pointing to !cmd edit.
-    db.find(db.db(), "customcommand", {
-        "Channel": process.env.channel,
-        "Command": cmd
-    }, (rows) => {
-        if( rows.length === 1 ){
-            var rslashes = /^\/+/;
-            string = string.replace(rslashes, "");
-            
-            db.update(db.db(), "customcommand", "Command='" + cmd + "'", {"OutputText": string}, (rows) => {
-                if( rows.affectedRows === 1 ){
-                    util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " was updated.");
-                }
-                else {
-                    console.error("There was an error when running " + process.env.message + " in " + process.env.channel);
-                }
-            });
-        }
-        else if( rows.length > 1 ){
-            console.error("ERROR: There are duplicate entries for the channel command " + cmd + " in channel " + process.env.channel + "!");
-        }
-        else {
-            // We don't have a command, output a warning.
-            util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " doesn't exist, did you mean to use !cmd add?");
-        }
-    });
+  var rslashes = /^\/+/;
+  string = string.replace(rslashes, "");
+
+  var select = {
+    "Command": cmd,
+    "Channel": process.env.channel
+  };
+  var update = {
+    "OutputText": string
+  };
+  db.update(db.db(), "customcommand", select, update, function(rows){
+    if( rows.length === 1 ){
+        util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " was updated.");
+    }
+    else {
+        console.error("There was an error when running " + process.env.message + " in " + process.env.channel);
+    }
+  });
 };
 
 var del = () => {
-    // Check for existance. If it exists already, output an error pointing to !cmd edit.
-    db.find(db.db(), "customcommand", {
-        "Channel": process.env.channel,
-        "Command": cmd
-    }, (rows) => {
-        if( rows.length > 0 ){
-            if( rows.length > 1 )
-                console.error("ERROR: There were duplicate entries for the channel command " + cmd + " in channel " + process.env.channel + "! They have all been removed now.");
+  db.delete(db.db(), "customcommand", {"Command": cmd, "Channel": process.env.channel}, (err, arr) => {
+    if(err)
+      throw new Error(err);
 
-            db.delete(db.db(), "customcommand", {"Command": cmd}, (rows) => {
-                if( rows.affectedRows === 1 ){
-                    util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " was deleted.");
-                }
-                else {
-                    console.error("There was an error when running " + process.env.message + " in " + process.env.channel);
-                }
-            });
-        }
-        else {
-            // We don't have a command, output a warning.
-            util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " doesn't exist, did you mean to use !cmd add?");
-        }
-    });
+    if( arr.length === 1 ){
+        util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " was deleted.");
+    }
+    else {
+        util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " doesn't exist. Did you mean to use !cmd add?");
+    }
+  });
 };
 
 // @NOTE: This function will be a mess. Fix it asap.
 var list = (channel, userObj) => {
+  // @TODO: Move this to the webpage api.
+  util.whisper(user.username, "Commands are currently down. Sorry!");
+  return;
+
     var userlevel = 99;
     if( util.checkPermissionCore(channel, userObj, consts.access.broadcaster) )
         userlevel = consts.access.broadcaster;
@@ -127,7 +101,11 @@ var list = (channel, userObj) => {
                 ON C.`Command` = P.`Command` AND C.`Channel` = '" + channel + "'\
                 WHERE P.`PermissionLevel` >= " + userlevel;
 
-    console.log(sql);
+    var query = db.join(db.db(), "customcommand", "custompermission", "permission", {
+      "Channel": channel
+    });
+
+    console.log(query); return;
 
     db.db().query(sql, (err, rows, fields) => {
         if(!err){

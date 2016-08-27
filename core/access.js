@@ -9,6 +9,7 @@ var args = process.env.message.split(" ");
 
 var access = args[2] ? args[2].toLowerCase() : undefined;
 var command = args[1];
+
 if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) ){
 	var newAccess = consts.access.broadcaster;
 	switch(args[2]){

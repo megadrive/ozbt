@@ -1,14 +1,11 @@
 
 var util = require("../util.js");
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var request = require("request");
 var user = JSON.parse(process.env.user);
 var fs = require("fs");
 
-var static = {
-	"help": "!spoll -t Title of poll -o Option 1 -o Option 2 -o Option 3"
-};
-module.exports = static;
+// @TODO: Make this use forerunnerdb instead of a temporary file. We do NOT need to have permenence for strawpoll ids.
 
 var api = "https://strawpoll.me/api/v2/polls";
 var tempDir = "temp/strawpollIds/";

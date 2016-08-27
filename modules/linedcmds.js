@@ -50,11 +50,13 @@ var onChat = (channel, user, message, self) => {
 	}
 };
 
-var linedcmds = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-	},
-	"onChat": onChat
-};
+		if(client){
+			_client = client;
+			_client.on("chat", onChat);
+		}
 
-module.exports = linedcmds;
+		return client ? true : false;
+	}
+};
