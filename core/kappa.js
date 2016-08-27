@@ -13,7 +13,7 @@ var args = process.env.message.split(" ");
 
 if( util.checkPermissionCore(process.env.channel, user, consts.access.subscriber) ){
 	db.find(db.db(), "kappa", {"Channel": process.env.channel}, (results) => {
-		var element = chance.integer({"min": 0, "max": results.length - 1});
+		var element = chance.integer({"min": 0, "max": results.length});
 		var quote = results[element];
 
 		util.say(process.env.channel, quote.Username + ": " + quote.Message);
