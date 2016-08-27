@@ -16,6 +16,6 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.subscriber
 		var element = chance.integer({"min": 0, "max": results.length - 1});
 		var quote = results[element];
 
-		util.say(process.env.channel, quote.Username ": " + quote.Message);
+		util.say(process.env.channel, quote.Username + ": " + quote.Message);
 	});
 }
