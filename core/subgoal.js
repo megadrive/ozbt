@@ -1,3 +1,4 @@
+"use strict";
 
 var util = require("../util.js");
 var config = require("../config/config.user.js");
@@ -21,11 +22,6 @@ var tbl = "subgoal";
 
  * !subgoal resubs nG [true|false]
  */
-
-var static = {
-	"help": "!goal [add|edit|delete] [number of subs|hash] <sub goal text>"
-};
-module.exports = static;
 
 var intent = args[1];
 
@@ -141,7 +137,7 @@ var list = () => {
 		for(var i = 0; i < rows.length; i++){
 			var r = rows[i];
 			var percent = Math.floor((r.Current / r.Maximum) * 100);
-			var str = i+1 + ". \"" + r.Name + "\" -- " + r.Current + "/" + r.Maximum + 
+			var str = i+1 + ". \"" + r.Name + "\" -- " + r.Current + "/" + r.Maximum +
 							" (" + percent + "%)" +
 							(percent >= 100 ? " MET!" : ".") + " (hash: " + r.PublicHash + ")";
 			util.say(process.env.channel, str);

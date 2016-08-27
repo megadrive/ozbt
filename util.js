@@ -1,7 +1,7 @@
 "use strict";
 
 var consts = require("./consts.js");
-var db = require("./mysqlHelpers.js");
+var db = require("./dbHelpers.js");
 
 module.exports = {
 	'version': function(){
@@ -45,6 +45,22 @@ module.exports = {
 		}
 
 		return rv;
+	},
+
+	/**
+	 * Gets the property key of an object based on a supplied value.
+	 * @return string the key, or undefined if not found
+	 */
+	'getKeyFromValue': function(object, valueToFind){
+		for(var prop in object){
+			if(object.hasOwnProperty(prop)){
+				if(object[prop] === valueToFind){
+					return prop;
+				}
+			}
+		}
+
+		return undefined;
 	},
 
 	/**

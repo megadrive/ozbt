@@ -1,25 +1,24 @@
 
 var util = require("../util.js");
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var consts = require("../consts.js");
 var user = JSON.parse(process.env.user);
 
 // Get arguments.
 var args = process.env.message.split(" ");
 
-/**
- * !greet sub !poop I poop back and forth.
- * !greet resub !poop You do, not me.
- * !greet delete resub
- */
-
-var static = {
-	"help": "!greet <sub|resub> <output text> (see docs for variables)"
-};
-module.exports = static;
-
 var greet = args[1];
 var string = args.splice(2).join(" ");
+
+function updateGreeting(greeting, text){
+	if(greeting.startsWith("sub")) greeting = "sub";
+	if(greeting.startsWith("resub")) greeting = "resub";
+
+	var selector = {
+		"Channel": process.env.channel,
+		"Type": consts.greeting[greeting]
+	};
+};
 
 var sub = () => {
 	db.find(db.db(), "greeting", {

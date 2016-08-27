@@ -1,8 +1,7 @@
 "use strict";
 
-var _config = require("../config/config.user.js");
 var _client = undefined;
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var _consts = require("../consts.js");
 var util = require("../util.js");
 

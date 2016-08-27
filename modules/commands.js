@@ -2,7 +2,7 @@
 
 var _config = require("../config/config.user.js");
 var _client = undefined;
-var _dbHelpers = require("../mysqlHelpers.js");
+var _dbHelpers = require("../dbHelpers.js");
 var fs = require("fs");
 var fork = require("child_process").fork;
 var consts = require("../consts.js");
@@ -48,8 +48,8 @@ var onChat = (channel, user, message, self) => {
 					});
 				}
 				else {
-					// Core commands should always start with !
-					if(command[0] === "!"){
+					// Core commands should always start with whatever is denoted in consts.
+					if(command[0] === consts.core_command_prefix){
 						var file = _config.core_dir + command.substring(1) + ".js";
 						fs.access(file, fs.R_OK, (err) => {
 							// Run a core command.
@@ -157,7 +157,7 @@ var doesChannelCommandExist = (channel, command, callback) => {
 };
 
 var appendAtUser = (user, original_message, new_message) => {
-	var ratuser = /@([A-Za-z_]+)/g;
+	var ratuser = /@([A-Za-z_0-9]+)/g;
 
 	// If someone @mentions someone in a command, @mention them if there is a message sent back.
 	var matches = ratuser.exec(original_message);

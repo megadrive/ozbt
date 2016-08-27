@@ -2,7 +2,7 @@
 
 var config = require("../config/config.user.js");
 var _client = undefined;
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var fs = require("fs");
 var fork = require("child_process").fork;
 var consts = require("../consts.js");
@@ -81,4 +81,3 @@ var _giveaways = {
 };
 
 module.exports = _giveaways;
-

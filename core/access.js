@@ -1,22 +1,14 @@
 
 var util = require("../util.js");
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var consts = require("../consts.js");
 var user = JSON.parse(process.env.user);
 
 // Get arguments.
 var args = process.env.message.split(" ");
 
-/**
- * !access command userlevel
- */
-
-var static = {
-	"help": "!access <command> <broadcaster|supermoderator|moderator|regular|everybody>"
-};
-module.exports = static;
-
-var access = args[2].toLowerCase();
+var access = args[2] ? args[2].toLowerCase() : undefined;
+var command = args[1];
 if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) ){
 	var newAccess = consts.access.broadcaster;
 	switch(args[2]){
@@ -42,42 +34,38 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 			newAccess = -1;
 	}
 
-	if( newAccess >= 0 ){
-		db.find(db.db(), "customcommand", {
-			"Channel": process.env.channel,
-			"Command": args[1]
-		}, (rows) => {
-			if( rows.length === 1 ){
-				db.find(db.db(), "commandpermission", {
-					"Channel": process.env.channel,
-					"Command": args[1]
-				}, (rows) => {
-					// Existing permission
-					if(rows.length === 1){
-						db.update(db.db(), "commandpermission", "Command='" + args[1] + "'", {
-							"PermissionLevel": newAccess
-						}, (rows) => {
-							if(rows.affectedRows > 0){
-								util.say(process.env.channel, util.getDisplayName(user) + " -> Access for " + args[1] + " set to " + args[2] + ".");
-							}
-						});
-					}
-					else{
-						db.insert(db.db(), "commandpermission", {
-							"Command": args[1],
-							"PermissionLevel": newAccess,
-							"Channel": process.env.channel
-						}, (rows) => {
-							if(rows.length > 0){
-								util.say(process.env.channel, util.getDisplayName(user) + " -> Access for " + args[1] + " set to " + args[2] + ".");
-							}
-						});
-					}
+	db.join(db.db(), "customcommand", "commandpermission", {
+		"Channel": process.env.channel,
+		"Command": command
+	}, {
+		"Channel": "Channel",
+		"Command": "Command",
+		"$require": false
+	}, (results) => {
+		// Just in case there is somehow more than one result, use the first.
+		if(results.length){
+			if(access){
+				db.db().collection("commandpermission").load(() => {
+					// Upsert = Update or insert.
+					db.db().collection("commandpermission").upsert({
+						"_id": results[0]._id,
+						"Channel": process.env.channel,
+						"Command": command,
+						"PermissionLevel": newAccess
+					}, (result) => {
+						if(result.length){
+							util.say(process.env.channel, util.getDisplayName(user) + " -> Access for " + command + " has been changed to " + access);
+						}
+
+						db.db().collection("commandpermission").save();
+					});
 				});
 			}
-		});
-	}
-	else {
-		util.say(process.env.channel, util.getDisplayName(user) + " -> Invalid access level.");
-	}
+			else {
+				var accessKey = util.getKeyFromValue(consts.access, results[0].commandpermission.PermissionLevel);
+
+				util.say(process.env.channel, util.getDisplayName(user) + " -> " + results[0].Command + " is available to " + accessKey + " (and above).");
+			}
+		}
+	});
 }
