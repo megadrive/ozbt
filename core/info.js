@@ -4,7 +4,7 @@ var util = require("../util.js");
 var user = JSON.parse(process.env.user);
 var request = require("request");
 
-var api_url = "https://api.twitch.tv/kraken/channels/" + process.env.channel;
+var api_url = "https://api.twitch.tv/kraken/channels/" + process.env.channel.substring(1);
 
 request({
   "url": api_url,
