@@ -18,5 +18,5 @@ request({
 
   var j = JSON.parse(body);
 
-  util.say(util.getDisplayName(user) + " -> " + j.status);
+  util.say(process.env.channel, util.getDisplayName(user) + " -> " + j.display_name + " is playing " + j.game + ": " + j.status);
 });
