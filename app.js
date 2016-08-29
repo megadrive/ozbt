@@ -1,18 +1,11 @@
 "use strict";
 
 var _config = require("./config/config.user.js");
+var _modules = require("./config/modules.config.js");
 
 // @Modules
-var db = require("./mysqlHelpers.js");
+var db = require("./dbHelpers.js");
 var consts = require("./consts.js");
-var _commands = require("./modules/commands.js");
-var _greetings = require("./modules/greetings.js");
-var _subgoals = require("./modules/subgoals.js");
-var _banlinks = require("./modules/banlinks.js");
-var _linedcmds = require("./modules/linedcmds.js");
-var _giveaways = require("./modules/giveaways.js");
-var _giveaways = require("./modules/banhtml.js");
-var _kappa = require("./modules/kappa.js");
 var util = require("./util.js");
 
 var _tmi = require("tmi.js");
@@ -34,14 +27,13 @@ var _client = new _tmi.client({
 _client.connect();
 
 _client.on("connected", (addr, port) => {
-	_commands.register(_client);
-	_greetings.register(_client);
-	_subgoals.register(_client);
-	_banlinks.register(_client);
-	_linedcmds.register(_client);
-	_giveaways.register(_client);
-	_kappa.register(_client);
-	_banhtml.register(_client);
+	// Require and register all modules
+	for(var i = 0; i < _modules.length; i++) {
+		var r = require("./modules/" + _modules[i] + ".js");
+		if(r.register(_client)){
+			console.info("[ozbt]: Registered module " + _modules[i] + " OK");
+		}
+	}
 
 	db.findAll(db.db(), "channel", (rows) => {
 		for(var r = 0; r < rows.length; r++){
@@ -49,7 +41,7 @@ _client.on("connected", (addr, port) => {
 				_client.join(rows[r].Channel);
 			}
 		}
-		
+
 	}); // initial connection
 });
 
@@ -64,16 +56,3 @@ _client.on("join", (channel, username) => {
 		}
 	});
 });
-
-_client.on("chat", _commands.onChat);
-_client.on("chat", _banlinks.onChat);
-_client.on("chat", _linedcmds.onChat);
-_client.on("chat", _giveaways.onChat);
-_client.on("chat", _kappa.onChat);
-_client.on("chat", _banhtml.onChat);
-
-_client.on("subscription", _greetings.onSub);
-_client.on("resub", _greetings.onResub);
-
-_client.on("subscription", _subgoals.onSub);
-_client.on("resub", _subgoals.onResub);

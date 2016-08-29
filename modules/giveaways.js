@@ -2,7 +2,7 @@
 
 var config = require("../config/config.user.js");
 var _client = undefined;
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var fs = require("fs");
 var fork = require("child_process").fork;
 var consts = require("../consts.js");
@@ -73,12 +73,13 @@ var add = (channel, username) => {
 	}
 };
 
-var _giveaways = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-	},
-	"onChat": onChat
+		if(client){
+			_client = client;
+			_client.on("chat", onChat);
+		}
+
+		return client ? true : false;
+	}
 };
-
-module.exports = _giveaways;
-

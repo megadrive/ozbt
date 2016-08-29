@@ -1,17 +1,12 @@
 "use strict";
 
 var util = require("../util.js");
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var consts = require("../consts.js");
 var user = JSON.parse(process.env.user);
 
 // Get arguments.
 var args = process.env.message.split(" ");
-
-var banlinks = {
-	"help": "!banlinks [on|off]"
-};
-module.exports = banlinks;
 
 if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) ){
 	var toggle = args[1];

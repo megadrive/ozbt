@@ -1,15 +1,19 @@
 "use strict";
 
-// Rename this file to config.user.js
 module.exports = {
-	"username": "twitch_user",
-	"oauth": "oauth:token",
+  "username": "twitch_username",
+  "oauth": "oauth:lotsofrandomnumbersandletters",
 
-	"mysql_addr": "localhost",
-	"mysql_user": "user",
-	"mysql_pass": "pass",
-	"mysql_db": "ozbt",
+  "mysql_addr": "localhost",
+  "mysql_user": "",
+  "mysql_pass": "",
+  "mysql_db": "",
 
-	// Relative to app.js
-	"core_dir": "./core/"
+  "hashids_salt": "randomstringtosalt",
+
+  // Relative to app.js
+  "core_dir": "./core/",
+  "temp_dir": "./temp/",
+
+  "api_port": 5005 // unused
 };

@@ -3,7 +3,7 @@
 var _config = require("../config/config.user.js");
 var _client = undefined;
 var consts = require("../consts.js");
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var util = require("../util.js");
 
 var tbl = "subgoal";
@@ -29,7 +29,7 @@ var onSub = (channel, username) => {
 						var r = goal;
 						goal.Current++; // add the new sub
 						var percent = Math.floor((r.Current / r.Maximum) * 100);
-						var str = "\"" + r.Name + "\" -- " + r.Current + "/" + r.Maximum + 
+						var str = "\"" + r.Name + "\" -- " + r.Current + "/" + r.Maximum +
 										" (" + percent + "%)" +
 										(percent >= 100 ? " MET!" : ".") + " (hash: " + r.PublicHash + ")";
 						_client.say(channel, str);
@@ -61,7 +61,7 @@ var onResub = (channel, username, months) => {
 			}
 			else if(goal !== null && goal.ResubsCount === consts.false){
 				var percent = Math.floor((goal.Current / goal.Maximum) * 100);
-				var str = "\"" + goal.Name + "\" -- " + goal.Current + "/" + goal.Maximum + 
+				var str = "\"" + goal.Name + "\" -- " + goal.Current + "/" + goal.Maximum +
 								" (" + percent + "%)" +
 								(percent >= 100 ? " MET!" : ".") + " (hash: " + goal.PublicHash + ")";
 				_client.say(channel, str);
@@ -70,12 +70,14 @@ var onResub = (channel, username, months) => {
 	});
 };
 
-var _subgoals = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-	},
-	"onSub": onSub,
-	"onResub": onResub
-};
+		if(client){
+			_client = client;
+			_client.on("subscription", onSub);
+			_client.on("resub", onResub);
+		}
 
-module.exports = _subgoals;
+		return client ? true : false;
+	}
+};

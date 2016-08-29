@@ -1,16 +1,11 @@
 
 var util = require("../util.js");
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var consts = require("../consts.js");
 var user = JSON.parse(process.env.user);
 
 // Get arguments.
 var args = process.env.message.split(" ");
-
-var static = {
-	"help": "!join"
-};
-module.exports = static;
 
 if("#" + user.username === process.env.channel){
 	process.send({
@@ -21,5 +16,12 @@ if("#" + user.username === process.env.channel){
 	db.insert(db.db(), "channel", {
 		"Channel": "#" + user.username,
 		"JoinOnAppOpen": consts.true
+	}, (rows) => {
+		if(rows.inserted.length === 1){
+			console.info("Joined channel", user.username);
+		}
+		else {
+			console.warn("Could not join channel", user.username);
+		}
 	});
 }

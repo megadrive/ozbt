@@ -4,6 +4,8 @@ module.exports = {
 	// LokiJS database
 	"lokidb": "ozbt",
 
+	"core_command_prefix": "!",
+
 	"true": 1,
 	"false": 0,
 	"access": {

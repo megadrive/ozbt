@@ -1,7 +1,8 @@
+"use strict";
 
 var util = require("../util.js");
 var config = require("../config/config.user.js");
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var consts = require("../consts.js");
 var user = JSON.parse(process.env.user);
 var Hashids = require("hashids");
@@ -21,11 +22,6 @@ var tbl = "subgoal";
 
  * !subgoal resubs nG [true|false]
  */
-
-var static = {
-	"help": "!goal [add|edit|delete] [number of subs|hash] <sub goal text>"
-};
-module.exports = static;
 
 var intent = args[1];
 
@@ -58,7 +54,7 @@ var add = () => {
 	  				"PublicHash": 0,
 					"Channel": process.env.channel
 				}, (rows) => {
-					if( rows.affectedRows === 1 ){
+					if( rows.inserted.length === 1 ){
 						// Update PublicHash.
 						var hash = hashids.encode(rows.insertId);
 						db.update(db.db(), tbl, "SubGoalId = " + rows.insertId, {"PublicHash": hash}, () => {});
@@ -119,7 +115,7 @@ var del = () => {
 				console.error("ERROR: There were duplicate entries for the subgoal \"" + hash + "\" in channel " + process.env.channel + "! They have all been removed now.");
 
 			db.delete(db.db(), tbl, {"PublicHash": hash}, (rows) => {
-				if( rows.affectedRows === 1 ){
+				if( rows.length > 0 ){
 					util.say(process.env.channel, util.getDisplayName(user) + " -> subgoal \"" + found_rows[0]["Name"] + "\" was deleted.");
 				}
 				else {
@@ -141,7 +137,7 @@ var list = () => {
 		for(var i = 0; i < rows.length; i++){
 			var r = rows[i];
 			var percent = Math.floor((r.Current / r.Maximum) * 100);
-			var str = i+1 + ". \"" + r.Name + "\" -- " + r.Current + "/" + r.Maximum + 
+			var str = i+1 + ". \"" + r.Name + "\" -- " + r.Current + "/" + r.Maximum +
 							" (" + percent + "%)" +
 							(percent >= 100 ? " MET!" : ".") + " (hash: " + r.PublicHash + ")";
 			util.say(process.env.channel, str);
@@ -157,6 +153,13 @@ var modsubs = () => {
 		var mod = args[3].slice(0,1);
 		var amt = args[3].slice(1);
 
+		var select = {
+			"PublicHash": hash,
+			"Channel": process.env.channel
+		};
+
+		var update = {};
+
 		switch(mod){
 			case "+":
 				() => {
@@ -165,10 +168,14 @@ var modsubs = () => {
 						"PublicHash": hash
 					}, (found_rows) => {
 						if(found_rows.length === 1){
-							var newAmt = found_rows[0].Current + amt;
-							newAmt = newAmt > found_rows[0].Maximum ? found_rows[0].Maximum : newAmt;
-							db.update(db.db(), tbl, "PublicHash = '" + hash + "'", {"Current": newAmt}, (rows) => {
-								if(rows.affectedRows === 1){
+							var update = {
+								"$inc": {
+									"Current": Number(amt)
+								}
+							};
+
+							db.update(db.db(), tbl, selector, update, (rows) => {
+								if(rows.length){
 									util.say(process.env.channel, util.getDisplayName(user) + " -> \"" + found_rows[0].Name + "\" has been updated, now has " + newAmt + ".");
 								}
 							});
@@ -183,10 +190,14 @@ var modsubs = () => {
 						"PublicHash": hash
 					}, (found_rows) => {
 						if(found_rows.length === 1){
-							var newAmt = found_rows[0].Current - amt;
-							newAmt = newAmt < 0 ? 0 : newAmt;
-							db.update(db.db(), tbl, "PublicHash = '" + hash + "'", {"Current": newAmt}, (rows) => {
-								if(rows.affectedRows === 1){
+							var update = {
+								"$inc": {
+									"Current": -Number(amt)
+								}
+							};
+
+							db.update(db.db(), tbl, selector, update, (rows) => {
+								if(rows.length){
 									util.say(process.env.channel, util.getDisplayName(user) + " -> \"" + found_rows[0].Name + "\" has been updated, now has " + newAmt + ".");
 								}
 							});
@@ -207,7 +218,7 @@ var countresubs = () => {
 		db.update(db.db(), tbl, "PublicHash = '" + hash + "'", {
 			"ResubsCount": val == "yes" ? consts.true : consts.false
 		}, (updated_rows) => {
-			if(updated_rows.affectedRows === 1){
+			if(updated_rows.length === 1){
 				util.say(process.env.channel, util.getDisplayName(user) + " -> Resubs will now count for the subgoal with hash \"" + hash + "\".");
 			}
 		});
@@ -215,6 +226,8 @@ var countresubs = () => {
 };
 
 if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) ){
+	console.warn("Subgoals under reconstruction atm. Used in " + process.env.channel + " by " + user.username);
+
 	switch(intent){
 		case "add":
 			add();

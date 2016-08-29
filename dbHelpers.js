@@ -1,183 +1,79 @@
 "use strict";
 
-var _config = require("./config/config.user.js");
-var _mysql = require("mysql");
-var _db = undefined;
+var config = require("./config/config.user.js");
+var ForerunnerDB = require("forerunnerdb");
+var fdb = new ForerunnerDB();
+var db = fdb.db("ozbt");
+db.persist.dataDir("db");
 
 module.exports = {
 	"db": () => {
-		if( _db === undefined ){
-			// Create MySQL connection
-			_db = _mysql.createConnection({
-				"host": _config.mysql_addr,
-				"user": _config.mysql_user,
-				"password": _config.mysql_pass,
-				"database": _config.mysql_db
-
-				//@debug
-				//,"debug": true
-			});
-			_db.connect((err) => {
-				if(!err){
-					console.log("Connected to MySQL.");
-				}
-				else {
-					console.log(err);
-					if(err.fatal){
-						process.exit(0);
-					}
-				}
-			});
-
-		}
-
-		return _db;
+		return db;
 	},
 
+	/**
+	 * Gets all items in a collection.
+	 * @return array Returns a copy of the data in the collection, so you can do whatever with it.
+	 */
 	"findAll": (db, tableName, callback) => {
-		var sql = "SELECT * FROM `" + tableName + "` AS " + tableName;
-		db.query(sql, (err, rows, fields) => {
-			if(err) throw err;
-			callback(rows);
+		db.collection(tableName).load(function(err){
+			if(err)
+				throw new Error(err);
+
+			var docs = db.collection(tableName).data().slice(0);
+			callback(docs);
 		});
 	},
 
 	"find": (db, tableName, fields, callback) => {
-		var _fields = [];
-
-		Object.keys(fields).forEach((key) => {
-			var value = fields[key];
-			if( typeof value === "boolean" ) value = +value;
-			if( typeof value === "string" ) value = "'" + value.replace(/[^\\]?'/g, "\\\'") + "'";
-			_fields.push("`" + key + "` = " + value);
-		});
-		_fields = _fields.join(" AND "); // from array to string literal
-
-		var sql = "SELECT * FROM `" + tableName + "` AS " + tableName + " WHERE " + _fields;
-		db.query(sql, (err, rows, fields) => {
-			if(err) throw err;
-			callback(rows);
+		db.collection(tableName).load(() => {
+			var docs = db.collection(tableName).find(fields);
+			callback(docs);
 		});
 	},
 
-	"insert": (db, tableName, fields, callback) => {
-		var _fields = [];
-		var _values = [];
-
-		// Fields
-		Object.keys(fields).forEach((key) => {
-			_fields.push("`" + key + "`");
-		});
-		_fields = _fields.join(", ");
-
-		// Values
-		Object.keys(fields).forEach((key) => {
-			var value = fields[key];
-			if( typeof value === "boolean" ) value = +value;
-			if( typeof value === "string" ){
-				value = value.replace(/\\?'/g, "\\\'");
-			}
-			_values.push("'" + value + "'");
-		});
-		_values = _values.join(", ");
-
-		var sql = "INSERT INTO `" + tableName + "` (" + _fields + ") VALUES (" + _values + ")";
-		db.query(sql, (err, rows, fields) => {
-			if(err){
-				throw err;
-			}
-			callback(rows);
+	/**
+	 *
+	 */
+	"insert": (db, tableName, data, callback) => {
+		db.collection(tableName).load(() => {
+			db.collection(tableName).insert(data, callback);
+			db.collection(tableName).save();
 		});
 	},
 
-	"update": (db, tableName, where, fields, callback) => {
-		var _fields = [];
-		var _values = [];
-
-		// Fields
-		Object.keys(fields).forEach((key) => {
-			var value = fields[key];
-			if( typeof value === "boolean" ) value = +value;
-			if( typeof value === "string" ){
-				value = value.replace(/\\?'/g, "\\\'");
-			}
-			_values.push(key + " = '" + value + "'");
+	"update": (db, tableName, selectors, update, onUpdate) => {
+		db.collection(tableName).load(() => {
+			db.collection(tableName).update(selectors, update, {}, onUpdate);
+			db.collection(tableName).save((err) => {
+				if(err)
+					throw new Error(err);
+			});
 		});
-		_values = _values.join(",\n");
-
-		var sql = "UPDATE `" + tableName + "` SET " + _values + " WHERE " + where;
-		db.query(sql, (err, rows, fields) => {
-			if(err){
-				throw err;
-			}
-			callback(rows);
-		});
-
 	},
 
 	"delete": (db, tableName, fields, callback) => {
-		// Fields
-		var _values = [];
-		Object.keys(fields).forEach((key) => {
-			var value = fields[key];
-			if( typeof value === "boolean" ) value = +value;
-			if( typeof value === "string" ){
-				value = value.replace(/\\?'/g, "\\\'");
-			}
-			_values.push(key + " = '" + value + "'");
-		});
-		_values = _values.join(" AND ");
-
-		var sql = "DELETE FROM `" + tableName + "` WHERE " + _values;
-		db.query(sql, (err, rows, fields) => {
-			if(err){
-				throw err;
-			}
-			callback(rows);
+		db.collection(tableName).load(() => {
+			db.collection(tableName).remove(fields, {}, callback);
+			db.collection(tableName).save();
 		});
 	},
 
-	//@NOTE Keeping for posterity.
-	"_______locallydb2mysql_______": () => {
-		//@debug
-		//insert all custom commands per channel
-		var old = require("./tmp.js");
-		for(let i = 0; i < old.length; i++){
-			var cc = old[i];
+	"join": (db, tableName1, tableName2, selector, joinSelectors, callback) => {
+		if(joinSelectors["$require"] === undefined) joinSelectors["$require"] = true;
+		if(joinSelectors["$multi"] === undefined) joinSelectors["$multi"] = false;
 
-			// If channel doesnt exist, create a new record
-			_dbHelpers.find(_db, "channel", {"Channel": cc.channel}, (rows) => {
-				// Create new record
-				if( rows.length === 0 ){
-					_dbHelpers.insert(_db, "channel", {"Channel": cc.channel}, (result) => {
-						if(result.affectedRows === 1 )
-							console.log("> Created channel " + cc.channel);
-					});
-				}
+		db.collection(tableName1).load(() => {
+			db.collection(tableName2).load(() => {
+				var join = {};
+				join[tableName2] = joinSelectors;
+
+				var results = db.collection(tableName1).find(selector, {
+					"$join": [join]
+				});
+
+				callback(results);
 			});
-
-			// Add custom command
-			_dbHelpers.insert(_db, "customcommand", {
-				"Command": "!" + cc.trigger,
-				"OutputText": cc.message,
-				"Channel": cc.channel
-			}, (rows) => {});
-
-			let access = {
-				"everybody": 5,
-				"regular": 4, // dont exist as yet
-				"subscriber": 3,
-				"moderator": 2,
-				"supermoderator": 1, // dont exist as yet
-				"broadcaster": 0
-			};
-
-			// Add command permission
-			_dbHelpers.insert(_db, "commandpermission", {
-				"Command": "!" + cc.trigger,
-				"PermissionLevel": access[cc.access],
-				"Channel": cc.channel
-			}, (rows) => {});
-		}
+		});
 	}
 };

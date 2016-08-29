@@ -1,3 +1,5 @@
 config.user.js
 
 !.gitignore
+!config.user.js.example
+!modules.config.js

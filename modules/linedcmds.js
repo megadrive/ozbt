@@ -3,7 +3,7 @@
 var _config = require("../config/config.user.js");
 var _client = undefined;
 var consts = require("../consts.js");
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var util = require("../util.js");
 
 // only count lines per channel
@@ -50,11 +50,13 @@ var onChat = (channel, user, message, self) => {
 	}
 };
 
-var linedcmds = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-	},
-	"onChat": onChat
-};
+		if(client){
+			_client = client;
+			_client.on("chat", onChat);
+		}
 
-module.exports = linedcmds;
+		return client ? true : false;
+	}
+};

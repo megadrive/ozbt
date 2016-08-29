@@ -1,8 +1,7 @@
 "use strict";
 
-var _config = require("../config/config.user.js");
 var _client = undefined;
-var db = require("../mysqlHelpers.js");
+var db = require("../dbHelpers.js");
 var _consts = require("../consts.js");
 var util = require("../util.js");
 
@@ -39,12 +38,14 @@ var onResub = (channel, user, months) => {
 	});
 };
 
-var _greetings = {
+module.exports = {
 	"register": (client) => {
-		_client = client;
-	},
-	"onSub": onSub,
-	"onResub": onResub
-};
+		if(client){
+			_client = client;
+			_client.on("subscription", onSub);
+			_client.on("resub", onResub);
+		}
 
-module.exports = _greetings;
+		return client ? true : false;
+	}
+};
