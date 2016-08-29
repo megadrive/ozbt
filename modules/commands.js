@@ -136,8 +136,6 @@ var checkDelay = (channel, user, command, callback) => {
 					diff = (now - lastRow[0].Timestamp) / 1000;
 				}
 
-				console.log(lastRow, diff, "("+now+" - "+lastRow[0].Timestamp+") / 1000");
-
 				if(diff >= minimum_delay){
 					lastRow[0].Timestamp = new Date().getTime();
 					coll.update(lastRow);
