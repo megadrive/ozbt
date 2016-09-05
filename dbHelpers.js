@@ -16,19 +16,30 @@ module.exports = {
 	 * @return array Returns a copy of the data in the collection, so you can do whatever with it.
 	 */
 	"findAll": (db, tableName, callback) => {
-		db.collection(tableName).load(function(err){
-			if(err)
-				throw new Error(err);
+		return new Promise(function(resolve, reject) {
+			db.collection(tableName).load(function(err){
+				if(err)
+					reject(err);
 
-			var docs = db.collection(tableName).data().slice(0);
-			callback(docs);
+				var docs = db.collection(tableName).find();
+				resolve(docs);
+
+				if(callback && typeof callback === "function") callback(docs);
+			});
 		});
 	},
 
 	"find": (db, tableName, fields, callback) => {
-		db.collection(tableName).load(() => {
-			var docs = db.collection(tableName).find(fields);
-			callback(docs);
+		return new Promise(function(resolve, reject) {
+			db.collection(tableName).load(function(err){
+				if(err)
+					reject(err);
+
+				var docs = db.collection(tableName).find(fields);
+				resolve(docs);
+
+				if(callback && typeof callback === "function") callback(docs);
+			});
 		});
 	},
 
@@ -36,43 +47,75 @@ module.exports = {
 	 *
 	 */
 	"insert": (db, tableName, data, callback) => {
-		db.collection(tableName).load(() => {
-			db.collection(tableName).insert(data, callback);
-			db.collection(tableName).save();
+		return new Promise(function(resolve, reject) {
+			db.collection(tableName).load(function(err){
+				if(err)
+					reject(err);
+
+				db.collection(tableName).insert(data, callback);
+				db.collection(tableName).save(function(err){
+					if(err)
+						reject(err);
+				});
+				resolve();
+			});
 		});
 	},
 
 	"update": (db, tableName, selectors, update, onUpdate) => {
-		db.collection(tableName).load(() => {
-			db.collection(tableName).update(selectors, update, {}, onUpdate);
-			db.collection(tableName).save((err) => {
+		return new Promise(function(resolve, reject) {
+			db.collection(tableName).load(function(err){
 				if(err)
-					throw new Error(err);
+					reject(err);
+
+				db.collection(tableName).update(selectors, update, {}, onUpdate);
+				db.collection(tableName).save(function(err){
+					if(err){
+						reject(err);
+						throw new Error(err);
+					}
+
+					resolve();
+				});
 			});
 		});
 	},
 
 	"delete": (db, tableName, fields, callback) => {
-		db.collection(tableName).load(() => {
-			db.collection(tableName).remove(fields, {}, callback);
-			db.collection(tableName).save();
+		return new Promise(function(resolve, reject) {
+			db.collection(tableName).load(function(err){
+				if(err)
+					reject(err);
+
+				db.collection(tableName).remove(fields, {}, callback);
+				db.collection(tableName).save((err) => {
+					if(err){
+						reject(err);
+						throw new Error(err);
+					}
+
+					resolve();
+				});
+			});
 		});
 	},
 
 	"join": (db, tableName1, tableName2, selector, joinSelectors, callback) => {
-		if(joinSelectors["$require"] === undefined) joinSelectors["$require"] = true;
-		if(joinSelectors["$multi"] === undefined) joinSelectors["$multi"] = false;
+		return new Promise(function(resolve, reject) {
+			if(joinSelectors["$require"] === undefined) joinSelectors["$require"] = true;
+			if(joinSelectors["$multi"] === undefined) joinSelectors["$multi"] = false;
 
-		db.collection(tableName1).load(() => {
-			db.collection(tableName2).load(() => {
-				var join = {};
-				join[tableName2] = joinSelectors;
+			db.collection(tableName1).load(() => {
+				db.collection(tableName2).load(() => {
+					var join = {};
+					join[tableName2] = joinSelectors;
 
-				var results = db.collection(tableName1).find(selector, {
-					"$join": [join]
+					var results = db.collection(tableName1).find(selector, {
+						"$join": [join]
+					});
+
+					if(callback && typeof callback === "function") callback(results);
 				});
-
-				callback(results);
 			});
 		});
 	}

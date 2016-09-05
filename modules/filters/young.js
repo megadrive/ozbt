@@ -41,11 +41,7 @@ var onChat = (channel, user, message, self) => {
 
         var j = JSON.parse(body);
 
-        db.collection("user_info").insert(j);
-        db.collection("user_info").save((err) => {
-          if(err)
-            throw new Error(err);
-        });
+        db.insert(db.db(), "user_info", j);
 
         if(diffBetweenDateAndNow(j.created_at) > min_account_age && diffBetweenDateAndNow(j.created_at) < max_account_age){
           _client.timeout(channel, user.username, TIMEOUT_LENGTH, "Account too young. Apologies, but due to a few recent bot attacks on the chat, this is a temporary measure. Thanks for understanding.");

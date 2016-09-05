@@ -35,14 +35,13 @@ _client.on("connected", (addr, port) => {
 		}
 	}
 
-	db.findAll(db.db(), "channel", (rows) => {
-		for(var r = 0; r < rows.length; r++){
-			if( rows[r].JoinOnAppOpen ){
-				_client.join(rows[r].Channel);
+	db.findAll(db.db(), "channel").then(function resolve(data){
+		for(var r = 0; r < data.length; r++){
+			if( data[r].JoinOnAppOpen ){
+				_client.join(data[r].Channel);
 			}
 		}
-
-	}); // initial connection
+	});
 });
 
 _client.on("join", (channel, username) => {
