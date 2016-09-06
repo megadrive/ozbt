@@ -7,6 +7,7 @@ var db = require("../dbHelpers");
 var fs = require("mz/fs");
 var fork = require("child_process").fork;
 var _client = undefined;
+var Promise = require("bluebird");
 
 /**
  * Does the custom command exist?
@@ -208,23 +209,22 @@ function onChat(channel, user, message, self){
   var permission_ok = checkCommandPermission(channel, user, command);
   var delay_ok = checkCommandDelay(channel, user, command);
 
-  Promise.race([core_comand_exists, custom_command_exists])
+  Promise.any([core_comand_exists, custom_command_exists])
     .then(function(value){
-      // Core command
-      if(typeof value === "string" && value === "core"){
-        var args = {
-          "channel": channel,
-          "user": JSON.stringify(user),
-          "message": message
-        };
-        runCoreCommand(command, args, message);
-      }
-      // Custom command
-      else{
-        Promise.all([custom_command_exists, permission_ok, delay_ok])
+        // Core command
+        if(typeof value === "string" && value === "core"){
+          var args = {
+            "channel": channel,
+            "user": JSON.stringify(user),
+            "message": message
+          };
+          runCoreCommand(command, args, message);
+        }
+        // Custom command
+        else {
+          Promise.all([custom_command_exists, permission_ok, delay_ok])
           .then((values) => {
             var command = values[0];
-
             _client.say(channel, constructAtMention(user, message, command[0].OutputText));
           },
           (reason) => {
