@@ -232,6 +232,9 @@ function onChat(channel, user, message, self){
           }
         );
       }
+    })
+    .error(function(reason){
+      console.error(reason.join(" "));
     });
 };
 
