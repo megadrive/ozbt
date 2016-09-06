@@ -64,7 +64,7 @@ function checkCommandPermission(channel, user, command){
       "channel": channel,
       "command": command
     }).then(function(data){
-      if(data.length){
+      if(data.length > 0){
         if(util.checkPermissionCore(channel, user, command, data[0].PermissionLevel)){
           resolve();
         }
@@ -72,10 +72,8 @@ function checkCommandPermission(channel, user, command){
           reject("User does not have permission to use command.");
         }
       }
-      else {
-        // Everyone can use the command. IMPLICIT
-        resolve();
-      }
+
+      resolve();
     });
   });
 }
@@ -95,6 +93,8 @@ function checkCommandDelay(channel, user, command){
     if(util.checkPermissionCore(channel, user, command)){
       resolve();
     }
+
+    resolve("fucking hell");
 
     db.find("command_delay", {
       "channel": channel,
@@ -223,8 +223,7 @@ function onChat(channel, user, message, self){
         // Custom command
         else {
           Promise.all([custom_command_exists, permission_ok, delay_ok])
-          .then((values) => {
-            var command = values[0];
+          .spread((command, permission, delay) => {
             _client.say(channel, constructAtMention(user, message, command[0].OutputText));
           },
           (reason) => {
