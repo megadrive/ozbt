@@ -1,5 +1,7 @@
-{
-	"shorteners": [
+"use strict";
+
+module.exports = {
+	"shortened_links": [
 		"bit.ly",
 		"goo.gl",
 		"tinyurl.com",

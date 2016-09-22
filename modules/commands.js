@@ -94,9 +94,7 @@ function checkCommandDelay(channel, user, command){
       resolve();
     }
 
-    resolve("fucking hell");
-
-    db.find("command_delay", {
+    db.find(db.db(), "command_delay", {
       "channel": channel,
       "command": command
     }).then(function(data){
@@ -105,7 +103,7 @@ function checkCommandDelay(channel, user, command){
         var diff = (new Date().getTime() - timestamp) / 1000;
 
         if(diff > minimum_delay){
-          db.delete("command_delay", {
+          db.delete(db.db(), "command_delay", {
             "channel": channel,
             "command": command
           });
@@ -117,7 +115,7 @@ function checkCommandDelay(channel, user, command){
         }
       }
       else {
-        db.insert("command_delay", {
+        db.insert(db.db(), "command_delay", {
           "channel": channel,
           "command": command,
           "timestamp": new Date().now()

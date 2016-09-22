@@ -19,8 +19,8 @@ module.exports = [
   //"giveaways", // @NOTE: Unworking, probably won't continue.
   "greetings",
   "kappa",
-  "linedcmds", // @NOTE: Still needs a frontend.
-  "subgoals", // @NOTE: Still needs a frontend.
+  "repeatcommands", // @NOTE: Still needs a frontend.
+  "subgoals" // @NOTE: Still needs a frontend.
 
-  "filters/young"
+//  "filters/young"
 ];

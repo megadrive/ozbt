@@ -13,6 +13,7 @@
     "mysql": "^2.10.2",
     "mz": "^2.4.0",
     "request": "^2.73.0",
+    "request-promise": "^4.1.1",
     "tmi.js": "^1.1.1"
   },
   "scripts": {
