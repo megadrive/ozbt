@@ -21,6 +21,4 @@ module.exports = [
   "kappa",
   "repeatcommands", // @NOTE: Still needs a frontend.
   "subgoals" // @NOTE: Still needs a frontend.
-
-//  "filters/young"
 ];

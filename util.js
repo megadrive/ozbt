@@ -2,6 +2,9 @@
 
 var consts = require("./consts.js");
 var db = require("./dbHelpers.js");
+var Promise = require("bluebird");
+var request = require("request");
+var config = require("./config/config.user.js");
 
 module.exports = {
 	'version': function(){
@@ -9,6 +12,35 @@ module.exports = {
 		var f = fs.readFileSync('./package.json', {'encoding':'utf8'});
 		var j = JSON.parse(f);
 		return 'v' + j.version;
+	},
+
+	/**
+	 * Performs a Twitch API request, including the requisite headers.
+	 * @param  {string} endpoint The url after /kraken/
+	 * @return {Promise}         A Promise
+	 */
+	'twitch_api': function(endpoint){
+		return new Promise(function(resolve, reject) {
+			if(endpoint && endpoint.length > 3){
+				var opts = {
+					"url": "https://api.twitch.tv/kraken/" + endpoint,
+					"headers": {
+						"Client-ID": config.clientid,
+						"Accept": "application/vnd.twitchtv.v3+json"
+					}
+				};
+
+				request(opts, function(err, res, body){
+					if(err)
+						reject(err);
+
+					resolve(body);
+				});
+			}
+			else {
+				reject("endpoint param not long enough or is undefined.")
+			}
+		});
 	},
 
 	/**

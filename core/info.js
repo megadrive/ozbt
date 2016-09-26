@@ -4,19 +4,11 @@ var util = require("../util.js");
 var user = JSON.parse(process.env.user);
 var request = require("request");
 
-var api_url = "https://api.twitch.tv/kraken/channels/" + process.env.channel.substring(1);
+var api_url = "channels/" + process.env.channel.substring(1);
 
-request({
-  "url": api_url,
-  "method": "GET",
-  "headers": {
-    "Accept": "application/vnd.twitchtv.v3+json"
-  }
-}, (err, response, body) => {
-  if(err)
-    throw new Error(err);
-
+util.twitch_api(api_url)
+  .then(function(body){
   var j = JSON.parse(body);
 
-  util.say(process.env.channel, util.getDisplayName(user) + " -> " + j.display_name + " is playing " + j.game + ": " + j.status);
+  util.say(process.env.channel, util.getDisplayName(user) + " -> " + j.display_name + " is playing " + j.game + ". Title: " + j.status);
 });
