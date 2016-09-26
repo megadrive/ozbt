@@ -240,6 +240,8 @@ module.exports = {
     if(client){
       _client = client;
       _client.on("chat", onChat);
+
+      return true;
     }
   },
   "unregister": function(){
