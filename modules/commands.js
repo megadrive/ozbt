@@ -221,7 +221,7 @@ function onChat(channel, user, message, self){
         // Custom command
         else {
           Promise.all([custom_command_exists, permission_ok, delay_ok])
-          .spread((command, permission, delay) => {
+              .spread((command, permission, delay) => {
             _client.say(channel, constructAtMention(user, message, command[0].OutputText));
           },
           (reason) => {
@@ -229,6 +229,8 @@ function onChat(channel, user, message, self){
           }
         );
       }
+    }, function(reason){
+      console.warn(reason);
     })
     .error(function(reason){
       console.error(reason.join(" "));
@@ -240,9 +242,9 @@ module.exports = {
     if(client){
       _client = client;
       _client.on("chat", onChat);
-
-      return true;
     }
+
+    return client ? true : false;
   },
   "unregister": function(){
     if(_client){
