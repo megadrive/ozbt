@@ -16,19 +16,19 @@ var Promise = require("bluebird");
  * @return {Promise}         A promise
  */
 function isCustomCommand(channel, command){
-  return new Promise(function(resolve, reject) {
-    db.find(db.db(), "customcommand", {
-      "Channel": channel,
-      "Command": command
-    }).then(function(data){
-      if(data.length > 0){
-        resolve(data);
-      }
-      else {
-        reject("Custom command does not exist.");
-      }
-    });
-  });
+	return new Promise(function(resolve, reject) {
+		db.find(db.db(), "customcommand", {
+			"Channel": channel,
+			"Command": command
+		}).then(function(data){
+			if(data.length > 0){
+				resolve(data);
+			}
+			else {
+				reject("Custom command does not exist.");
+			}
+		});
+	});
 }
 
 /**
@@ -37,18 +37,18 @@ function isCustomCommand(channel, command){
  * @return {Boolean}
  */
 function isCoreCommand(command){
-  return new Promise(function(resolve, reject) {
-    if(command.trim().indexOf(consts.core_command_prefix) === 0){
-      var cmd = command.trim().substring(1).toLowerCase();
-      fs.access("./core/" + cmd + ".js", fs.R_OK)
-        .then(function(){
-          resolve("core");
-        });
-    }
-    else {
-      reject("Core command does not exist.");
-    }
-  });
+	return new Promise(function(resolve, reject) {
+		if(command.trim().indexOf(consts.core_command_prefix) === 0){
+			var cmd = command.trim().substring(1).toLowerCase();
+			fs.access("./core/" + cmd + ".js", fs.R_OK)
+				.then(function(){
+					resolve("core");
+				});
+		}
+		else {
+			reject("Core command does not exist.");
+		}
+	});
 }
 
 /**
@@ -59,23 +59,23 @@ function isCoreCommand(command){
  * @return {Promise}        A Promise
  */
 function checkCommandPermission(channel, user, command){
-  return new Promise(function(resolve, reject) {
-    db.find(db.db(), "commandpermission", {
-      "channel": channel,
-      "command": command
-    }).then(function(data){
-      if(data.length > 0){
-        if(util.checkPermissionCore(channel, user, command, data[0].PermissionLevel)){
-          resolve();
-        }
-        else {
-          reject("User does not have permission to use command.");
-        }
-      }
+	return new Promise(function(resolve, reject) {
+		db.find(db.db(), "commandpermission", {
+			"channel": channel,
+			"command": command
+		}).then(function(data){
+			if(data.length > 0){
+				if(util.checkPermissionCore(channel, user, command, data[0].PermissionLevel)){
+					resolve();
+				}
+				else {
+					reject("User does not have permission to use command.");
+				}
+			}
 
-      resolve();
-    });
-  });
+			resolve();
+		});
+	});
 }
 
 /**
@@ -87,44 +87,44 @@ function checkCommandPermission(channel, user, command){
  * @return {Promise}        A promise.
  */
 function checkCommandDelay(channel, user, command){
-  const minimum_delay = 10;
+	const minimum_delay = 10;
 
-  return new Promise(function(resolve, reject) {
-    if(util.checkPermissionCore(channel, user, command)){
-      resolve();
-    }
+	return new Promise(function(resolve, reject) {
+		if(util.checkPermissionCore(channel, user, consts.access.moderator)){
+			resolve();
+		}
 
-    db.find(db.db(), "command_delay", {
-      "channel": channel,
-      "command": command
-    }).then(function(data){
-      if(data.length){
-        var timestamp = data[0].timestamp;
-        var diff = (new Date().getTime() - timestamp) / 1000;
+		db.find(db.db(), "command_delay", {
+			"channel": channel,
+			"command": command
+		}).then(function(data){
+			if(data.length > 0){
+				var timestamp = data[0].timestamp;
+				var diff = (new Date().getTime() - timestamp) / 1000;
 
-        if(diff > minimum_delay){
-          db.delete(db.db(), "command_delay", {
-            "channel": channel,
-            "command": command
-          });
+				if(diff > minimum_delay){
+					db.delete(db.db(), "command_delay", {
+						"channel": channel,
+						"command": command
+					});
 
-          resolve();
-        }
-        else{
-          reject("Command was used too soon.");
-        }
-      }
-      else {
-        db.insert(db.db(), "command_delay", {
-          "channel": channel,
-          "command": command,
-          "timestamp": new Date().now()
-        });
+					resolve();
+				}
+				else{
+					reject("Command was used too soon.");
+				}
+			}
+			else {
+				db.insert(db.db(), "command_delay", {
+					"channel": channel,
+					"command": command,
+					"timestamp": new Date().now()
+				});
 
-        resolve();
-      }
-    });
-  });
+				resolve();
+			}
+		});
+	});
 }
 
 /**
@@ -135,16 +135,16 @@ function checkCommandDelay(channel, user, command){
  * @return {string}              Constructed output
  */
 function constructAtMention(user, message, command_text){
-  var ratmention = /@[a-zA-Z0-9_]{4,}/gi;
-  var maximum_mentions = 3; // subject to change
-  var matches = message.match(ratmention);
+	var ratmention = /@[a-zA-Z0-9_]{4,}/gi;
+	var maximum_mentions = 3; // subject to change
+	var matches = message.match(ratmention);
 
-  if(matches){
-    matches.length = maximum_mentions;
-    command_text += " " + matches.join(" ");
-  }
+	if(matches){
+		matches.length = maximum_mentions;
+		command_text += " " + matches.join(" ");
+	}
 
-  return command_text;
+	return command_text;
 }
 
 /**
@@ -154,38 +154,38 @@ function constructAtMention(user, message, command_text){
  * @param  {string} message The message that triggered the command
  */
 function runCoreCommand(command, args, message){
-  var task = fork("./core/" + command.substring(1).toLowerCase() + ".js", [], {
-    "env": args
-  });
-  task.on("message", function(m){
-    switch(m.func){
-      case "say":
-        // If a user @mentions someone
-        m.message = constructAtMention(JSON.parse(args.user), message, m.message);
-        _client.say(m.channel, m.message);
-        break;
-      case "whisper":
-        _client.whisper(m.username, m.message);
-        break;
-      case "join_channel":
-        _client.join(m.channel);
-        break;
-      case "timeout_user":
-        _client.timeout(m.channel, m.username, m.time, m.reason)
-          .then((data) => {
-            if(m.message !== undefined && m.message.length > 0){
-              _client.say(m.channel, m.message);
-            }
-          });
-      }
-  });
-  task.on("error", (err) =>{
-    throw new Error(err);
-  });
-  // Kill the child task after x seconds
-  setTimeout(() => {
-    task.kill();
-  }, consts.max_time_command_s * 1000);
+	var task = fork("./core/" + command.substring(1).toLowerCase() + ".js", [], {
+		"env": args
+	});
+	task.on("message", function(m){
+		switch(m.func){
+			case "say":
+				// If a user @mentions someone
+				m.message = constructAtMention(JSON.parse(args.user), message, m.message);
+				_client.say(m.channel, m.message);
+				break;
+			case "whisper":
+				_client.whisper(m.username, m.message);
+				break;
+			case "join_channel":
+				_client.join(m.channel);
+				break;
+			case "timeout_user":
+				_client.timeout(m.channel, m.username, m.time, m.reason)
+					.then((data) => {
+						if(m.message !== undefined && m.message.length > 0){
+							_client.say(m.channel, m.message);
+						}
+					});
+			}
+	});
+	task.on("error", (err) =>{
+		throw new Error(err);
+	});
+	// Kill the child task after x seconds
+	setTimeout(() => {
+		task.kill();
+	}, consts.max_time_command_s * 1000);
 }
 
 /**
@@ -196,62 +196,62 @@ function runCoreCommand(command, args, message){
  * @param  {boolean} self   Whether or not the client itself has chatted
  */
 function onChat(channel, user, message, self){
-  if(self)
-    return;
+	if(self)
+		return;
 
-  var message_split = message.split(" ");
-  var command = message_split[0];
+	var message_split = message.split(" ");
+	var command = message_split[0];
 
-  var core_comand_exists = isCoreCommand(command);
-  var custom_command_exists = isCustomCommand(channel, command);
-  var permission_ok = checkCommandPermission(channel, user, command);
-  var delay_ok = checkCommandDelay(channel, user, command);
+	var core_comand_exists = isCoreCommand(command);
+	var custom_command_exists = isCustomCommand(channel, command);
+	var permission_ok = checkCommandPermission(channel, user, command);
+	var delay_ok = checkCommandDelay(channel, user, command);
 
-  Promise.any([core_comand_exists, custom_command_exists])
-    .then(function(value){
-        // Core command
-        if(typeof value === "string" && value === "core"){
-          var args = {
-            "channel": channel,
-            "user": JSON.stringify(user),
-            "message": message
-          };
-          runCoreCommand(command, args, message);
-        }
-        // Custom command
-        else {
-          Promise.all([custom_command_exists, permission_ok, delay_ok])
-              .spread((command, permission, delay) => {
-            _client.say(channel, constructAtMention(user, message, command[0].OutputText));
-          },
-          (reason) => {
-            console.error(reason);
-          }
-        );
-      }
-    }, function(reason){
-      console.warn(reason);
-    })
-    .error(function(reason){
-      console.error(reason.join(" "));
-    });
+	Promise.any([core_comand_exists, custom_command_exists])
+		.then(function(value){
+				// Core command
+				if(typeof value === "string" && value === "core"){
+					var args = {
+						"channel": channel,
+						"user": JSON.stringify(user),
+						"message": message
+					};
+					runCoreCommand(command, args, message);
+				}
+				// Custom command
+				else {
+					Promise.all([custom_command_exists, permission_ok, delay_ok])
+							.spread((command, permission, delay) => {
+						_client.say(channel, constructAtMention(user, message, command[0].OutputText));
+					},
+					(reason) => {
+						console.error(reason);
+					}
+				);
+			}
+		}, function(reason){
+			console.warn(reason);
+		})
+		.error(function(reason){
+			console.error(reason.join(" "));
+		});
 };
 
 module.exports = {
-  "register": function(client){
-    if(client){
-      _client = client;
-      _client.on("chat", onChat);
-    }
+	"register": function(client){
+		if(client){
+			_client = client;
+			_client.on("chat", onChat);
+		}
 
-    return client ? true : false;
-  },
-  "unregister": function(){
-    if(_client){
-      _client.removeListener("chat", onChat);
-    }
-    else {
-      console.warn("modules/commands.js - Can't remove listener if not registered in the first place.");
-    }
-  }
+		return client ? true : false;
+	},
+	"unregister": function(){
+		if(_client){
+			_client.removeListener("chat", onChat);
+		}
+		else {
+			console.warn("modules/commands.js - Can't remove listener if not registered in the first place.");
+		}
+	}
 }

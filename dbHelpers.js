@@ -54,8 +54,10 @@ module.exports = {
 
 				db.collection(tableName).insert(data, callback);
 				db.collection(tableName).save(function(err){
-					if(err)
+					if(err){
 						reject(err);
+						throw new Error(err);
+					}
 				});
 				resolve();
 			});
