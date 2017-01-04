@@ -24,10 +24,16 @@ var _client = new _tmi.client({
 	,"logger": require("./logger.js")
 });
 
+var initial_connection = false;
 _client.connect();
 
 _client.on("connected", (addr, port) => {
-	// Require and register all modules
+	if(initial_connection === true)
+		return;
+
+	initial_connection = true;
+
+	// Require and register all modulesL
 	for(var i = 0; i < _modules.length; i++) {
 		var r = require("./modules/" + _modules[i] + ".js");
 		if(r.register(_client)){

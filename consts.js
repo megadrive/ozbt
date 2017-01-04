@@ -18,7 +18,8 @@ module.exports = {
 	},
 	"greeting": {
 		"sub": 0,
-		"resub": 1
+		"resub": 1,
+		"cheer": 2
 	},
 	"giveaways": {
 		"type": {
