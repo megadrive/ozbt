@@ -9,6 +9,8 @@ var fork = require("child_process").fork;
 var _client = undefined;
 var Promise = require("bluebird");
 
+var delays = {};
+
 /**
  * Does the custom command exist?
  * @param  {string}  channel The channel, prefixed with #
@@ -17,7 +19,7 @@ var Promise = require("bluebird");
  */
 function isCustomCommand(channel, command){
 	return new Promise(function(resolve, reject) {
-		db.find(db.db(), "customcommand", {
+		db.find("customcommand", {
 			"Channel": channel,
 			"Command": command
 		}).then(function(data){
@@ -43,7 +45,7 @@ function isCoreCommand(command){
 			fs.access("./core/" + cmd + ".js", fs.R_OK)
 				.then(function(){
 					resolve("core");
-				});
+				}, () => { reject("Core command file " + cmd + ".js is missing."); });
 		}
 		else {
 			reject("Core command does not exist.");
@@ -60,7 +62,7 @@ function isCoreCommand(command){
  */
 function checkCommandPermission(channel, user, command){
 	return new Promise(function(resolve, reject) {
-		db.find(db.db(), "commandpermission", {
+		db.find("commandpermission", {
 			"channel": channel,
 			"command": command
 		}).then(function(data){
@@ -87,43 +89,34 @@ function checkCommandPermission(channel, user, command){
  * @return {Promise}        A promise.
  */
 function checkCommandDelay(channel, user, command){
-	const minimum_delay = 10;
+	const minimum_delay = 10 * 1000; // * 1000 to convert seconds to ms
 
 	return new Promise(function(resolve, reject) {
 		if(util.checkPermissionCore(channel, user, consts.access.moderator)){
-			resolve();
+			resolve("Command delay bypassed: Moderator or Broadcaster");
 		}
 
-		db.find(db.db(), "command_delay", {
-			"channel": channel,
-			"command": command
-		}).then(function(data){
-			if(data.length > 0){
-				var timestamp = data[0].timestamp;
-				var diff = (new Date().getTime() - timestamp) / 1000;
+		if(delays[channel] === undefined){
+			delays[channel] = {};
+		}
 
-				if(diff > minimum_delay){
-					db.delete(db.db(), "command_delay", {
-						"channel": channel,
-						"command": command
-					});
+		let delay = delays[channel][command] ? delays[channel][command] : undefined;
 
-					resolve();
-				}
-				else{
-					reject("Command was used too soon.");
-				}
+		console.info(delay);
+		if(delay === undefined){
+			delay = Date.now();
+			delays[channel][command] = delay;
+			resolve("Command delay ok: first use");
+		}
+		else {
+			let diff = Date.now() - delay;
+			if(diff > minimum_delay){
+				resolve("Command delay ok: > minimum_delay");
 			}
 			else {
-				db.insert(db.db(), "command_delay", {
-					"channel": channel,
-					"command": command,
-					"timestamp": new Date().now()
-				});
-
-				resolve();
+				reject("Command delay rejected: Used too soon.");
 			}
-		});
+		}
 	});
 }
 
@@ -168,6 +161,7 @@ function runCoreCommand(command, args, message){
 				_client.whisper(m.username, m.message);
 				break;
 			case "join_channel":
+				console.log(m)
 				_client.join(m.channel);
 				break;
 			case "timeout_user":
@@ -205,36 +199,35 @@ function onChat(channel, user, message, self){
 	var core_comand_exists = isCoreCommand(command);
 	var custom_command_exists = isCustomCommand(channel, command);
 	var permission_ok = checkCommandPermission(channel, user, command);
-	var delay_ok = checkCommandDelay(channel, user, command);
+	//var delay_ok = checkCommandDelay(channel, user, command);
 
 	Promise.any([core_comand_exists, custom_command_exists])
 		.then(function(value){
-				// Core command
-				if(typeof value === "string" && value === "core"){
-					var args = {
-						"channel": channel,
-						"user": JSON.stringify(user),
-						"message": message
-					};
-					runCoreCommand(command, args, message);
-				}
-				// Custom command
-				else {
-					Promise.all([custom_command_exists, permission_ok, delay_ok])
-							.spread((command, permission, delay) => {
-						_client.say(channel, constructAtMention(user, message, command[0].OutputText));
-					},
-					(reason) => {
-						console.error(reason);
+			checkCommandDelay(channel, user, command)
+				.then(() => {
+						// Core command
+						if(typeof value === "string" && value === "core"){
+							var args = {
+								"channel": channel,
+								"user": JSON.stringify(user),
+								"message": message
+							};
+
+							runCoreCommand(command, args, message);
+						}
+						// Custom command
+						else {
+							Promise.all([custom_command_exists, permission_ok])
+									.spread((command, permission, delay) => {
+								_client.say(channel, constructAtMention(user, message, command[0].OutputText));
+							},
+							(reason) => {
+								console.error(reason);
+							}
+						);
 					}
-				);
-			}
-		}, function(reason){
-			console.warn(reason);
-		})
-		.error(function(reason){
-			console.error(reason.join(" "));
-		});
+				});
+		}, (reason) => console.error(reason));
 };
 
 module.exports = {
