@@ -8,43 +8,37 @@ var util = require("../util.js");
 var Chance = require("chance");
 var chance = new Chance();
 
-var SensibleMinimum = 25;
+var SensibleMinimum = 200;
 
-/**
- * Override the line limit till the next random command text is output.
- * @param  {string} channel The channel
- * @param  {string} input The lines limit to override
- */
-function lines(channel, input){
-	var lines = Number(input);
-	if(lines > SensibleMinimum){
-		db.find(db.db(), "commandpermission", {"Channel": channel})
-			.then(function(data){
-			});
-	}
-}
+var lines = {};
 
 var onChat = (channel, user, message, self) => {
 	if(self)
 		return;
+	
+	if(lines[channel] === undefined){
+		lines[channel] = 1;
+	}
+	else {
+		lines[channel]++;
+	}
+	
+	if(lines[channel] >= SensibleMinimum){
+		lines[channel] = 0;
 
-	db.find(db.db(), "repeat_commands", {
-		"Channel": channel
-	}).then(function(data){
-		if(data[0].Lines > 200){
-			var rand = chance.integer({"min": 0, "max": data.length - 1});
-			if(data.length){
-				db.find(db.db(), "customcommand", {
-					"Channel": channel,
-					"Command": data[0].Command
-				}).then(function(data){
-					_client.say(channel, data[0].OutputText);
-				});
-			}
-
-			db.db().collection("repeat_commands").updateById(data[0]._id, {"Lines": 0});
-		}
-	});
+		db.find("repeatcommand", {"Channel": channel})
+			.then(function(doc){
+				if(doc !== null){
+					let commands = doc.Commands;
+					let rand = chance.integer({min: 0, max:commands.length - 1});
+					db.find("customcommand", {"Channel": channel, "Command": commands[rand]})
+						.then(function(cmd){
+							if(cmd)
+								_client.say(channel, cmd.OutputText);
+						});
+				}
+			});
+	}
 };
 
 module.exports = {

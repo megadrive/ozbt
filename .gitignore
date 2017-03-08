@@ -23,3 +23,4 @@ node_modules
 config/*.js
 !config/modules.config.js
 db/*
+.vscode/

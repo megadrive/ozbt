@@ -23,11 +23,11 @@ function isCustomCommand(channel, command){
 			"Channel": channel,
 			"Command": command
 		}).then(function(data){
-			if(data.length > 0){
+			if(data != null){
 				resolve(data);
 			}
 			else {
-				reject("Custom command does not exist.");
+				reject(new Error("Custom command does not exist."));
 			}
 		});
 	});
@@ -48,7 +48,7 @@ function isCoreCommand(command){
 				}, () => { reject("Core command file " + cmd + ".js is missing."); });
 		}
 		else {
-			reject("Core command does not exist.");
+			reject(new Error("Core command does not exist."));
 		}
 	});
 }
@@ -66,16 +66,17 @@ function checkCommandPermission(channel, user, command){
 			"channel": channel,
 			"command": command
 		}).then(function(data){
-			if(data.length > 0){
-				if(util.checkPermissionCore(channel, user, command, data[0].PermissionLevel)){
+			if(data != null){
+				if(util.checkPermissionCore(channel, user, command, data.PermissionLevel)){
 					resolve();
 				}
 				else {
-					reject("User does not have permission to use command.");
+					reject(new Error("User does not have permission to use command."));
 				}
 			}
-
-			resolve();
+			else {
+				resolve();
+			}
 		});
 	});
 }
@@ -102,7 +103,6 @@ function checkCommandDelay(channel, user, command){
 
 		let delay = delays[channel][command] ? delays[channel][command] : undefined;
 
-		console.info(delay);
 		if(delay === undefined){
 			delay = Date.now();
 			delays[channel][command] = delay;
@@ -114,7 +114,7 @@ function checkCommandDelay(channel, user, command){
 				resolve("Command delay ok: > minimum_delay");
 			}
 			else {
-				reject("Command delay rejected: Used too soon.");
+				reject(new Error("Command delay rejected: Used too soon."));
 			}
 		}
 	});
@@ -161,7 +161,6 @@ function runCoreCommand(command, args, message){
 				_client.whisper(m.username, m.message);
 				break;
 			case "join_channel":
-				console.log(m)
 				_client.join(m.channel);
 				break;
 			case "timeout_user":
@@ -199,35 +198,34 @@ function onChat(channel, user, message, self){
 	var core_comand_exists = isCoreCommand(command);
 	var custom_command_exists = isCustomCommand(channel, command);
 	var permission_ok = checkCommandPermission(channel, user, command);
-	//var delay_ok = checkCommandDelay(channel, user, command);
 
 	Promise.any([core_comand_exists, custom_command_exists])
 		.then(function(value){
 			checkCommandDelay(channel, user, command)
 				.then(() => {
-						// Core command
-						if(typeof value === "string" && value === "core"){
-							var args = {
-								"channel": channel,
-								"user": JSON.stringify(user),
-								"message": message
-							};
+					// Core command
+					if(typeof value === "string" && value === "core"){
+						var args = {
+							"channel": channel,
+							"user": JSON.stringify(user),
+							"message": message
+						};
 
-							runCoreCommand(command, args, message);
-						}
-						// Custom command
-						else {
-							Promise.all([custom_command_exists, permission_ok])
-									.spread((command, permission, delay) => {
-								_client.say(channel, constructAtMention(user, message, command[0].OutputText));
-							},
-							(reason) => {
-								console.error(reason);
-							}
-						);
+						runCoreCommand(command, args, message);
 					}
-				});
-		}, (reason) => console.error(reason));
+
+					// Custom command
+					else {
+						console.info("custom command");
+						Promise.join(custom_command_exists, permission_ok,
+							function(command, permission){
+								_client.say(channel, constructAtMention(user, message, command.OutputText));
+							});
+					}
+			});
+		}, (reason) => {
+			//console.error(reason);
+		});
 };
 
 module.exports = {
