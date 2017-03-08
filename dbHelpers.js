@@ -1,124 +1,140 @@
 "use strict";
 
 var config = require("./config/config.user.js");
-var ForerunnerDB = require("forerunnerdb");
-var fdb = new ForerunnerDB();
-var db = fdb.db("ozbt");
-db.persist.dataDir("db");
+var MongoClient = require("mongodb").MongoClient;
+var db = undefined;
+var assert = require("assert");
+var f = require("util").format;
+
+function getDb(newDb){
+	function createMongoUrl(){
+		let base = "mongodb://" + config.mongodb_addr + config.mongodb_db;
+		if(base.indexOf("%s") >= 0){
+			base = f(base, config.mongodb_user, config.mongodb_pass);
+		}
+
+		return base;
+	}
+
+	return new Promise(function(resolve, reject) {
+		if(db === undefined){
+			MongoClient.connect(createMongoUrl())
+				.then((returned_db) => {
+					console.info("MongoDB connection:", createMongoUrl());
+					db = returned_db;
+					resolve(db);
+				})
+				.catch((err) => {
+					assert.equal(null, err);
+				});
+		}
+		else if(newDb){
+			db = newDb;
+			resolve(newDb);
+		}
+		else {
+			resolve(db);
+		}
+	});
+}
 
 module.exports = {
-	"db": () => {
-		return db;
-	},
+	"db": getDb,
 
 	/**
 	 * Gets all items in a collection.
 	 * @return array Returns a copy of the data in the collection, so you can do whatever with it.
 	 */
-	"findAll": (db, tableName, callback) => {
+	"findAll": (tableName, fields) => {
 		return new Promise(function(resolve, reject) {
-			db.collection(tableName).load(function(err){
-				if(err)
-					reject(err);
-
-				var docs = db.collection(tableName).find();
-				resolve(docs);
-
-				if(callback && typeof callback === "function") callback(docs);
-			});
+			getDb()
+				.then((db) => {
+					var docs = db.collection(tableName).find(fields);
+					resolve(docs);
+				});
 		});
 	},
 
-	"find": (db, tableName, fields, callback) => {
+	"find": (tableName, fields) => {
 		return new Promise(function(resolve, reject) {
-			db.collection(tableName).load(function(err){
-				if(err)
-					reject(err);
-
-				var docs = db.collection(tableName).find(fields);
-				resolve(docs);
-
-				if(callback && typeof callback === "function") callback(docs);
-			});
+			getDb()
+				.then((db) => {
+					var docs = db.collection(tableName).findOne(fields);
+					resolve(docs);
+				});
 		});
 	},
 
 	/**
-	 *
+	 * Inserts a document.
+	 * @returns a Promise, resolving without data if successful and rejecting with errmsg on fail.
 	 */
-	"insert": (db, tableName, data, callback) => {
+	"insert": (tableName, data) => {
 		return new Promise(function(resolve, reject) {
-			db.collection(tableName).load(function(err){
-				if(err)
-					reject(err);
-
-				db.collection(tableName).insert(data, callback);
-				db.collection(tableName).save(function(err){
-					if(err){
-						reject(err);
-						throw new Error(err);
+			getDb()
+				.then((db) => {
+					let result = db.collection(tableName).insert(data);
+					if(result.writeConcernError === undefined){
+						resolve();
+					}
+					else {
+						reject(new Error(result.writeConcernError.errmsg));
 					}
 				});
-				resolve();
-			});
 		});
 	},
 
-	"update": (db, tableName, selectors, update, onUpdate) => {
+	/**
+	 * Updates selected rows. Only returns affected rows via the callback, not the Promise.
+	 */
+	"update": (tableName, query, update, opts) => {
 		return new Promise(function(resolve, reject) {
-			db.collection(tableName).load(function(err){
-				if(err)
-					reject(err);
+			getDb()
+				.then((db) => {
+					opts = opts ? opts : {};
 
-				db.collection(tableName).update(selectors, update, {}, onUpdate);
-				db.collection(tableName).save(function(err){
-					if(err){
-						reject(err);
-						throw new Error(err);
-					}
-
-					resolve();
+					db.collection(tableName).update(query, {"$set": update}, opts)
+						.then((result) => {
+							if(result.result.ok){
+								resolve(result.result);
+							}
+							else {
+								reject(new Error("Update could not be performed."));
+							}
+						});
 				});
-			});
 		});
 	},
 
-	"delete": (db, tableName, fields, callback) => {
+	"delete": (tableName, fields) => {
 		return new Promise(function(resolve, reject) {
-			db.collection(tableName).load(function(err){
-				if(err)
-					reject(err);
-
-				db.collection(tableName).remove(fields, {}, callback);
-				db.collection(tableName).save((err) => {
-					if(err){
-						reject(err);
-						throw new Error(err);
-					}
-
-					resolve();
+			getDb()
+				.then((db) => {
+					db.collection(tableName).findOneAndDelete(fields)
+						.then(function(deleted){
+							resolve(deleted);
+						});
 				});
-			});
 		});
 	},
 
-	"join": (db, tableName1, tableName2, selector, joinSelectors, callback) => {
+	"join": (tableName1, tableName2, localfield, foreignfield) => {
 		return new Promise(function(resolve, reject) {
-			if(joinSelectors["$require"] === undefined) joinSelectors["$require"] = true;
-			if(joinSelectors["$multi"] === undefined) joinSelectors["$multi"] = false;
+			getDb()
+				.then((db) => {
+					let docs = db.collection(tableName1).aggregate([
+						{
+							"$lookup": {
+								"from": tableName2,
+								"localField": localfield,
+								"foreignField": foreignfield,
+								"as": tableName2
+							}
+						}
+					]);
 
-			db.collection(tableName1).load(() => {
-				db.collection(tableName2).load(() => {
-					var join = {};
-					join[tableName2] = joinSelectors;
-
-					var results = db.collection(tableName1).find(selector, {
-						"$join": [join]
-					});
-
-					if(callback && typeof callback === "function") callback(results);
+					resolve(docs);
 				});
-			});
 		});
 	}
 };

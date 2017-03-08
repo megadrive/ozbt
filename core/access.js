@@ -35,38 +35,16 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 			newAccess = -1;
 	}
 
-	db.join(db.db(), "customcommand", "commandpermission", {
+	db.update("commandpermission", {
 		"Channel": process.env.channel,
 		"Command": command
 	}, {
-		"Channel": "Channel",
-		"Command": "Command",
-		"$require": false
-	}, (results) => {
-		// Just in case there is somehow more than one result, use the first.
-		if(results.length){
-			if(access){
-				db.db().collection("commandpermission").load(() => {
-					// Upsert = Update or insert.
-					db.db().collection("commandpermission").upsert({
-						"_id": results[0]._id,
-						"Channel": process.env.channel,
-						"Command": command,
-						"PermissionLevel": newAccess
-					}, (result) => {
-						if(result.length){
-							util.say(process.env.channel, util.getDisplayName(user) + " -> Access for " + command + " has been changed to " + access);
-						}
-
-						db.db().collection("commandpermission").save();
-					});
-				});
+		"PermissionLevel": newAccess
+	}, {"upsert": true})
+		.then(function(result){
+			console.info(result);
+			if(result.ok){
+				util.say(process.env.channel, util.getDisplayName(user) + " -> " + command + " access updated to \"" + args[2].toLowerCase() + "\".");
 			}
-			else {
-				var accessKey = util.getKeyFromValue(consts.access, results[0].commandpermission.PermissionLevel);
-
-				util.say(process.env.channel, util.getDisplayName(user) + " -> " + results[0].Command + " is available to " + accessKey + " (and above).");
-			}
-		}
-	});
+		});
 }

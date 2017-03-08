@@ -1,19 +1,35 @@
 "use strict";
 
 module.exports = {
-  "username": "twitch_username",
-  "oauth": "oauth:lotsofrandomnumbersandletters",
+  "username": "ozbt",
+  "oauth": "oauth:youroauthtoken",
 
-  "mysql_addr": "localhost",
-  "mysql_user": "",
-  "mysql_pass": "",
-  "mysql_db": "",
+  "autojoin_channels": ["your","channels","to","join"],
 
-  "hashids_salt": "randomstringtosalt",
+  "clientid": "yourclientid",
+
+  // dont include mongodb:// protocol, but keep ending /
+  // If you require authentication (you probably will), use this template:
+  // "mongodb_addr": "%s:%s@yourmongodb.url:27017/",
+  // The first %s will be replaced with mongodb_user and the second with mongodb_pass
+  "mongodb_addr": "%s:%s@mongodb146031-env-3694700.j.layershift.co.uk:27017/",
+  "mongodb_user": "youruser",
+  "mongodb_pass": "yourpass",
+  "mongodb_db": "ozbt",
+
+/** If using local server.
+  // dont include mongodb:// protocol, but keep ending /
+  "mongodb_addr": "127.0.0.1:27017/",
+  "mongodb_user": "root",
+  "mongodb_pass": "",
+  "mongodb_db": "ozbt",
+*/
+
+  "hashids_salt": "ozbt_md6sNnhlBT5h1xlLSknE",
 
   // Relative to app.js
   "core_dir": "./core/",
   "temp_dir": "./temp/",
 
-  "api_port": 5005 // unused
+  "api_port": 5005
 };
