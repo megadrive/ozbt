@@ -1,5 +1,7 @@
 "use strict";
 
+// @TODO: Update to MongoDB
+
 var _client = undefined;
 var consts = require("../consts.js");
 var db = require("../dbHelpers.js");
@@ -12,9 +14,9 @@ var onChat = (channel, user, message, self) => {
 	if(self) // so we dont try to ban ourselves.
 		return;
 
-	db.find(db.db(), "channel", {"Channel": channel}, (rows) => {
-		if(rows.length === 1){
-			var doBanLinks = rows[0].BanLinks;
+	db.find("channel", {"Channel": channel}, (rows) => {
+		if(rows !== null){
+			var doBanLinks = rows.BanLinks;
 
 			if(util.checkPermissionCore(process.env.channel, user, consts.access.moderator) === false){
 				if(doBanLinks != undefined && doBanLinks === consts.true){

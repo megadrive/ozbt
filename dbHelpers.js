@@ -6,9 +6,15 @@ var db = undefined;
 var assert = require("assert");
 var f = require("util").format;
 
-function getDb(newDb){
+function getDb(){
 	function createMongoUrl(){
-		let base = "mongodb://" + config.mongodb_addr + config.mongodb_db;
+		let db_name = config.mongodb_db;
+		if(process.env.NODE_ENV === "debug"){
+			db_name = "debug_" + db_name;
+			console.info("[ozbt] Using debug database.");
+		}
+
+		let base = "mongodb://" + config.mongodb_addr + db_name;
 		if(base.indexOf("%s") >= 0){
 			base = f(base, config.mongodb_user, config.mongodb_pass);
 		}
@@ -27,10 +33,6 @@ function getDb(newDb){
 				.catch((err) => {
 					assert.equal(null, err);
 				});
-		}
-		else if(newDb){
-			db = newDb;
-			resolve(newDb);
 		}
 		else {
 			resolve(db);

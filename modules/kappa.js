@@ -1,5 +1,7 @@
 "use strict";
 
+// @TODO: Update to MongoDB
+
 var _config = require("../config/config.user.js");
 var _client = undefined;
 var db = require("../dbHelpers.js");
@@ -17,17 +19,17 @@ var onChat = (channel, user, message, self) => {
 
 	// Arbitrary value, but hopefully a quote will be better the longer it is.
 	if(message.indexOf("Kappa") >= 0 && message.length > 15){
-		// A potential quote has a 75% chance of being accepted.
-		var chancePercentage = 0.25;
+		// A potential quote has a 50% chance of being accepted.
+		var chancePercentage = 0.5;
 		var rand = chance.floating({"min":0, "max":1});
 
 		if(rand >= chancePercentage){
-			db.insert(db.db(), "kappa", {
+			db.insert("kappa", {
 				"Channel": channel,
 				"Username": user.username,
 				"Message": message
 			}, (result) => {
-				if(result.length){
+				if(result !== null){
 					console.info("Kappa:\tAdded quote by '" + user.username + "': " + message);
 				}
 			});

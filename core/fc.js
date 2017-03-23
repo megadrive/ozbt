@@ -17,8 +17,6 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 	let fc = api.replace(/\${user}/gi, username ? username : user.username);
 	fc = fc.replace(/\${channel}/gi, process.env.channel.slice(1), "gi");
 
-	console.log(fc);
-
 	// response must be text
 	request(fc, (err, res, body) => {
 		if(err)

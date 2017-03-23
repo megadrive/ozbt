@@ -114,10 +114,12 @@ describe("Access Permissions", function(){
 			var broadcaster = util.checkPermissionCore(data.channel, data.broadcaster, consts.access.everybody);
 			var moderator = util.checkPermissionCore(data.channel, data.moderator, consts.access.everybody);
 			var subscriber = util.checkPermissionCore(data.channel, data.subscriber, consts.access.everybody);
+			var everybody = util.checkPermissionCore(data.channel, data.subscriber, consts.access.everybody);
 
 			expect(broadcaster).to.equal(true);
 			expect(moderator).to.equal(true);
 			expect(subscriber).to.equal(true);
+			expect(everybody).to.equal(true);
 		});
 	});
 });

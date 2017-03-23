@@ -11,14 +11,15 @@
  */
 
 module.exports = [
-  //"banhtml",
+  "banhtml",
   //"banlinks", // @NOTE: Rewrite
-  //"banselfpromo", // @NOTE: Rewrite
+  "banselfpromo",
   //"banshortlinks", // @NOTE: Rewrite
+  "battle",
   "commands",
   //"giveaways", // @NOTE: Unworking, probably won't continue.
-  //"greetings",
+  "greetings",
   //"kappa",
-  "repeatcommands", // @NOTE: Needs a rewrite
+  "repeatcommands",
   //"subgoals" // @NOTE: Still needs a frontend.
 ];

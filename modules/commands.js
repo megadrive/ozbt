@@ -14,7 +14,7 @@ var delays = {};
 /**
  * Does the custom command exist?
  * @param  {string}  channel The channel, prefixed with #
- * @param  {string}  command The command to search fork
+ * @param  {string}  command The command to search for
  * @return {Promise}         A promise
  */
 function isCustomCommand(channel, command){

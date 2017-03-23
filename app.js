@@ -43,8 +43,8 @@ _client.on("connected", (addr, port) => {
 	}
 
 	// Autojoin channels defined in config
+	console.info("[ozbt] Autojoining " + _config.autojoin_channels);
 	for(var aj = 0; aj < _config.autojoin_channels.length; aj++){
-		console.info("[ozbt] Autojoining " + _config.autojoin_channels);
 		_client.join(_config.autojoin_channels[aj]);
 	}
 });

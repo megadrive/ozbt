@@ -19,17 +19,17 @@ function updateMessage(type, message){
 		"OutputText": string
 	};
 
-	if(greet === undefined || greet !== "sub" || greet !== "resub")
+	if(greet === undefined || greet !== "sub" || greet !== "resub" || greet !== "cheer")
 		return;
 
 	// @TODO: Change to an upsert
-	db.update(db.db(), "greeting", selector, update, (rows) => {
+	db.update( "greeting", selector, update, (rows) => {
 		if(rows.length === 1){
 			util.say(process.env.channel, util.getDisplayName(user) + " -> Greeting for \"" + greet + "\" has been updated.");
 		}
 		else if(rows.length === 0){ // none found
 			selector["OutputText"] = string;
-			db.insert(db.db(), "greeting", selector, (rows) => {
+			db.insert( "greeting", selector, (rows) => {
 				if(rows.inserted.length){
 					util.say(process.env.channel, util.getDisplayName(user) + " -> Greeting for \"" + greet + "\" has been created.");
 				}
@@ -46,9 +46,13 @@ var resub = () => {
 	updateMessage(consts.greeting.resub, string);
 };
 
+var cheer = () => {
+	updateMessage(consts.greeting.cheer, string);
+};
+
 var del = () => {
 	if(string != undefined){
-		db.delete(db.db(), "greeting", {
+		db.delete("greeting", {
 			"Channel": process.env.channel,
 			"Type": consts.greeting[string.toLowerCase()]
 		}, (err, arr) => {
@@ -69,6 +73,9 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 			break;
 		case "resub":
 			resub();
+			break;
+		case "cheer":
+			cheer();
 			break;
 		case "delete":
 			del();

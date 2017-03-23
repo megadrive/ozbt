@@ -1,5 +1,7 @@
 "use strict";
 
+// @TODO: Update to MongoDB
+
 var _config = require("../config/config.user.js");
 var _client = undefined;
 var consts = require("../consts.js");
@@ -9,7 +11,9 @@ var util = require("../util.js");
 var tbl = "subgoal";
 
 var onSub = (channel, username) => {
-	db.find(db.db(), "subgoal", {
+	console.error("subgoals.js not updated. exiting.."); return;
+
+	db.find("subgoal", {
 		"Channel": channel
 	}, (rows) => {
 		if(rows.length > 0){
@@ -22,7 +26,7 @@ var onSub = (channel, username) => {
 			}
 
 			if(goal !== null){
-				db.update(db.db(), tbl, "PublicHash = '" + goal.PublicHash + "'", {
+				db.update(tbl, "PublicHash = '" + goal.PublicHash + "'", {
 					"Current": goal.Current + 1
 				}, (updated_rows) => {
 					if( updated_rows.affectedRows === 1 ){
@@ -44,7 +48,9 @@ var onSub = (channel, username) => {
 };
 
 var onResub = (channel, username, months) => {
-	db.find(db.db(), "subgoal", {
+	console.error("subgoals.js not updated. exiting.."); return;
+	
+	db.find("subgoal", {
 		"Channel": channel
 	}, (rows) => {
 		if(rows.length > 0){

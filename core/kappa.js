@@ -12,7 +12,10 @@ var chance = new Chance();
 var args = process.env.message.split(" ");
 
 if( util.checkPermissionCore(process.env.channel, user, consts.access.subscriber) ){
-	db.find(db.db(), "kappa", {"Channel": process.env.channel}, (results) => {
+	db.find("kappa", {"Channel": process.env.channel}, (results) => {
+		if(results === null)
+			return;
+	
 		var element = chance.integer({"min": 0, "max": results.length});
 		var quote = results[element];
 

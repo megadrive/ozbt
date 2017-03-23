@@ -24,3 +24,4 @@ config/*.js
 !config/modules.config.js
 db/*
 .vscode/
+.env

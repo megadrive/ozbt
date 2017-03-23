@@ -1,5 +1,7 @@
 "use strict";
 
+// @TODO: Update to use MongoDB
+
 var util = require("../util.js");
 var config = require("../config/config.user.js");
 var db = require("../dbHelpers.js");
@@ -33,7 +35,7 @@ var add = () => {
 	if(intent != undefined || subNum != undefined || string != undefined)
 	{
 		// Check for existance.
-		db.find(db.db(), tbl, {
+		db.find(tbl, {
 			"Channel": process.env.channel,
 			"Name": string
 		}, (rows) => {
@@ -46,7 +48,7 @@ var add = () => {
 				var rslashes = /^\/+/;
 				string = string.replace(rslashes, "");
 
-				db.insert(db.db(), tbl, {
+				db.insert(tbl, {
 	  				"Name": string,
 	  				"Current": 0,
 	  				"Maximum": subNum,
@@ -57,7 +59,7 @@ var add = () => {
 					if( rows.inserted.length === 1 ){
 						// Update PublicHash.
 						var hash = hashids.encode(rows.insertId);
-						db.update(db.db(), tbl, "SubGoalId = " + rows.insertId, {"PublicHash": hash}, () => {});
+						db.update(tbl, "SubGoalId = " + rows.insertId, {"PublicHash": hash}, () => {});
 						util.say(process.env.channel, util.getDisplayName(user) + " -> subgoal \"" + string + "\" was created. (hash: " + hash + ")");
 					}
 					else {
@@ -75,13 +77,13 @@ var edit = () => {
 	var string = args.slice(4).join(" ");
 
 	// Check for existance. If it exists already, output an error pointing to !cmd edit.
-	db.find(db.db(), tbl, {
+	db.find(tbl, {
 		"Channel": process.env.channel,
 		"PublicHash": hash
 	}, (rows) => {
 		var found_rows = rows;
 		if( rows.length === 1 ){
-			db.update(db.db(), tbl, "PublicHash='" + hash + "'", {"Name": string, "Maximum": subs}, (rows) => {
+			db.update(tbl, "PublicHash='" + hash + "'", {"Name": string, "Maximum": subs}, (rows) => {
 				if( rows.affectedRows === 1 ){
 					console.log(rows);
 					util.say(process.env.channel, util.getDisplayName(user) + " -> subgoal \"" + found_rows[0]["Name"] + "\" was updated.");
@@ -105,7 +107,7 @@ var del = () => {
 	var hash = args[2];
 
 	// Check for existance. If it exists already, output an error pointing to !cmd edit.
-	db.find(db.db(), tbl, {
+	db.find(tbl, {
 		"Channel": process.env.channel,
 		"PublicHash": hash
 	}, (rows) => {
@@ -114,7 +116,7 @@ var del = () => {
 			if( rows.length > 1 )
 				console.error("ERROR: There were duplicate entries for the subgoal \"" + hash + "\" in channel " + process.env.channel + "! They have all been removed now.");
 
-			db.delete(db.db(), tbl, {"PublicHash": hash}, (rows) => {
+			db.delete(tbl, {"PublicHash": hash}, (rows) => {
 				if( rows.length > 0 ){
 					util.say(process.env.channel, util.getDisplayName(user) + " -> subgoal \"" + found_rows[0]["Name"] + "\" was deleted.");
 				}
@@ -131,7 +133,7 @@ var del = () => {
 };
 
 var list = () => {
-	db.find(db.db(), tbl, {
+	db.find(tbl, {
 		"Channel": process.env.channel
 	}, (rows) => {
 		for(var i = 0; i < rows.length; i++){
@@ -163,7 +165,7 @@ var modsubs = () => {
 		switch(mod){
 			case "+":
 				() => {
-					db.find(db.db(), tbl, {
+					db.find(tbl, {
 						"Channel": process.env.channel,
 						"PublicHash": hash
 					}, (found_rows) => {
@@ -174,7 +176,7 @@ var modsubs = () => {
 								}
 							};
 
-							db.update(db.db(), tbl, selector, update, (rows) => {
+							db.update(tbl, selector, update, (rows) => {
 								if(rows.length){
 									util.say(process.env.channel, util.getDisplayName(user) + " -> \"" + found_rows[0].Name + "\" has been updated, now has " + newAmt + ".");
 								}
@@ -185,7 +187,7 @@ var modsubs = () => {
 				break;
 			case "-":
 				() => {
-					db.find(db.db(), tbl, {
+					db.find(tbl, {
 						"Channel": process.env.channel,
 						"PublicHash": hash
 					}, (found_rows) => {
@@ -196,7 +198,7 @@ var modsubs = () => {
 								}
 							};
 
-							db.update(db.db(), tbl, selector, update, (rows) => {
+							db.update(tbl, selector, update, (rows) => {
 								if(rows.length){
 									util.say(process.env.channel, util.getDisplayName(user) + " -> \"" + found_rows[0].Name + "\" has been updated, now has " + newAmt + ".");
 								}
@@ -215,7 +217,7 @@ var countresubs = () => {
 	var val = args[3].toLowerCase().trim();
 
 	if(val == "yes" || val == "false"){
-		db.update(db.db(), tbl, "PublicHash = '" + hash + "'", {
+		db.update(tbl, "PublicHash = '" + hash + "'", {
 			"ResubsCount": val == "yes" ? consts.true : consts.false
 		}, (updated_rows) => {
 			if(updated_rows.length === 1){
