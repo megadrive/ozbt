@@ -114,9 +114,15 @@ function mod_vote(channel, user, query, amount){
 };
 
 /**
- * Delete the active battle.
+ * Delete the active battle, and all awaiting votes.
+ * @param {string} channel 
  */
 function del(channel){
+	db.delete("battle_temp", {"Channel": channel}, true)
+		.then(function(res){
+			console.info(`[ozbt][battle][${channel}] Removed ${res.deletedCount} temporary records.`);
+		});
+
 	db.delete("battle", {"Channel": channel})
 		.then(function(){
 			util.say(channel, util.getDisplayName(user) + " -> Current battle for " + channel.substring(1) + " was deleted.");
@@ -140,6 +146,27 @@ function list(channel){
 		});
 }
 
+/**
+ * Allows a mod+ to list current awaiting votes.
+ * @param {string} channel 
+ */
+function awaiting(channel){
+	db.findAll("battle_temp", {"Channel": "#tirean"})
+		.then(function(r){
+			r.toArray().then(function(arr){
+				let map = arr.map(function(c, i){
+					return c.Username;
+				});
+
+				map = map.filter(function(value, index, self){
+					return self.indexOf(value) === index;
+				});
+
+				util.say(channel, util.getDisplayName(user) + " -> Users who may vote: " + (map.length ? map.join(", ") : "none at the moment."));
+			});
+		});
+}
+
 let match = args.join(" ").match(rquotes); if(match) match = match[0];
 if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) ){
 	switch(intent){
@@ -151,6 +178,9 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 			break;
 		case "vote":
 			vote(process.env.channel, user, match.substring(1, match.length - 1));
+			break;
+		case "awaiting":
+			awaiting(process.env.channel);
 			break;
 		case "delete":
 			del(process.env.channel);

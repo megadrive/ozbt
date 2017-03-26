@@ -36,46 +36,41 @@ let pointsMultipliers = {
 /**
  * Add an awaiting vote so they can use !battle to vote.
  * @param {string} channel 
- * @param {object} user 
+ * @param {string} user Username
  * @param {string} type "sub", "cheer" or "donation"
  * @param {number} amount Amount of bits or a number value for donations
  */
-function insertTemp(channel, user, type, amount){
-	db.insert("battle_temp", {
-		"Channel": channel,
-		"User": {"id": user["user-id"], "Username": user.username},
-		"Type": type.toLowerCase(),
-		"Amount": amount
-	})
-		.then(function(){
-			resolve();
-		});
+function insertTemp(channel, username, type, amount){
+	return new Promise(function(resolve, reject){
+		db.insert("battle_temp", {
+			"Channel": channel,
+			"Username": username,
+			"Type": type.toLowerCase(),
+			"Amount": amount
+		})
+			.then(function(){
+				resolve();
+			});
+	});
 }
 
 /**
  * Subscription/Resub event
  * @param {string} channel 
- * @param {object} user 
+ * @param {string} username 
  * @param {number} months 
  * @param {string} message 
  */
-function onSubResub(channel, user, months, message){
-	if(message){
-		insertTemp(channel, message, "sub", pointsMultipliers.sub)
-			.then(function(newPoints, itemObject){
-				util.say(channel, util.getDisplayName(user) + " has added " + newPoints + " points to " + itemObject.Name + " because of their sub/resub! It's now on " + itemObject.Points + " points!");
-			});
-	}
-	else {
-		insertTemp(channel, user, "sub", pointsMultipliers.sub)
-			.then(function(){
-				util.say(channel, util.getDisplayName(user) + ", add your game choice for the Battle of the Speedruns by typing !battle vote \"Game Name\" to vote for a contender! (Use !battle to see the current contenders.)");
-			});
-	}
+function onSubResub(channel, username, months, message){
+	insertTemp(channel, username, "sub", pointsMultipliers.sub)
+		.then(function(){
+			_client.say(channel, username + ", add your game choice for the Battle of the Speedruns by typing !battle vote \"Game Name\" to vote for a contender! (Use !battle to see the current contenders.)");
+		});
 }
 
 /**
- * Cheer event
+ * Cheer event.
+ * @NOTE: It's worth mentioning that this is the only event in which we get a complete user object.
  * @param {string} channel 
  * @param {object} user
  * @param {string} message 
@@ -83,19 +78,19 @@ function onSubResub(channel, user, months, message){
 function onCheer(channel, user, message){
 	let bits = user.bits;
 
-	insertTemp(channel, user, "cheer", bits * pointsMultipliers.bit)
+	insertTemp(channel, user.username, "cheer", bits * pointsMultipliers.bit)
 		.then(function(){
-			util.say(channel, util.getDisplayName(user) + ", add your game choice for the Battle of the Speedruns by typing !battle vote \"Game Name\" to vote for a contender! (Use !battle to see the current contenders.)");
+			_client.say(channel, util.getDisplayName(user) + ", add your game choice for the Battle of the Speedruns by typing !battle vote \"Game Name\" to vote for a contender! (Use !battle to see the current contenders.)");
 		});
 }
 
 /**
  * Donation event
  * @param {string} channel 
- * @param {object} user 
+ * @param {string} username 
  * @param {number} amount 
  */
-function onDonate(channel, user, amount){
+function onDonate(channel, username, amount){
 	// @TODO: Implement.
 }
 
