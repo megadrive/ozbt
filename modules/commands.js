@@ -58,7 +58,6 @@ function isCoreCommand(command){
  * @param  {string} channel The channel name, prefixed with #
  * @param  {object} user    The user object, as supplied by tmi.js
  * @param  {string} command The command to search for
- * @return {Promise}        A Promise
  */
 function checkCommandPermission(channel, user, command){
 	return new Promise(function(resolve, reject) {

@@ -18,7 +18,7 @@ var onChat = (channel, user, message, self) => {
 	var matches = message.match(tags);
 
 	if(matches && matches.length > 0){
-		client.timeout(channel, user.username, 86400);
+		_client.timeout(channel, user.username, 86400);
 	}
 }
 

@@ -6,6 +6,9 @@ var db = undefined;
 var assert = require("assert");
 var f = require("util").format;
 
+/**
+ * Gets the database, creating a connection for use.
+ */
 function getDb(){
 	function createMongoUrl(){
 		let db_name = config.mongodb_db;
@@ -44,8 +47,9 @@ module.exports = {
 	"db": getDb,
 
 	/**
-	 * Gets all items in a collection.
-	 * @return array Returns a copy of the data in the collection, so you can do whatever with it.
+	 * Find many documents, filtered by fields.
+	 * @param {string} tableName
+	 * @param {object} fields
 	 */
 	"findAll": (tableName, fields) => {
 		return new Promise(function(resolve, reject) {
@@ -57,6 +61,11 @@ module.exports = {
 		});
 	},
 
+	/**
+	 * Find a single document, filtered by fields.
+	 * @param {string} tableName
+	 * @param {object} fields
+	 */
 	"find": (tableName, fields) => {
 		return new Promise(function(resolve, reject) {
 			getDb()
@@ -69,7 +78,8 @@ module.exports = {
 
 	/**
 	 * Inserts a document.
-	 * @returns a Promise, resolving without data if successful and rejecting with errmsg on fail.
+	 * @param {string} tableName
+	 * @param {object} data Data to insert
 	 */
 	"insert": (tableName, data) => {
 		return new Promise(function(resolve, reject) {
@@ -87,7 +97,11 @@ module.exports = {
 	},
 
 	/**
-	 * Updates selected rows. Only returns affected rows via the callback, not the Promise.
+	 * Updates a document.
+	 * @param {string} tableName
+	 * @param {object} query Query fields. Similar to "WHERE" in SQL.
+	 * @param {object} update Fields to update
+	 * @param {object} opts MongoDB fields. If left unset, will only update.
 	 */
 	"update": (tableName, query, update, opts) => {
 		return new Promise(function(resolve, reject) {
@@ -108,18 +122,39 @@ module.exports = {
 		});
 	},
 
-	"delete": (tableName, fields) => {
+	/**
+	 * Deletes a single document, unless isMulti is true.
+	 * @param {string} tableName
+	 * @param {object} fields
+	 * @param {boolean} isMulti Deletes multiple documents if true.
+	 */
+	"delete": (tableName, fields, isMulti) => {
 		return new Promise(function(resolve, reject) {
 			getDb()
 				.then((db) => {
-					db.collection(tableName).findOneAndDelete(fields)
-						.then(function(deleted){
-							resolve(deleted);
-						});
+					function resolveFunc(deleted){
+						resolve(deleted);
+					}
+
+					if(isMulti){
+						db.collection(tableName).deleteMany(fields)
+							.then(resolveFunc);
+					}
+					else {
+						db.collection(tableName).findOneAndDelete(fields)
+							.then(resolveFunc);
+					}
 				});
 		});
 	},
 
+	/**
+	 * Joins two collections together to find documents.
+	 * @param {string} tableName1
+	 * @param {string} tableName2
+	 * @param {string} localfield
+	 * @param {string} foreignfield
+	 */
 	"join": (tableName1, tableName2, localfield, foreignfield) => {
 		return new Promise(function(resolve, reject) {
 			getDb()

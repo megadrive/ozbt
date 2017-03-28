@@ -10,7 +10,7 @@ var onChat = (channel, user, message, self) => {
   var rselfpromo = new RegExp("(https?://)?(www\.)?twitch\.tv/" + user.username, "gi");
 
   if(rselfpromo.test(message)){
-    client.ban(channel, user.username, "Self-promotion.");
+    _client.ban(channel, user.username, "Self-promotion.");
   }
 }
 
