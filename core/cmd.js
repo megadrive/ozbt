@@ -32,10 +32,11 @@ function add(){
 							"Command": cmd,
 							"OutputText": string,
 							"Channel": process.env.channel
-					}, function resolve(){
+					})
+					.then(function resolve(){
 							util.say(process.env.channel, util.getDisplayName(user) + " -> command " + cmd + " was created.");
-						},
-						function reject(errmsg){
+						})
+					.catch(function reject(errmsg){
 							util.say(process.env.channel, util.getDisplayName(user) + " -> command creation went wrong: " + errmsg);
 						});
 				}
