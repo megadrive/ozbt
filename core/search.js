@@ -2,16 +2,16 @@
 
 var util = require("../util.js");
 var db = require("../dbHelpers.js");
-var fuzzy = require("fuzzy");
+var Fuse = require("fuse.js");
 var consts = require("../consts.js");
 
 /**
  * This block makes testing this individual function easier.
  */
-util.say = process.env.channel ? util.say : util.say = (c, m) => { console.info(c, m) };
+util.say = process.env.channel ? util.say : util.say = (c, m) => { console.info(`[${c}]`, m) };
 process.env.user = process.env.user ? process.env.user : '{"username": "dummy", "mod": true}';
 process.env.channel = process.env.channel ? process.env.channel : "#megadriving";
-process.env.message = process.env.message ? process.env.message : "!search spyro";
+process.env.message = process.env.message ? process.env.message : "!search LLLLLLLLLLLL";
 
 var user = JSON.parse(process.env.user);
 
@@ -35,14 +35,30 @@ request(`https://sheets.googleapis.com/v4/spreadsheets/${ssheetid}/values/Games%
 		console.info("Number of games:", games.length);
 
 		if(query.length){
-			var results = fuzzy.filter(query, games, {"extract": function(el){ return el[0]; } });
-			var matches = results.map(function(el){
-				return el.string;
-			});
+			var options = {
+				shouldSort: true,
+				tokenize: false,
+				threshold: 0.6,
+				location: 0,
+				distance: 100,
+				maxPatternLength: 32,
+				minMatchCharLength: 2,
+				keys: [0]
+			};
+			var fuse = new Fuse(games, options);
+			var result = fuse.search(query);
 
-			let top3 = matches.slice(0, 3);
-			let say = `Best ${top3.length} matches: ` + top3.join(", ") + ". ";
-			if(matches.length > 3) say += matches.length + " total matches.";
+			let say = `No matches for "${query}"`;
+			if(result.length){
+				let top3 = [];
+				let top3_tmp = result.slice(0,3);
+				for(let i = 0; i < top3_tmp.length; i++){
+					top3[i] = top3_tmp[i][0];
+				}
+				say = `Best ${top3.length} matches: ` + top3.join(", ") + ". ";
+				if(top3_tmp.length > 3) say += top3_tmp.length + " total matches.";
+			}
+
 			util.say(process.env.channel, util.getDisplayName(user) + ' -> ' + say);
 		}
 		else {
