@@ -8,6 +8,9 @@
   "dependencies": {
     "bluebird": "^3.4.6",
     "chance": "^1.0.3",
+    "fuzzy": "^0.1.3",
+    "google-auth-library": "^0.10.0",
+    "googleapis": "^18.0.0",
     "mongodb": "^2.2.24",
     "mz": "^2.4.0",
     "request": "^2.73.0",
