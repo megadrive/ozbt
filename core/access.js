@@ -1,3 +1,4 @@
+"use strict"
 
 var util = require("../util.js");
 var db = require("../dbHelpers.js");
@@ -42,9 +43,20 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 		"PermissionLevel": newAccess
 	}, {"upsert": true})
 		.then(function(result){
-			console.info(result);
 			if(result.ok){
 				util.say(process.env.channel, util.getDisplayName(user) + " -> " + command + " access updated to \"" + args[2].toLowerCase() + "\".");
 			}
 		});
 }
+
+/**
+ * Export documentation
+ */
+module.exports = {
+	"docs": {
+		"{command} {accessLevel}": {
+			"command": "The command you wish to change.",
+			"accessLevel": "The access level to change to, possible values: " + Object.keys(consts.access).join(" | ")
+		}
+	}
+};

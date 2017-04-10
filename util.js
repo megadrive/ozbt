@@ -3,39 +3,38 @@
 var consts = require("./consts.js");
 var db = require("./dbHelpers.js");
 var Promise = require("bluebird");
-var request = require("request");
+var got = require("got");
 var config = require("./config/config.user.js");
 
 module.exports = {
+	/**
+	 * Returns a version string.
+	 */
 	'version': function(){
 		var fs = require('fs');
-		var f = fs.readFileSync('./package.json', {'encoding':'utf8'});
-		var j = JSON.parse(f);
+		var j = require("./package.json");
 		return 'v' + j.version;
 	},
 
 	/**
 	 * Performs a Twitch API request, including the requisite headers.
 	 * @param  {string} endpoint The url after /kraken/
-	 * @return {Promise}         A Promise
 	 */
 	'twitch_api': function(endpoint){
 		return new Promise(function(resolve, reject) {
 			if(endpoint && endpoint.length > 3){
 				var opts = {
-					"url": "https://api.twitch.tv/kraken/" + endpoint,
+					"json": true,
 					"headers": {
 						"Client-ID": config.clientid,
 						"Accept": "application/vnd.twitchtv.v3+json"
 					}
 				};
 
-				request(opts, function(err, res, body){
-					if(err)
-						reject(err);
-
-					resolve(body);
-				});
+				got("https://api.twitch.tv/kraken/" + endpoint, opts)
+					.then(function(response){
+						resolve(response.body);
+					});
 			}
 			else {
 				reject("endpoint param not long enough or is undefined.")
@@ -45,6 +44,7 @@ module.exports = {
 
 	/**
 	 * Gets either the display name or the username of a userObject, preferring the display-name.
+	 * @param {object} user user object, provided by a `chat` event via tmi.js
 	 */
 	'getDisplayName': function(userObj){
 		var rv = 'undefined';
@@ -60,7 +60,12 @@ module.exports = {
 		return rv;
 	},
 
-	// @var user user object
+	/**
+	 * Checks permissions against a user object.
+	 * @param {string} channel the channel
+	 * @param {object} user user object, provided by a `chat` event via tmi.js
+	 * @param {number} atLeastPermission user must be at LEAST this permission level. Use with the consts.access enum
+	 */
 	"checkPermissionCore": (channel, user, atLeastPermission) => {
 		var rv = false;
 
@@ -74,6 +79,10 @@ module.exports = {
 
 		if(atLeastPermission >= consts.access.subscriber && user.subscriber == true){
 			rv = true;
+		}
+
+		if(user.isDebug === true){
+			rv = false;
 		}
 
 		return rv;

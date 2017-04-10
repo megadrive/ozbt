@@ -1,98 +1,64 @@
 
+console.warn("!spoll is dead atm, strawpoll having issues. 10-04-2017");
+process.exit(0);
+
+process.env.user = '{}';
+
 var util = require("../util.js");
 var db = require("../dbHelpers.js");
-var request = require("request");
+var got = require("got");
 var user = JSON.parse(process.env.user);
-var fs = require("fs");
+var consts = require("../consts.js");
+var FormData = require("form-data");
+var form = new FormData();
 
-// @TODO: Make this use forerunnerdb instead of a temporary file. We do NOT need to have permenence for strawpoll ids.
+var api = "https://strawpoll.com/new";
 
-var api = "https://strawpoll.me/api/v2/polls";
-var tempDir = "temp/strawpollIds/";
+process.env.channel = "#tirean";
+process.env.message = "!spoll Videogames? | Hideo | Penis | Vagina?";
 
-// Get arguments.
-var message = process.env.message.replace("!spoll ", "", "i");
-var opts = message.split(/(?=-[to])/g);
+let message = process.env.message.split(" ").slice(1);
+let title = message[0];
+let options = message.slice(1).filter(function(el) { return el !== "|"; });
 
-var title = "";
-var options = [];
-for(var i = 0; i < opts.length; ++i){
-	if(opts[i].indexOf("-t") === 0){
-		title = opts[i].replace(/( *)-t( +)/i, "").trim();
-	}
-	else if(opts[i].indexOf("-o") === 0){
-		options.push(opts[i].replace(/( *)-o( +)/i, "").trim());
-	}
+function createPoll(title, options){
+	return new Promise(function(resolve, reject){
+		form.append("newq", title);
+		form.append("priv", "on");
+
+		console.info(title, options);
+
+		for(let o = 0; o < options.length; o++){
+			form.append("a" + o, options[o]);
+		}
+
+		got.post(api, {"body": form})
+			.then(function(response){
+				console.info(response.body);
+			})
+			.catch(err => console.error(err));
+
+		resolve({});
+	});
 }
 
-var jOpts = {
-	"title": title,
-	"options": options
-};
-
-var createPoll = () => {
-	request({
-		"url": api,
-		"method": "post",
-		"json": true,
-		"body": jOpts
-	}, (err, res, body) => {
-		if(err){
-			console.error(err);
-		}
-		else {
-			var j = body;
-			util.say(process.env.channel, "Vote on \"" + title + "\" here: http://strawpoll.me/" + j.id);
-
-			fs.mkdirSync(tempDir);
-			var f = tempDir + process.env.channel;
-			fs.writeFile(f, j.id, (err) => {
-				if(!err){
-					console.log("!spoll -> Saved strawpoll id for " + process.env.channel);
-				}
-				else {
-					console.error("!spoll -> write: " + err);
-				}
-			});
-		}
+function getResult(id){
+	return new Promise(function(resolve, reject){
+		resolve({});
 	});
-};
-
-var getResult = () => {
-	fs.readFile(tempDir + process.env.channel, (err, data) => {
-		if(err){
-			console.error(err);
-		}
-		else {
-			request(api + "/" + data, (err, res, body) => {
-				if(err){
-					console.error(err);
-				}
-				else {
-					var j = JSON.parse(body);
-
-					if(j.error != undefined){
-						console.error(j);
-					}
-					else {
-						var title = j.title;
-						var o = [];
-						for(var i = 0; i < j.options.length; ++i){
-							o.push(j.options[i] + ": " + j.votes[i]);
-						}
-						var str = o.join(" | ");
-
-						util.say(process.env.channel, util.getDisplayName(user) + " -> Results for \"" + title + "\": " + str);
-					}
-				}
-			});
-		}
-	});
-};
-
-if(message.indexOf("results") >= 0){
-	getResult();
 }
-else {
-	createPoll();
+
+if( util.checkPermissionCore(process.env.channel, user, consts.access.everybody) ){
+	if(message.indexOf("results") >= 0){
+		getResult(id)
+			.then(function(result){
+
+			});
+	}
+	else {
+		createPoll(title, options)
+			.then(function(result){
+
+			});
+	}
 }

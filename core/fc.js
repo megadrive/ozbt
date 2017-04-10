@@ -4,7 +4,7 @@ var util = require("../util.js");
 var db = require("../dbHelpers.js");
 var consts = require("../consts.js");
 var user = JSON.parse(process.env.user);
-let request = require("request");
+let got = require("got");
 
 // Get arguments.
 var args = process.env.message.split(" ");
@@ -18,10 +18,9 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 	fc = fc.replace(/\${channel}/gi, process.env.channel.slice(1), "gi");
 
 	// response must be text
-	request(fc, (err, res, body) => {
-		if(err)
-			throw err;
-
-		util.say(process.env.channel, util.getDisplayName(user) + " -> " + body);
-	});
+	got(fc)
+		.then(function(response){
+			util.say(process.env.channel, util.getDisplayName(user) + " -> " + response.body);
+		})
+		.catch(err => console.error);
 }

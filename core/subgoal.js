@@ -1,5 +1,7 @@
 "use strict";
 
+process.exit(1);
+
 // @TODO: Update to use MongoDB
 
 var util = require("../util.js");
@@ -183,7 +185,7 @@ var modsubs = () => {
 							});
 						}
 					});
-				}();
+				};
 				break;
 			case "-":
 				() => {
@@ -205,7 +207,7 @@ var modsubs = () => {
 							});
 						}
 					});
-				}();
+				};
 				break;
 		}
 	}

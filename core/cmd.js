@@ -12,7 +12,6 @@ var cmd = args[2];
 var string = args.splice(3).join(" ");
 
 // Add a new custom command
-// @TODO: This can be changed to not use db.find(). Use the cb to figure out output.
 function add(){
 		// Check for existance. If it exists already, output an error pointing to !cmd edit.
 		db.find("customcommand", {
@@ -82,7 +81,7 @@ function del(){
 };
 
 // @NOTE: This function will be a mess. Fix it asap.
-function list(db, channel, userObj){
+function list(channel, userObj){
 	// @TODO: Add this.
 };
 

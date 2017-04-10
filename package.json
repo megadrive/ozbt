@@ -8,11 +8,14 @@
   "dependencies": {
     "bluebird": "^3.4.6",
     "chance": "^1.0.3",
+    "form-data": "^2.1.4",
     "fuse.js": "^2.6.2",
+    "got": "^6.7.1",
     "mongodb": "^2.2.24",
     "mz": "^2.4.0",
     "request": "^2.73.0",
     "request-promise": "^4.1.1",
+    "string": "^3.3.3",
     "tmi.js": "^1.1.1"
   },
   "scripts": {

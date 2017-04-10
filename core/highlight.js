@@ -15,8 +15,7 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 	if(title !== undefined && title.length > 3){
 		util.twitch_api(f("channels/%s/videos?broadcasts=true&limit=1", process.env.channel.substring(1)))
 			.then(function(res){
-				let vod = JSON.parse(res).videos[0];
-				console.log(vod);
+				let vod = res.videos[0];
 
 				if(vod.status === "recording"){
 					let vod_date = new Date(vod.created_at).getTime();
@@ -34,7 +33,7 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 						});
 				}
 				else {
-					console.info("[ozbt] !highlight failed: " + process.env.channel.splice(1) + " not online");
+					console.info("[ozbt] !highlight failed: " + process.env.channel.substring(1) + " not online");
 				}
 			});
 	}

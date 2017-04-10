@@ -1,24 +1,24 @@
 "use strict";
 
-var request = require('request');
 var util = require("../util.js");
 var user = JSON.parse(process.env.user);
+var consts = require("../consts.js");
 
-util.twitch_api("streams/" + process.env.channel.substring(1))
-	.then(function(body){
-		var j = JSON.parse(body);
+if( util.checkPermissionCore(process.env.channel, user, consts.access.everybody) ){
+	util.twitch_api("streams/" + process.env.channel.substring(1))
+		.then(function(j){
+			if(j.stream === null){
+				util.say(process.env.channel, util.getDisplayName(user) + " -> Stream is offline.");
+			}
+			else {
+				var start = new Date(j.stream.created_at).getTime();
+				var now = new Date().getTime();
+				var diff = getInterval(now, start);
 
-		if(j.stream === null){
-			util.say(process.env.channel, util.getDisplayName(user) + " -> Stream is offline.");
-		}
-		else {
-			var start = new Date(j.stream.created_at).getTime();
-			var now = new Date().getTime();
-			var diff = getInterval(now, start);
-
-			util.say(process.env.channel, util.getDisplayName(user) + " -> Streaming for " + diff.hours + " hours, " + diff.minutes + " minutes, " + diff.seconds + " seconds.");
-		}
-	});
+				util.say(process.env.channel, util.getDisplayName(user) + " -> Streaming for " + diff.hours + " hours, " + diff.minutes + " minutes, " + diff.seconds + " seconds.");
+			}
+		});
+}
 
 // From: http://snipplr.com/view/58379/ on 2016-07-04. Credit to wizard04
 function getInterval(dateA, dateB){
