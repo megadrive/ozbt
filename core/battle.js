@@ -64,9 +64,8 @@ function create(channel, message){
 function vote(channel, user, query){
 	db.find("battle_temp", {
 		"Channel": channel,
-		"User.id": user["user-id"]
+		"Username": user.username.toLowerCase()
 	}).then(function(res){
-		console.log(res);
 		if(res !== null){
 			db.find("battle", {"Channel": channel})
 				.then(function(battle){
@@ -167,6 +166,17 @@ function awaiting(channel){
 		});
 }
 
+/**
+ * Purge the awaiting votes without removing the battle.
+ * @param {string} channel 
+ */
+function purge(channel){
+	db.delete("battle_temp", {"Channel": channel}, true)
+		.then(function(del){
+			util.say(channel, util.getDisplayName(user) + " -> Purged " + del.deletedCount + " awaiting votes.");
+		});
+}
+
 let match = args.join(" ").match(rquotes); if(match) match = match[0];
 if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator) ){
 	switch(intent){
@@ -181,6 +191,9 @@ if( util.checkPermissionCore(process.env.channel, user, consts.access.moderator)
 			break;
 		case "awaiting":
 			awaiting(process.env.channel);
+			break;
+		case "purge":
+			purge(process.env.channel);
 			break;
 		case "delete":
 			del(process.env.channel);
@@ -200,3 +213,36 @@ else {
 			break;
 	}
 }
+
+/**
+ * Export documentation
+ */
+module.exports = {
+	"docs": {
+		"description": "Battle module",
+		"commands": [
+			{
+				"access": "moderator",
+				"usage": {
+						"command": 'create "Item 1", "Item 2", ...',
+						"description": "Creates a new battle between the supplied items."
+				},
+				"example": [
+					'megadriving: !battle create "Dark Souls", "Portal", "Half-Life"',
+					'ozbt: megadriving -> Created a new battle between "Dark Souls", "Portal", "Half-Life"!'
+				]
+			},
+			{
+				"access": "vote",
+				"usage": {
+						"command": 'vote "{item}"',
+						"description": "Votes on an item. Subs/Resubs are worth 5 points and bits are 0.1 points per bit."
+				},
+				"example": [
+					'megadriving: !battle vote "Dark Souls"',
+					'ozbt: megadriving -> Successfully added your sub vote to Dark Souls bringing it to 5 points!'
+				]
+			}
+		]
+	}
+};

@@ -44,7 +44,7 @@ function insertTemp(channel, username, type, amount){
 	return new Promise(function(resolve, reject){
 		db.insert("battle_temp", {
 			"Channel": channel,
-			"Username": username,
+			"Username": username.toLowerCase(),
 			"Type": type.toLowerCase(),
 			"Amount": amount
 		})
