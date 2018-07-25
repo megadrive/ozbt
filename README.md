@@ -1,3 +1,6 @@
+# deprecated
+Go to [https://bitbucket.org/megadrive/ozbtp](https://bitbucket.org/megadrive/ozbtp) for `ozbt+`.
+
 # ozbt
 A decidedly Australian Twitch bot.
 
