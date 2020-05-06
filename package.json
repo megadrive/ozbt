@@ -16,15 +16,19 @@
     "request": "^2.73.0",
     "request-promise": "^4.1.1",
     "string": "^3.3.3",
-    "tmi.js": "^1.1.1"
+    "tmi.js": "^1.1.1",
+    "snyk": "^1.319.0"
   },
   "scripts": {
     "start": "node app",
     "debug": "set NODE_ENV=debug&&export NODE_ENV=debug&&node app",
-    "test": "./node_modules/.bin/mocha --reporter spec test"
+    "test": "./node_modules/.bin/mocha --reporter spec test",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^2.4.5"
-  }
+  },
+  "snyk": true
 }
